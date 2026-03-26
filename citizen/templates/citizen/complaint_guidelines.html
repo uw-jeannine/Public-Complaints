@@ -1,0 +1,652 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+    <link href="{% static 'assets/css/remixicon.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="{% static 'assets/images/favicon.png' %}" rel="icon" type="image/png" />
+    <title>Complaint Guidelines & Required Documents | LandConnect</title>
+    <style>
+        :root {
+            --irembo-blue: #0047bb;
+            --irembo-yellow: #ffc72c;
+            --bg-body: #f8fafc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Nunito Sans', sans-serif;
+            color: var(--text-dark);
+        }
+
+        .top-banner {
+            background-color: var(--irembo-yellow);
+            color: #000;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 7px 0;
+            text-align: center;
+        }
+
+        .main-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav-link-item {
+            font-weight: 600;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link-item:hover {
+            color: var(--irembo-blue);
+        }
+
+        /* Page Hero */
+        .page-hero {
+            background: linear-gradient(135deg, var(--irembo-blue) 0%, #002e7a 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .page-hero h1 {
+            font-weight: 800;
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .page-hero p {
+            font-size: 1rem;
+            opacity: 0.85;
+            max-width: 600px;
+            margin: 0 auto;
+            color: #ffffff;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-bar {
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 0;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb-bar a {
+            color: var(--irembo-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            padding: 36px;
+            margin-bottom: 24px;
+        }
+
+        .content-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .content-card-header .icon-box {
+            width: 48px;
+            height: 48px;
+            background: rgba(0, 71, 187, 0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--irembo-blue);
+            flex-shrink: 0;
+        }
+
+        .content-card-header h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--irembo-blue);
+            margin: 0;
+        }
+
+        /* Steps */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .step-list li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            background: var(--irembo-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            content: counter(step-counter);
+        }
+
+        .step-content h4 {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .step-content p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Document list */
+        .doc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .doc-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .doc-item:last-child {
+            border-bottom: none;
+        }
+
+        .doc-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 71, 187, 0.06);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--irembo-blue);
+            flex-shrink: 0;
+        }
+
+        .doc-info strong {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+        }
+
+        .doc-info span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .badge-required {
+            background: rgba(220, 38, 38, 0.1);
+            color: #dc2626;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+        }
+
+        .badge-optional {
+            background: rgba(0, 71, 187, 0.1);
+            color: var(--irembo-blue);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+        }
+
+        /* Alert box */
+        .info-box {
+            background: rgba(255, 199, 44, 0.15);
+            border-left: 4px solid var(--irembo-yellow);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        /* CTA bar */
+        .cta-bar {
+            background: linear-gradient(135deg, var(--irembo-blue), #002e7a);
+            border-radius: 16px;
+            padding: 36px;
+            text-align: center;
+            color: white;
+            margin-top: 12px;
+        }
+
+        .cta-bar h3 {
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .cta-bar p {
+            opacity: 0.85;
+            margin-bottom: 20px;
+        }
+
+        /* Lang */
+        #lang-en,
+        #lang-rw {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        #lang-en.active,
+        #lang-rw.active {
+            color: var(--irembo-blue);
+        }
+
+        footer {
+            background: #111827;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Banner -->
+    <div class="top-banner">
+        <span data-en="Complaint Guidelines & Required Documents"
+            data-rw="Amabwiriza yo Gutanga Ikibazo n'Inyandiko Zisabwa" class="text-white"
+            style="color: white !important;">
+            Complaint Guidelines &amp; Required Documents
+        </span>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <nav class="navbar navbar-expand-lg py-3">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'landing_page' %}">
+                    <img src="{% static 'assets/images/logo/logo.png' %}" style="height: 38px;" class="me-2" alt="Logo">
+                    <span class="fw-bold fs-20 text-primary">LANDCONNECT</span>
+                </a>
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <a href="{% url 'landing_page' %}" class="nav-link-item d-none d-md-inline" data-en="← Home"
+                        data-rw="← Ahabanza">← Home</a>
+                    <a href="{% url 'complaint_file' %}" class="btn btn-primary btn-sm px-3" style="color:white;"
+                        data-en="File a Complaint" data-rw="Tanga Ikibazo">File a Complaint</a>
+                    <span class="text-muted">|</span>
+                    <span id="lang-en" class="active" onclick="setLanguage('en')">EN</span>
+                    <span class="text-muted">|</span>
+                    <span id="lang-rw" onclick="setLanguage('rw')">RW</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Hero -->
+    <div class="page-hero">
+        <div class="container">
+            <h1 data-en="Complaint Guidelines &amp; Required Documents" data-rw="Amabwiriza n'Inyandiko Zisabwa">
+                Complaint Guidelines &amp; Required Documents
+            </h1>
+            <p data-en="Everything you need to know before filing a land-related complaint."
+                data-rw="Ibyo ugomba kumenya mbere yo gutanga ikibazo gishingiye ku butaka.">
+                Everything you need to know before filing a land-related complaint.
+            </p>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <div class="container d-flex align-items-center gap-2">
+            <a href="{% url 'landing_page' %}" data-en="Home" data-rw="Ahabanza">Home</a>
+            <i class="ri-arrow-right-s-line text-muted"></i>
+            <span class="text-muted" data-en="Guidelines" data-rw="Amabwiriza">Guidelines</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Guidelines Column -->
+            <div class="col-lg-7">
+                <!-- Info box -->
+                <div class="info-box">
+                    <p><i class="ri-information-line me-2"></i>
+                        <span
+                            data-en="Please read all guidelines carefully before submitting your complaint to ensure faster processing."
+                            data-rw="Nyamuneka soma amabwiriza yose neza mbere yo gutanga ikirego kugira ngo igeragezwe vuba.">
+                            Please read all guidelines carefully before submitting your complaint to ensure faster
+                            processing.
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Step-by-step guide -->
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <div class="icon-box"><i class="ri-list-check-2"></i></div>
+                        <h2 data-en="How to File a Complaint" data-rw="Uburyo bwo Gutanga Ikibazo">How to File a
+                            Complaint</h2>
+                    </div>
+                    <ul class="step-list">
+                        <li>
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h4 data-en="Gather Your Documents" data-rw="Teranya inyandiko zawe">Gather Your
+                                    Documents</h4>
+                                <p data-en="Before starting, make sure you have your National ID, UPI (parcel number), and any supporting evidence ready."
+                                    data-rw="Mbere yo gutangira, menya ko ufite indangamuntu yawe, UPI y'ubutaka, n'ibimenyetso bibifasha.">
+                                    Before starting, make sure you have your National ID, UPI (parcel number), and any
+                                    supporting evidence ready.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h4 data-en="Fill in Your Personal Details (Step 1)"
+                                    data-rw="Uzuza amakuru yawe bwite (Intambwe ya 1)">Fill in Your Personal Details
+                                    (Step 1)</h4>
+                                <p data-en="Provide your full name, gender, phone number, email, National ID, and residence information accurately."
+                                    data-rw="Tanga amazina yawe yuzuye, igitsina, telefoni, imeyili, indangamuntu, n'aho utuye neza.">
+                                    Provide your full name, gender, phone number, email, National ID, and residence
+                                    information accurately.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h4 data-en="Enter Land Information (Step 2)"
+                                    data-rw="Injiza amakuru y'ubutaka (Intambwe ya 2)">Enter Land Information (Step 2)
+                                </h4>
+                                <p data-en="Select the province and district of the land in question, then provide the sector, cell, and UPI (parcel number)."
+                                    data-rw="Hitamo intara n'akarere k'ubutaka buregwaho, hanyuma utange umurenge, akagari, na UPI.">
+                                    Select the province and district of the land in question, then provide the sector,
+                                    cell, and UPI (parcel number).</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <h4 data-en="Describe Your Complaint (Step 3)"
+                                    data-rw="Sobanura ikibazo cyawe (Intambwe ya 3)">Describe Your Complaint (Step 3)
+                                </h4>
+                                <p data-en="Choose the complaint category and write a clear, detailed description of your issue. Mention dates, people involved, and any previous attempts to resolve it."
+                                    data-rw="Hitamo icyiciro ky'ikibazo hanyuma usanure neza ikibazo cyawe. Vuga amatariki, abantu bireba, n'ibyageragejwe mbere.">
+                                    Choose the complaint category and write a clear, detailed description of your issue.
+                                    Mention dates, people involved, and any previous attempts to resolve it.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-num">5</div>
+                            <div class="step-content">
+                                <h4 data-en="Upload Supporting Documents" data-rw="Shyiraho inyandiko zishimangira">
+                                    Upload Supporting Documents</h4>
+                                <p data-en="Attach any relevant files (photos, PDFs etc.) that support your complaint. Max size: 5MB per file."
+                                    data-rw="Shyiraho dosiye zireshya ikirego (amafoto, PDF, na za dosiye). Ingano ntarengwa: 5MB.">
+                                    Attach any relevant files (photos, PDFs etc.) that support your complaint. Max size:
+                                    5MB per file.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-num">6</div>
+                            <div class="step-content">
+                                <h4 data-en="Submit & Save Your Tracking Number"
+                                    data-rw="Tanga ikirego maze ubike nimero yo gukurikirana">Submit &amp; Save Your
+                                    Tracking Number</h4>
+                                <p data-en="After submitting, you will receive a unique tracking number. Keep it safe to monitor your complaint's progress."
+                                    data-rw="Nyuma yo gutanga ikirego, uzahabwa nimero y'igiharuro. Ibike kugira ngo ukurikire aho ikibazo cyawe kigeze.">
+                                    After submitting, you will receive a unique tracking number. Keep it safe to monitor
+                                    your complaint's progress.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Rules & Policies -->
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <div class="icon-box"><i class="ri-shield-check-line"></i></div>
+                        <h2 data-en="Rules &amp; Policies" data-rw="Amategeko n'Amabwiriza">Rules &amp; Policies</h2>
+                    </div>
+                    <ul class="doc-list">
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-checkbox-circle-line"></i></div>
+                            <div class="doc-info">
+                                <strong data-en="One complaint per land parcel at a time"
+                                    data-rw="Ikibazo kimwe kuri parcel imwe buri gihe">One complaint per land parcel at
+                                    a time</strong>
+                                <span data-en="You may not submit multiple overlapping complaints for the same parcel."
+                                    data-rw="Ntushobora gutanga ibibazo bitandukanye ku butaka bumwe mu gihe kimwe.">You
+                                    may not submit multiple overlapping complaints for the same parcel.</span>
+                            </div>
+                        </li>
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-checkbox-circle-line"></i></div>
+                            <div class="doc-info">
+                                <strong data-en="Truthful and accurate information"
+                                    data-rw="Amakuru y'ukuri n'akabuye">Truthful and accurate information</strong>
+                                <span
+                                    data-en="Providing false information may result in your complaint being dismissed."
+                                    data-rw="Gutanga amakuru y'ibinyoma bishobora gutuma ikibazo cyawe kirekezwa.">Providing
+                                    false information may result in your complaint being dismissed.</span>
+                            </div>
+                        </li>
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-checkbox-circle-line"></i></div>
+                            <div class="doc-info">
+                                <strong data-en="Processing time: 30 working days"
+                                    data-rw="Igihe cyo gusesengura: Iminsi mirongo itatu y'akazi">Processing time: 30
+                                    working days</strong>
+                                <span data-en="Complaints are reviewed within 30 working days from submission."
+                                    data-rw="Ibibazo bisuzumwa mu minsi mirongo itatu y'akazi uhereye igihe byatanzwe.">Complaints
+                                    are reviewed within 30 working days from submission.</span>
+                            </div>
+                        </li>
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-checkbox-circle-line"></i></div>
+                            <div class="doc-info">
+                                <strong data-en="You will be notified of progress"
+                                    data-rw="Uzamenyeshwa aho ikibazo kigeze">You will be notified of progress</strong>
+                                <span data-en="Updates will be sent via SMS or email to the contact you provided."
+                                    data-rw="Amakuru azatumwa kuri telefoni cyangwa imeyili watanze.">Updates will be
+                                    sent via SMS or email to the contact you provided.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Documents Column -->
+            <div class="col-lg-5">
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <div class="icon-box"><i class="ri-folder-open-line"></i></div>
+                        <h2 data-en="Required Documents" data-rw="Inyandiko Zisabwa">Required Documents</h2>
+                    </div>
+
+                    <p class="text-muted small mb-3" data-en="Prepare these documents before starting the form."
+                        data-rw="Tegura izi nyandiko mbere yo gutangira inyandiko.">Prepare these documents before
+                        starting the form.</p>
+
+                    <ul class="doc-list">
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-id-card-line"></i></div>
+                            <div class="doc-info">
+                                <strong>
+                                    <span data-en="National ID or Passport"
+                                        data-rw="Indangamuntu cyangwa Pasiporo">National ID or Passport</span>
+                                    <span class="badge-required">Required</span>
+                                </strong>
+                                <span data-en="A valid government-issued ID for identity verification."
+                                    data-rw="Indangamuntu ya leta irafasha kugaragaza uburemere bwawe.">A valid
+                                    government-issued ID for identity verification.</span>
+                            </div>
+                        </li>
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-map-2-line"></i></div>
+                            <div class="doc-info">
+                                <strong>
+                                    <span data-en="Land UPI (Parcel Number)"
+                                        data-rw="UPI y'Ubutaka (Nimero ya Parcel)">Land UPI (Parcel Number)</span>
+                                    <span class="badge-required">Required</span>
+                                </strong>
+                                <span
+                                    data-en="The Unique Parcel Identifier of the land in question (format: 1/03/08/04/XXXX)."
+                                    data-rw="Nimero y'igiharuro y'ubutaka buregwaho (imiterere: 1/03/08/04/XXXX).">The
+                                    Unique Parcel Identifier of the land in question (format: 1/03/08/04/XXXX).</span>
+                            </div>
+                        </li>
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-file-paper-2-line"></i></div>
+                            <div class="doc-info">
+                                <strong>
+                                    <span data-en="Land Title Document" data-rw="Inyandiko y'Ubutaka (Titre)">Land Title
+                                        Document</span>
+                                    <span class="badge-optional">Optional</span>
+                                </strong>
+                                <span
+                                    data-en="A scanned copy of your land title or ownership certificate, if available."
+                                    data-rw="Inyandiko y'ubuyobozi by'ubutaka cyangwa impamyabwisanzure, niba ihari.">A
+                                    scanned copy of your land title or ownership certificate, if available.</span>
+                            </div>
+                        </li>
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-image-line"></i></div>
+                            <div class="doc-info">
+                                <strong>
+                                    <span data-en="Photos / Evidence" data-rw="Amafoto / Ibimenyetso">Photos /
+                                        Evidence</span>
+                                    <span class="badge-optional">Optional</span>
+                                </strong>
+                                <span
+                                    data-en="Photos of the land or any physical evidence related to the dispute (JPG or PNG, max 5MB)."
+                                    data-rw="Amafoto y'ubutaka cyangwa ibimenyetso birebana n'ikibazo (JPG cyangwa PNG, ntarengwa 5MB).">Photos
+                                    of the land or any physical evidence related to the dispute (JPG or PNG, max
+                                    5MB).</span>
+                            </div>
+                        </li>
+                        <li class="doc-item">
+                            <div class="doc-icon"><i class="ri-file-pdf-line"></i></div>
+                            <div class="doc-info">
+                                <strong>
+                                    <span data-en="Previous Correspondence (if any)"
+                                        data-rw="Inyandiko z'ibibyarwa by'mbere (niba zihari)">Previous Correspondence
+                                        (if any)</span>
+                                    <span class="badge-optional">Optional</span>
+                                </strong>
+                                <span
+                                    data-en="Letters, receipts or decisions from other institutions you previously contacted about this matter."
+                                    data-rw="Inyandiko, indangamushahara cyangwa ingingo z'izindi nzego wabanye nazo mbere.">Letters,
+                                    receipts or decisions from other institutions you previously contacted about this
+                                    matter.</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="mt-4 p-3 rounded" style="background:#f8fafc; border: 1px dashed #e2e8f0;">
+                        <p class="small text-muted mb-0">
+                            <i class="ri-information-line me-1 text-primary"></i>
+                            <span data-en="Accepted formats: PDF, PNG, JPG. Maximum file size: 5MB."
+                                data-rw="Imiterere yemewe: PDF, PNG, JPG. Ingano ntarengwa: 5MB.">Accepted formats: PDF,
+                                PNG, JPG. Maximum file size: 5MB.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="cta-bar">
+                    <h3 data-en="Ready to file?" data-rw="Witeguye gutanga ikirego?">Ready to file?</h3>
+                    <p data-en="Once you've gathered all the required documents, go ahead and start your complaint."
+                        data-rw="Nubwo ufite inyandiko zose zisabwa, tangira gutanga ikirego cyawe.">Once you've
+                        gathered all the required documents, go ahead and start your complaint.</p>
+                    <a href="{% url 'complaint_file' %}" class="btn btn-light fw-bold px-5 py-3"
+                        style="color: var(--irembo-blue);" data-en="Start Filing Now →" data-rw="Tangira Vuba →">Start
+                        Filing Now →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4">
+        <p class="mb-0 text-muted small">© 2024 Rwanda National Land Authority. All rights reserved.</p>
+    </footer>
+
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        function applyLanguage(lang) {
+            document.querySelectorAll('[data-en]').forEach(function (el) {
+                el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
+            });
+            document.querySelectorAll('#lang-en, #lang-rw').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('lang-' + lang);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        window.setLanguage = function (lang) {
+            localStorage.setItem('lang', lang);
+            applyLanguage(lang);
+        };
+
+        applyLanguage(localStorage.getItem('lang') || 'en');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complaint Details - {{ complaint.tracking_number }}{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0">
+            <span data-en="Review Complaint: {{ complaint.tracking_number }}"
+                data-rw="Suzuma Ikibazo: {{ complaint.tracking_number }}">Review Complaint: {{ complaint.tracking_number
+                }}</span>
+            {% if complaint.is_appeal %}
+            <span class="badge bg-danger ms-2 fs-14" data-en="APPEAL" data-rw="UBURURANE">APPEAL</span>
+            {% endif %}
+        </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'admin_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a class="text-decoration-none text-body fs-14" href="{% url 'admin_complaints_list' %}"
+                        data-en="Complaints" data-rw="Ibibazo">Complaints</a>
+                </li>
+                <li class="breadcrumb-item active" data-en="Detail View" data-rw="Ibisobanuro">Detail View</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- message -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Details Column -->
+        <div class="col-lg-8">
+            <div class="card bg-white rounded-10 border-0 mb-4 shadow-sm">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Complaint Information"
+                            data-rw="Amakuru y'Ikibazo">Complaint Information</h4>
+                        <span class="badge 
+                            {% if complaint.status == 'pending' %}bg-warning-subtle text-warning
+                            {% elif complaint.status == 'in_progress' %}bg-primary-subtle text-primary
+                            {% elif complaint.status == 'resolved' %}bg-success-subtle text-success
+                            {% else %}bg-danger-subtle text-danger{% endif %} px-3 py-2">
+                            {{ complaint.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Tracking Number"
+                                data-rw="Nimero">Tracking Number</label>
+                            <p class="fs-16 fw-bold mb-0 text-dark">{{ complaint.tracking_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Date Submitted"
+                                data-rw="Itariki">Date Submitted</label>
+                            <p class="fs-16 mb-0">{{ complaint.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Category"
+                                data-rw="Icyiciro">Category</label>
+                            <p class="fs-16 mb-0">{{ complaint.category.name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="UPI / Land Identification"
+                                data-rw="UPI y'Ubutaka">UPI / Land Identification</label>
+                            <p class="fs-16 mb-0 text-primary fw-semibold">{{ complaint.upi }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Land Location"
+                                data-rw="Aho Ubutaka Buherereye">Land Location</label>
+                            <p class="fs-16 mb-0">{{ complaint.land_province.name }}, {{ complaint.land_district.name
+                                }}, {{ complaint.land_sector }}, {{ complaint.land_cell }}</p>
+                        </div>
+
+                        <div class="col-12 border-top pt-4">
+                            <h5 class="fs-16 fw-bold mb-3" data-en="Description" data-rw="Ibisobanuro Nomore">
+                                Description</h5>
+                            <div class="p-3 bg-light rounded-3">
+                                <p class="mb-0 fs-15 lh-base">{{ complaint.description }}</p>
+                            </div>
+                        </div>
+
+                        {% if complaint.attachment %}
+                        <div class="col-12 border-top pt-4">
+                            <h5 class="fs-16 fw-bold mb-3" data-en="Supporting Documents"
+                                data-rw="Inyandiko Ziwerekeye">Supporting Documents</h5>
+                            <div class="d-flex align-items-center p-3 border rounded-3 bg-white">
+                                <i class="ri-file-text-line fs-24 text-primary me-3"></i>
+                                <div class="flex-grow-1">
+                                    <p class="mb-0 fw-semibold">{{
+                                        complaint.attachment.name|cut:"complaint_attachments/" }}</p>
+                                    <small class="text-muted" data-en="Click to download"
+                                        data-rw="Kanda ubimanure">Click to download</small>
+                                </div>
+                                <a href="{{ complaint.attachment.url }}" class="btn btn-outline-primary btn-sm"
+                                    target="_blank">
+                                    <i class="ri-download-2-line"></i> Download
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lifecycle & Assignment Section -->
+            <div class="card bg-white rounded-10 border-0 mb-4 shadow-sm">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Lifecycle & Assignment"
+                        data-rw="Imiterere n'Ushinzwe">Lifecycle & Assignment</h4>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Submitted On"
+                                data-rw="Yatanzwe ku">Submitted On</label>
+                            <p class="fs-16 mb-0">{{ complaint.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Assigned To"
+                                data-rw="Ushinzwe">Assigned To</label>
+                            <p class="fs-16 mb-0">{% if complaint.assigned_to %}{{ complaint.assigned_to.full_name }}{%
+                                else %}<span class="text-muted italic">Unassigned</span>{% endif %}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Assigned At"
+                                data-rw="Yashinzwe ku">Assigned At</label>
+                            <p class="fs-16 mb-0">{% if complaint.assigned_at %}{{ complaint.assigned_at|date:"M d, Y
+                                H:i" }}{% else %}-{% endif %}</p>
+                        </div>
+                        {% if complaint.status == 'resolved' or complaint.status == 'rejected' %}
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Completed At"
+                                data-rw="Yarangiye ku">Completed At</label>
+                            <p class="fs-16 mb-0">{{ complaint.resolved_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-12">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Resolution Details"
+                                data-rw="Ibyavuyemo">Resolution Details</label>
+                            <p class="fs-15 mb-0 bg-light p-2 rounded">{{ complaint.resolution_details|default:"No
+                                details provided." }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline & Activity Section -->
+            <div class="card bg-white rounded-10 border-0 mb-4 shadow-sm">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Activity Log & Reports"
+                        data-rw="Ibikorwa n'Iraporo">Activity Log & Reports</h4>
+                </div>
+                <div class="card-body p-3">
+                    {% if reports or assignments %}
+                    <div class="timeline-v2">
+                        {% for report in reports %}
+                        <div class="timeline-item mb-4 border-start ps-4 position-relative">
+                            <div class="timeline-dot position-absolute start-0 translate-middle-x bg-primary rounded-circle"
+                                style="width: 12px; height: 12px; top: 8px;"></div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-primary-subtle text-primary" data-en="Office Report"
+                                    data-rw="Iraporo y'Ibiro">Office Report</span>
+                                <small class="text-muted">{{ report.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ report.office.name|default:"General Admin" }}</h6>
+                            <p class="mb-2 text-dark">{{ report.action_taken }}</p>
+                            {% if report.document %}
+                            <a href="{{ report.document.url }}" class="btn btn-sm btn-light border text-primary"
+                                target="_blank">
+                                <i class="ri-file-download-line"></i> View Document
+                            </a>
+                            {% endif %}
+                            <div class="mt-1"><small class="text-muted">By {{ report.author.full_name }}</small></div>
+                        </div>
+                        {% endfor %}
+
+                        {% for assign in assignments %}
+                        <div class="timeline-item mb-4 border-start ps-4 position-relative">
+                            <div class="timeline-dot position-absolute start-0 translate-middle-x bg-secondary rounded-circle"
+                                style="width: 10px; height: 10px; top: 8px;"></div>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-secondary-subtle text-secondary" data-en="Assignment"
+                                    data-rw="Ihererekanya">Assignment</span>
+                                <small class="text-muted">{{ assign.assigned_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                            <p class="mb-1">
+                                Assigned to
+                                <strong>
+                                    {% if assign.office %}{{ assign.office.name }}{% else %}{{ assign.user.full_name
+                                    }}{% endif %}
+                                </strong>
+                            </p>
+                            {% if assign.notes %}
+                            <p class="mb-0 small text-muted"><em>"{{ assign.notes }}"</em></p>
+                            {% endif %}
+                            <div class="mt-1"><small class="text-muted italic">Assigned by {{
+                                    assign.assigned_by.full_name }}</small></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-4 mb-0" data-en="No activity reported yet."
+                        data-rw="Nta gikorwa cyatanzwe.">No activity reported yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Complainant Section -->
+            <div class="card bg-white rounded-10 border-0 mb-4 shadow-sm">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Complainant Details"
+                        data-rw="Amakuru y'Uwayitunze">Complainant Details</h4>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Full Name"
+                                data-rw="Amazina">Full Name</label>
+                            <p class="fs-16 fw-semibold mb-0">{{ complaint.full_name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="National ID"
+                                data-rw="Indangamuntu">National ID</label>
+                            <p class="fs-16 mb-0">{{ complaint.national_id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Phone Number"
+                                data-rw="Telefoni">Phone Number</label>
+                            <p class="fs-16 mb-0">{{ complaint.phone_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Email Address"
+                                data-rw="Imeyili">Email Address</label>
+                            <p class="fs-16 mb-0">{{ complaint.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Linked Account"
+                                data-rw="Konti">Linked Account</label>
+                            <p class="fs-16 mb-0">
+                                {% if complaint.citizen %}
+                                <span class="text-primary fw-bold">{{ complaint.citizen.username }}</span> (Citizen)
+                                {% else %}
+                                <span class="text-muted italic">Guest / Unlinked</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Actions -->
+        <div class="col-lg-4">
+            <!-- ML Risk Analysis Card -->
+            <div class="card bg-white rounded-10 border-0 mb-4 shadow-sm overflow-hidden">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Escalation Risk Analysis"
+                        data-rw="Isesengura ry'Icyihutirwa">
+                        Escalation Risk Analysis
+                    </h4>
+                </div>
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-0 fs-16 fw-bold">
+                                {% if complaint.risk_score > 0.7 %}
+                                <span class="text-danger"><i class="ri-fire-fill"></i> High Risk</span>
+                                {% elif complaint.risk_score > 0.4 %}
+                                <span class="text-warning"><i class="ri-alert-line"></i> Medium Risk</span>
+                                {% else %}
+                                <span class="text-success"><i class="ri-check-line"></i> Low Risk</span>
+                                {% endif %}
+                            </h5>
+                            <p class="text-muted small mb-0" data-en="Based on Logistic Regression"
+                                data-rw="Bishingiye ku mibare">Based on Logistic Regression</p>
+                        </div>
+                        <div class="text-end">
+                            <h3
+                                class="mb-0 fw-bold {% if complaint.risk_score > 0.7 %}text-danger{% elif complaint.risk_score > 0.4 %}text-warning{% else %}text-success{% endif %}">
+                                {{ complaint.risk_percentage }}%
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 8px;">
+                        <div class="progress-bar {% if complaint.risk_score > 0.7 %}bg-danger{% elif complaint.risk_score > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
+                            role="progressbar" style="width: {{ complaint.risk_percentage }}%"
+                            aria-valuenow="{{ complaint.risk_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+
+                    <div class="bg-light p-2 rounded-3 small">
+                        <p class="mb-1"><i class="ri-information-line me-1"></i> <strong data-en="Key Factors:"
+                                data-rw="Ibishingirwaho:">Key Factors:</strong></p>
+                        <ul class="mb-0 ps-3">
+                            <li data-en="Complaint Category" data-rw="Icyiciro cy'ikibazo">Complaint Category</li>
+                            <li data-en="Processing time relative to avg" data-rw="Igihe bimaze">Processing time</li>
+                            <li data-en="Regional escalation patterns" data-rw="Imiterere y'akarere">Regional patterns
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-white rounded-10 border-0 mb-4 shadow-sm">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Action Center" data-rw="Kwemutsa Ikibazo">
+                        Action Center</h4>
+                </div>
+                <div class="card-body p-3">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_status">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" data-en="Update Status" data-rw="Hindura Imiterere">Update
+                                Status</label>
+                            <select name="status" class="form-select border-primary-subtle">
+                                <option value="pending" {% if complaint.status=='pending' %}selected{% endif %}>Pending
+                                </option>
+                                <option value="in_progress" {% if complaint.status=='in_progress' %}selected{% endif %}>
+                                    In Progress</option>
+                                <option value="resolved" {% if complaint.status=='resolved' %}selected{% endif %}>
+                                    Resolved</option>
+                                <option value="rejected" {% if complaint.status=='rejected' %}selected{% endif %}>
+                                    Rejected</option>
+                            </select>
+                        </div>
+                        <button type="submit"
+                            class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center"
+                            data-en="Save Changes" data-rw="Bika Izere">
+                            <i class="ri-save-line me-2"></i> Save Changes
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <!-- Assign Office Form -->
+                    <form method="POST" class="mb-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="assign_office">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" data-en="Assign to Office"
+                                data-rw="Ohereza mu Biro">Assign to Office</label>
+                            <select name="office_id" class="form-select border-primary-subtle">
+                                <option value="">-- Select Office --</option>
+                                {% for off in offices %}
+                                <option value="{{ off.pk }}" {% if complaint.assigned_office_id==off.pk %}selected{%
+                                    endif %}>{{ off.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" data-en="Assignment Notes" data-rw="Ibisobanuro">Notes
+                                (Optional)</label>
+                            <textarea name="notes" class="form-control border-primary-subtle" rows="2"></textarea>
+                        </div>
+                        <button type="submit"
+                            class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
+                            data-en="Assign Office" data-rw="Ohereza">
+                            <i class="ri-building-line me-2"></i> Assign Office
+                        </button>
+                    </form>
+
+                    <!-- Assign Staff Form -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="assign_user">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" data-en="Assign to Staff"
+                                data-rw="Ohereza ku Mukozi">Assign to Staff</label>
+                            <select name="user_id" class="form-select border-primary-subtle">
+                                <option value="">-- Select Staff --</option>
+                                {% for u in staff_users %}
+                                <option value="{{ u.pk }}" {% if complaint.assigned_to_id==u.pk %}selected{% endif %}>{{
+                                    u.full_name }} ({{ u.get_user_type_display }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit"
+                            class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
+                            data-en="Assign Staff" data-rw="Ohereza">
+                            <i class="ri-user-received-line me-2"></i> Assign Staff
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <button
+                        class="btn btn-outline-secondary w-100 py-2 d-flex align-items-center justify-content-center"
+                        onclick="window.print()">
+                        <i class="ri-printer-line me-2"></i> <span data-en="Print Summary" data-rw="Sohora">Print
+                            Summary</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

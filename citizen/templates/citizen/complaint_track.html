@@ -1,0 +1,437 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Track Complaint{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --irembo-blue: #0047bb;
+        --irembo-yellow: #ffc72c;
+        --bg-body: #f8fafc;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+    }
+
+    /* Page Hero - Only show in public mode if we want, but let's keep it for context */
+    .page-hero {
+        background: linear-gradient(135deg, var(--irembo-blue) 0%, #002e7a 100%);
+        color: white;
+        padding: 40px 0;
+        text-align: center;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .page-hero h1 {
+        font-weight: 800;
+        font-size: 1.65rem;
+        margin-bottom: 8px;
+        color: white !important;
+    }
+
+    .page-hero p {
+        font-size: 0.9rem;
+        opacity: 0.85;
+        margin: 0;
+    }
+
+    /* Search card */
+    .search-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        padding: 30px;
+    }
+
+    .form-control-lg {
+        border-radius: 10px;
+        border-color: var(--border-color);
+        font-size: 0.95rem;
+        padding: 12px 18px;
+    }
+
+    .form-control-lg:focus {
+        border-color: var(--irembo-blue);
+        box-shadow: 0 0 0 4px rgba(0, 71, 187, 0.1);
+    }
+
+    /* Result card */
+    .result-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-top: 24px;
+    }
+
+    .result-card-header {
+        background: linear-gradient(135deg, var(--irembo-blue), #003499);
+        color: white;
+        padding: 20px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .result-card-header h4 {
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin: 0;
+        color: white !important;
+    }
+
+    .result-card-header p {
+        margin: 4px 0 0;
+        opacity: 0.8;
+        font-size: 0.875rem;
+    }
+
+    .result-card-body {
+        padding: 30px;
+    }
+
+    /* Status badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.8rem;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        border: 1.5px solid transparent;
+    }
+
+    .badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .badge-pending {
+        background: rgba(234, 179, 8, 0.15);
+        color: #d97706;
+        border-color: rgba(234, 179, 8, 0.4);
+    }
+
+    .badge-pending .badge-dot {
+        background: #d97706;
+        animation: pulse-yellow 1.8s infinite;
+    }
+
+    .badge-in_progress {
+        background: rgba(0, 71, 187, 0.12);
+        color: var(--irembo-blue);
+        border-color: rgba(0, 71, 187, 0.35);
+    }
+
+    .badge-in_progress .badge-dot {
+        background: var(--irembo-blue);
+        animation: pulse-blue 1.8s infinite;
+    }
+
+    .badge-resolved {
+        background: rgba(22, 163, 74, 0.12);
+        color: #15803d;
+        border-color: rgba(22, 163, 74, 0.35);
+    }
+
+    .badge-resolved .badge-dot {
+        background: #16a34a;
+    }
+
+    .badge-rejected {
+        background: rgba(220, 38, 38, 0.12);
+        color: #b91c1c;
+        border-color: rgba(220, 38, 38, 0.35);
+    }
+
+    .badge-rejected .badge-dot {
+        background: #dc2626;
+    }
+
+    @keyframes pulse-yellow {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.5);
+        }
+
+        50% {
+            box-shadow: 0 0 0 5px rgba(217, 119, 6, 0);
+        }
+    }
+
+    @keyframes pulse-blue {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(0, 71, 187, 0.5);
+        }
+
+        50% {
+            box-shadow: 0 0 0 5px rgba(0, 71, 187, 0);
+        }
+    }
+
+    .info-label {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    /* Timeline */
+    .timeline {
+        position: relative;
+    }
+
+    .timeline-item {
+        display: flex;
+        gap: 16px;
+        padding-bottom: 24px;
+        position: relative;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 19px;
+        top: 38px;
+        bottom: 0;
+        width: 2px;
+        background: #f1f5f9;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-item:last-child::before {
+        display: none;
+    }
+
+    .timeline-dot {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 18px;
+    }
+
+    .timeline-dot.active {
+        background: rgba(0, 71, 187, 0.1);
+        color: var(--irembo-blue);
+    }
+
+    .timeline-dot.muted {
+        background: #f1f5f9;
+        color: #cbd5e1;
+    }
+
+    .timeline-content h6 {
+        font-weight: 700;
+        margin-bottom: 3px;
+        font-size: 0.92rem;
+    }
+
+    .timeline-content p {
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    .not-found {
+        text-align: center;
+        padding: 40px 0;
+    }
+
+    .not-found .icon-ring {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: rgba(0, 71, 187, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 32px;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden p-4">
+    <!-- Optional Hero for context -->
+    <div class="page-hero mb-4">
+        <div class="container">
+            <h1 data-en="Track Complaint Status" data-rw="Kurikirana Aho Ikibazo Kigeze">Track Complaint Status</h1>
+            <p data-en="Enter your tracking number to view the current status of your complaint."
+                data-rw="Injiza nimero yo gukurikirana kugira ngo urebe aho ikibazo cyawe kigeze.">
+                Enter your tracking number to view the current status of your complaint.
+            </p>
+        </div>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Search Card -->
+        <div class="search-card">
+            <p class="fw-700 mb-2 text-primary" data-en="Enter Tracking Number" data-rw="Injiza Nimero yo Gukurikirana">
+                Enter Tracking Number</p>
+            <form method="GET">
+                <div class="input-group">
+                    <input type="text" name="tracking_number" class="form-control form-control-lg"
+                        placeholder="LC-2024-XXXXXX" value="{{ request.GET.tracking_number|default:'' }}" required>
+                    <button class="btn btn-primary px-4 fw-700" type="submit" data-en="Search" data-rw="Shaka"
+                        style="color: white !important;">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Django messages -->
+        {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Complaint Result -->
+        {% if complaint %}
+        <div class="result-card">
+            <div class="result-card-header">
+                <div>
+                    <h4>{{ complaint.tracking_number }}</h4>
+                    <p>{{ complaint.category.name }}</p>
+                </div>
+                <div>
+                    {% if complaint.status == 'pending' %}
+                    <span class="status-badge badge-pending">
+                        <span class="badge-dot"></span>
+                        <i class="ri-time-line"></i>
+                        <span data-en="Pending" data-rw="Birasuzumwa">Pending</span>
+                    </span>
+                    {% elif complaint.status == 'in_progress' %}
+                    <span class="status-badge badge-in_progress">
+                        <span class="badge-dot"></span>
+                        <i class="ri-loader-4-line"></i>
+                        <span data-en="In Progress" data-rw="Birimo gukorwa">In Progress</span>
+                    </span>
+                    {% elif complaint.status == 'resolved' %}
+                    <span class="status-badge badge-resolved">
+                        <span class="badge-dot"></span>
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span data-en="Resolved" data-rw="Byakemuwe">Resolved</span>
+                    </span>
+                    {% else %}
+                    <span class="status-badge badge-rejected">
+                        <span class="badge-dot"></span>
+                        <i class="ri-close-circle-line"></i>
+                        <span data-en="Rejected" data-rw="Byanzwe">Rejected</span>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="result-card-body">
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <p class="info-label" data-en="Complainant" data-rw="Utanga Ikibazo">Complainant</p>
+                        <p class="info-value mb-0">{{ complaint.full_name }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="info-label" data-en="Submitted On" data-rw="Itariki Cyatangiwe">Submitted On</p>
+                        <p class="info-value mb-0">{{ complaint.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="info-label" data-en="Category" data-rw="Icyiciro">Category</p>
+                        <p class="info-value mb-0">{{ complaint.category.name }}</p>
+                    </div>
+                    <div class="col-12">
+                        <p class="info-label" data-en="Description" data-rw="Ibisobanuro">Description</p>
+                        <p class="text-muted mb-0 small" style="line-height:1.7;">{{ complaint.description }}</p>
+                    </div>
+                </div>
+
+                <div class="border-top pt-4">
+                    <h6 class="fw-800 mb-4 text-primary" data-en="Progress Timeline" data-rw="Inzira y'Ikibazo">Progress
+                        Timeline</h6>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot active"><i class="ri-checkbox-circle-fill"></i></div>
+                            <div class="timeline-content">
+                                <h6 data-en="Complaint Received" data-rw="Ikibazo Cyakirwe">Complaint Received</h6>
+                                <p>{{ complaint.created_at|date:"M d, Y H:i" }}</p>
+                                <p class="mt-1" data-en="Your complaint has been successfully recorded."
+                                    data-rw="Ikibazo cyawe cyanditswe neza.">Your complaint has been successfully
+                                    recorded.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div
+                                class="timeline-dot {% if complaint.status != 'pending' %}active{% else %}muted{% endif %}">
+                                <i class="ri-search-eye-line"></i></div>
+                            <div class="timeline-content">
+                                <h6 data-en="Under Review" data-rw="Gusuzumwa">Under Review</h6>
+                                <p data-en="Our team is reviewing your complaint."
+                                    data-rw="Itsinda ryacu risuzuma ikibazo cyawe.">Our team is reviewing your
+                                    complaint.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div
+                                class="timeline-dot {% if complaint.status == 'resolved' or complaint.status == 'rejected' %}active{% else %}muted{% endif %}">
+                                <i class="ri-shield-check-line"></i></div>
+                            <div class="timeline-content">
+                                <h6 data-en="Decision Made" data-rw="Icyemezo Gifashwe">Decision Made</h6>
+                                <p data-en="A final decision will be communicated to you."
+                                    data-rw="Icyemezo cy'imperuka kizabamenyeshwa.">A final decision will be
+                                    communicated to you.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif request.GET.tracking_number %}
+        <div class="search-card mt-5">
+            <div class="not-found">
+                <div class="icon-ring"><i class="ri-search-line"></i></div>
+                <h5 class="fw-800 mb-2" data-en="No Complaint Found" data-rw="Nta Kibazo Kibonetse">No Complaint Found
+                </h5>
+                <p class="text-muted" data-en="No results found for this tracking number. Please check and try again."
+                    data-rw="Nta gisubizo kibonetse kuri iyi nimero.">No results found for this tracking number.</p>
+                <a href="{% url 'complaint_file' %}" class="btn btn-primary px-4 py-2 mt-2"
+                    style="color:white !important;" data-en="File a New Complaint" data-rw="Tanga Ikibazo Gishya">File a
+                    New Complaint</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

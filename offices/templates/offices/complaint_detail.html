@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Case Details | {{ complaint.tracking_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #0f79f3 0%, #00d2ff 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    }
+
+    .badge-appeal-large {
+        background: #fee2e2;
+        color: #ef4444;
+        font-weight: 800;
+        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        animation: pulse 2s infinite;
+        vertical-align: middle;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+
+        70% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+        }
+
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+    }
+
+    .btn-gradient-primary {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        font-weight: 700;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(15, 121, 243, 0.2);
+    }
+
+    .btn-gradient-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15, 121, 243, 0.3);
+        color: white;
+    }
+
+    .btn-gradient-success {
+        background: var(--success-gradient);
+        border: none;
+        color: white;
+        font-weight: 700;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-gradient-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    .info-card {
+        border: 1px solid rgba(226, 232, 240, 0.6) !important;
+        transition: border-color 0.2s;
+    }
+
+    .info-card:hover {
+        border-color: #cbd5e1 !important;
+    }
+
+    .glass-form-card {
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .form-label-premium {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #475569;
+        margin-bottom: 8px;
+    }
+
+    .form-control-premium {
+        border: 1.5px solid #f1f5f9 !important;
+        background: #f8fafc !important;
+        border-radius: 10px !important;
+        transition: all 0.2s;
+    }
+
+    .form-control-premium:focus {
+        background: #fff !important;
+        border-color: #0f79f3 !important;
+        box-shadow: 0 0 0 4px rgba(15, 121, 243, 0.1) !important;
+    }
+
+    .bg-gradient-blue-light {
+        background: linear-gradient(to bottom right, rgba(15, 121, 243, 0.05), rgba(0, 210, 255, 0.05));
+    }
+
+    .bg-gradient-green-light {
+        background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.05), rgba(52, 211, 153, 0.05));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0" data-en="Case File: {{ complaint.tracking_number }}"
+            data-rw="Ikibazo: {{ complaint.tracking_number }}">
+            Case File: {{ complaint.tracking_number }}
+            {% if complaint.is_appeal %}
+            <span class="badge-appeal-large ms-2">APPEAL CASE</span>
+            {% endif %}
+        </h3>
+        <a href="{% url 'office_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="ri-arrow-left-line"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- message  -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-lg-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <!-- Case Information -->
+        <div class="col-lg-7">
+            <div class="card bg-white border-0 shadow-sm rounded-10 mb-4">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Complaint Overview"
+                        data-rw="Incamake y'Ikibazo">Complaint Overview</h4>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold">Complainant</label>
+                            <p class="fs-16 fw-semibold mb-0">{{ complaint.full_name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold">National ID</label>
+                            <p class="fs-16 mb-0">{{ complaint.national_id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold">Status</label>
+                            <p class="mb-0">
+                                {% if complaint.status == 'pending' %}
+                                <span class="badge bg-warning text-dark px-3 mt-1">Pending Review</span>
+                                {% elif complaint.status == 'in_progress' %}
+                                <span class="badge bg-info text-dark px-3 mt-1">In Progress</span>
+                                {% elif complaint.status == 'resolved' %}
+                                <span class="badge bg-success text-white px-3 mt-1">Resolved</span>
+                                {% else %}
+                                <span class="badge bg-danger text-white px-3 mt-1">Rejected</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold">UPI (Land ID)</label>
+                            <p class="fs-16 mb-0">{{ complaint.upi|default:"N/A" }}</p>
+                        </div>
+                    </div>
+
+                    <label class="text-muted small text-uppercase fw-bold">Description</label>
+                    <div class="p-3 bg-light rounded-2 mt-2">
+                        <p class="mb-0 fs-15 text-dark lh-base">{{ complaint.description }}</p>
+                    </div>
+
+                    {% if complaint.attachment %}
+                    <div class="mt-4">
+                        <label class="text-muted small text-uppercase fw-bold d-block mb-2">Original Attachment</label>
+                        <a href="{{ complaint.attachment.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="ri-attachment-line"></i> View Supporting Document
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Existing Reports -->
+            <div class="card bg-white border-0 shadow-sm rounded-10">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Your Office Activity"
+                        data-rw="Ibikorwa by'Ibiro">Your Office Activity</h4>
+                </div>
+                <div class="card-body p-3">
+                    {% if reports %}
+                    <div class="list-group list-group-flush">
+                        {% for report in reports %}
+                        <div class="list-group-item px-0 py-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0 fw-bold">Reported by {{ report.author.full_name }}</h6>
+                                <small class="text-muted">{{ report.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                            <p class="mb-2 text-dark">{{ report.action_taken }}</p>
+                            {% if report.document %}
+                            <a href="{{ report.document.url }}" class="btn btn-sm btn-light border text-primary"
+                                target="_blank">
+                                <i class="ri-file-download-line"></i> Download Attached Document
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-4 mb-0">No reports submitted by your office yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Submission Form (Sidebar) -->
+        <div class="col-lg-5">
+            <div class="card glass-form-card bg-gradient-blue-light border-0 rounded-12 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-2 fw-bold text-primary" data-en="Submit Progress Report"
+                        data-rw="Tanga Iraporo y'Igikorwa">Submit Progress Report</h4>
+                    <p class="text-muted smaller mb-4" style="line-height: 1.5;">Document the latest steps taken or
+                        upload technical files related to this case.</p>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="submit_report">
+
+                        <div class="mb-3">
+                            <label class="form-label form-label-premium fw-bold" data-en="Action Taken"
+                                data-rw="Igikorwa cyakozwe">Action
+                                Taken</label>
+                            <textarea name="action_taken" class="form-control form-control-premium" rows="5"
+                                placeholder="Describe investigations or decisions..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label form-label-premium fw-bold" data-en="Attach Document"
+                                data-rw="Omeheraho Inyandiko">Attach Document (Optional)</label>
+                            <input type="file" name="document" class="form-control form-control-premium">
+                        </div>
+
+                        <button type="submit" class="btn btn-gradient-primary w-100 py-3 shadow-sm">
+                            <i class="ri-send-plane-fill me-2"></i> Submit Official Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Final Resolution Form (Only if not resolved/rejected) -->
+            {% if complaint.status != 'resolved' and complaint.status != 'rejected' %}
+            <div class="card glass-form-card bg-gradient-green-light border-0 rounded-12 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-2 fw-bold text-success" data-en="Finalize Resolution" data-rw="Komeza Ikibazo">
+                        Finalize Resolution</h4>
+                    <p class="text-muted smaller mb-4" style="line-height: 1.5;">Use this to close the case for the
+                        citizen once a final decision is reached.</p>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="finalize_resolution">
+
+                        <div class="mb-3">
+                            <label class="form-label form-label-premium fw-bold">Outcome Status</label>
+                            <select name="status" class="form-select form-control-premium">
+                                <option value="resolved">Mark as Resolved</option>
+                                <option value="rejected">Mark as Rejected</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label form-label-premium fw-bold" data-en="Resolution Details"
+                                data-rw="Ibisobanuro by'umwanzuro">Resolution Details</label>
+                            <textarea name="resolution_details" class="form-control form-control-premium" rows="4"
+                                placeholder="Explain the final decision clearly..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-gradient-success w-100 py-3 shadow-sm"
+                            onclick="return confirm('Are you sure you want to finalize this case? This action cannot be undone.')">
+                            <i class="ri-check-double-line me-2"></i> Finalize and Close Case
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <!-- Resolution Info (Read Only) -->
+            <div class="card glass-form-card border-0 rounded-12 mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+                        style="width: 50px; height: 50px;">
+                        <i class="ri-checkbox-circle-fill fs-24 text-success"></i>
+                    </div>
+                    <h4 class="mb-1 fw-bold text-dark">Case Resolved</h4>
+                    <p class="text-muted smaller mb-2">Closed on {{ complaint.resolved_at|date:"M d, Y" }}</p>
+                    <div class="p-3 bg-light rounded border-start border-4 border-success text-start mt-3">
+                        <p class="mb-0 fw-semibold text-dark">{{ complaint.resolution_details }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Case Location -->
+            <div class="card glass-form-card border-0 rounded-12">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h4 class="mb-0 fs-16 fw-bold text-dark"><i class="ri-map-pin-2-line me-2 text-primary"></i>Case
+                        Location</h4>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase">District</label>
+                            <p class="mb-0 fw-semibold">{{ complaint.land_district.name }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase">Sector</label>
+                            <p class="mb-0 fw-semibold">{{ complaint.land_sector }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase">Cell</label>
+                            <p class="mb-0 fw-semibold">{{ complaint.land_cell }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small text-uppercase">Province</label>
+                            <p class="mb-0 fw-semibold">{{ complaint.land_province.name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

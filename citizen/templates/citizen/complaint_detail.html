@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complaint Details - {{ complaint.tracking_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .detail-header {
+        background: #f8fafc;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .detail-body {
+        padding: 24px;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f79f3;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-group {
+        margin-bottom: 20px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .status-badge {
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    .attachment-box {
+        background: #f1f5f9;
+        border-radius: 8px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: #334155;
+        transition: background 0.2s;
+    }
+
+    .attachment-box:hover {
+        background: #e2e8f0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1" data-en="Complaint Details" data-rw="Ibisobanuro by'Ikibazo">Complaint Details</h3>
+            <p class="text-muted mb-0">Tracking Number: <strong>{{ complaint.tracking_number }}</strong></p>
+        </div>
+        <a href="{% url 'citizen_complaints_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="ri-arrow-left-line"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Main Details Card -->
+            <div class="detail-card">
+                <div class="detail-header">
+                    <h5 class="mb-0">Overview</h5>
+                    {% if complaint.status == 'pending' %}
+                    <span class="badge bg-warning-subtle text-warning status-badge">Pending</span>
+                    {% elif complaint.status == 'in_progress' %}
+                    <span class="badge bg-primary-subtle text-primary status-badge">In Progress</span>
+                    {% elif complaint.status == 'resolved' %}
+                    <span class="badge bg-success-subtle text-success status-badge">Resolved</span>
+                    {% else %}
+                    <span class="badge bg-danger-subtle text-danger status-badge">Rejected</span>
+                    {% endif %}
+                </div>
+                <div class="detail-body">
+                    <!-- Complainant Info -->
+                    <div class="section-title">
+                        <i class="ri-user-line"></i> Complainant Information
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Full Name</p>
+                            <p class="info-value">{{ complaint.full_name }}</p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Phone Number</p>
+                            <p class="info-value">{{ complaint.phone_number }}</p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Email Address</p>
+                            <p class="info-value">{{ complaint.email }}</p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Gender</p>
+                            <p class="info-value">{{ complaint.gender|title }}</p>
+                        </div>
+                        {% if complaint.citizen %}
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Linked Account</p>
+                            <p class="info-value text-primary"><i class="ri-user-follow-line"></i> {{ complaint.citizen.username }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-4" style="opacity: 0.1;">
+
+                    <!-- Assignment Info -->
+                    <div class="section-title">
+                        <i class="ri-shield-user-line"></i> Assignment Information
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Assigned Office</p>
+                            <p class="info-value">
+                                {% if complaint.assigned_office %}
+                                {{ complaint.assigned_office.name }}
+                                {% else %}
+                                <span class="text-muted italic">Processing...</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Assigned Staff member</p>
+                            <p class="info-value">
+                                {% if complaint.assigned_to %}
+                                {{ complaint.assigned_to.full_name }}
+                                {% else %}
+                                <span class="text-muted italic">Awaiting Assignment</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" style="opacity: 0.1;">
+
+                    <!-- Land Info -->
+                    <div class="section-title">
+                        <i class="ri-map-pin-line"></i> Land Information
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">UPI Number</p>
+                            <p class="info-value text-primary">{{ complaint.upi_number }}</p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Province</p>
+                            <p class="info-value">{{ complaint.land_province.name }}</p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">District</p>
+                            <p class="info-value">{{ complaint.land_district.name }}</p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Sector</p>
+                            <p class="info-value">{{ complaint.land_sector }}</p>
+                        </div>
+                        <div class="col-md-6 info-group">
+                            <p class="info-label">Cell</p>
+                            <p class="info-value">{{ complaint.land_cell }}</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" style="opacity: 0.1;">
+
+                    <!-- Description -->
+                    <div class="section-title">
+                        <i class="ri-file-text-line"></i> Complaint Description
+                    </div>
+                    <div class="info-group">
+                        <p class="info-label">Category</p>
+                        <p class="info-value">{{ complaint.category.name }}</p>
+                    </div>
+                    <div class="info-group">
+                        <p class="info-label">Description</p>
+                        <p class="text-body" style="font-size: 14.5px; line-height: 1.6;">{{ complaint.description }}
+                        </p>
+                    </div>
+
+                    {% if complaint.attachments %}
+                    <div class="mt-4">
+                        <p class="info-label">Attachments</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="{{ complaint.attachments.url }}" target="_blank" class="attachment-box">
+                                    <i class="ri-file-download-line fs-24 text-primary"></i>
+                                    <div>
+                                        <p class="mb-0 fw-bold small">View Attachment</p>
+                                        <p class="mb-0 text-muted smaller">Click to open or download</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Timeline Card -->
+            <div class="detail-card">
+                <div class="detail-header">
+                    <h5 class="mb-0">Progress Status</h5>
+                </div>
+                <div class="detail-body">
+                    <div class="timeline-area" style="position: relative; padding-left: 30px;">
+                        <div
+                            style="position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #f1f5f9;">
+                        </div>
+
+                        <!-- Received -->
+                        <div class="mb-4" style="position: relative;">
+                            <div
+                                style="position: absolute; left: -25px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #0f79f3; border: 2px solid #fff; box-shadow: 0 0 0 4px rgba(15, 121, 243, 0.1);">
+                            </div>
+                            <h6 class="mb-1 fs-14">Complaint Received</h6>
+                            <p class="text-muted smaller mb-0">{{ complaint.created_at|date:"M d, Y H:i" }}</p>
+                            <p class="smaller text-muted mt-1">Status: <span class="fw-bold">Recorded</span></p>
+                        </div>
+
+                        <!-- Reports (Dynamic Actions) -->
+                        {% for report in reports %}
+                        <div class="mb-4" style="position: relative;">
+                            <div
+                                style="position: absolute; left: -25px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #0f79f3; border: 2px solid #fff;">
+                            </div>
+                            <h6 class="mb-1 fs-14">{{ report.office.name|default:"General Admin" }} - Action Taken</h6>
+                            <p class="text-muted smaller mb-0">{{ report.created_at|date:"M d, Y H:i" }}</p>
+                            <p class="smaller text-dark fw-semibold mt-1">{{ report.action_taken }}</p>
+                        </div>
+                        {% endfor %}
+
+                        {% if not reports and complaint.status != 'resolved' and complaint.status != 'rejected' %}
+                        <!-- Under Review (If no reports yet) -->
+                        <div class="mb-4" style="position: relative;">
+                            <div
+                                style="position: absolute; left: -25px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #0f79f3; border: 2px solid #fff;">
+                            </div>
+                            <h6 class="mb-1 fs-14">Under Review</h6>
+                            <p class="text-muted smaller mb-0">Our team is assessing the claim.</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Final Decision -->
+                        {% if complaint.status == 'resolved' or complaint.status == 'rejected' %}
+                        <div style="position: relative;">
+                            <div
+                                style="position: absolute; left: -25px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #0f79f3; border: 2px solid #fff; box-shadow: 0 0 0 4px rgba(15, 121, 243, 0.1);">
+                            </div>
+                            <h6 class="mb-1 fs-14">Decision Made: {{ complaint.get_status_display }}</h6>
+                            <p class="text-muted smaller mb-0">{{ complaint.updated_at|date:"M d, Y H:i" }}</p>
+                            {% if complaint.resolution_details %}
+                            <p class="smaller text-success fw-bold mt-1">{{ complaint.resolution_details }}</p>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <!-- Placeholder for Decision -->
+                        <div style="position: relative;">
+                            <div
+                                style="position: absolute; left: -25px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #cbd5e1; border: 2px solid #fff;">
+                            </div>
+                            <h6 class="mb-1 fs-14 text-muted">Decision Pending</h6>
+                            <p class="text-muted smaller mb-0">Outcome will be posted once finalized.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

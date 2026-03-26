@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0" data-en="My Complaints Dashboard" data-rw="Ikibaho cy'Ibibazo Byanjye">My Complaints Dashboard
+        </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'citizen_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" data-en="Overview" data-rw="Inyandiko">Overview</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Stats -->
+    <div class="row justify-content-center">
+        <div class="col-xxl-3 col-sm-6">
+            <div class="card bg-white border-0 rounded-10 p-4 mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 50px; height: 50px;">
+                            <i class="ri-list-check-3 text-primary fs-24"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0 fs-20 fw-bold">{{ complaints.count }}</h3>
+                        <p class="text-body" data-en="Total Filed" data-rw="Byose Hamwe">Total Filed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-sm-6">
+            <div class="card bg-white border-0 rounded-10 p-4 mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 50px; height: 50px;">
+                            <i class="ri-time-line text-warning fs-24"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0 fs-20 fw-bold">{{ complaints.filter.status|default:"0" }}</h3>
+                        <!-- Note: Simple filter count logic would be better in view, but using .count() here -->
+                        <p class="text-body" data-en="Pending Review" data-rw="Bitegereje">Pending Review</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card bg-white rounded-10 border-0 mb-4">
+        <div class="d-flex justify-content-between align-items-center p-4 border-bottom">
+            <h3 class="fs-18 fw-semibold mb-0" data-en="Recent Complaints" data-rw="Ibibazo BIheruka">Recent Complaints
+            </h3>
+            <a href="{% url 'complaint_file' %}" class="btn btn-primary btn-sm" data-en="+ File New Complaint"
+                data-rw="+ Tanga Ikibazo Gishya">+ File New Complaint</a>
+        </div>
+        <div class="p-4">
+            <div class="default-table-area style-two">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col" data-en="Tracking #" data-rw="Nimero">Tracking #</th>
+                                <th scope="col" data-en="Category" data-rw="Icyiciro">Category</th>
+                                <th scope="col" data-en="Date Filed" data-rw="Itariki">Date Filed</th>
+                                <th scope="col" data-en="Status" data-rw="Imiterere">Status</th>
+                                <th scope="col" data-en="Action" data-rw="Igikorwa">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in complaints %}
+                            <tr>
+                                <td class="fw-bold text-primary">{{ c.tracking_number }}</td>
+                                <td>{{ c.category.name }}</td>
+                                <td>{{ c.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if c.status == 'pending' %}
+                                    <span class="badge bg-warning-subtle text-warning px-2 py-1">Pending</span>
+                                    {% elif c.status == 'in_progress' %}
+                                    <span class="badge bg-primary-subtle text-primary px-2 py-1">In Progress</span>
+                                    {% elif c.status == 'resolved' %}
+                                    <span class="badge bg-success-subtle text-success px-2 py-1">Resolved</span>
+                                    {% else %}
+                                    <span class="badge bg-danger-subtle text-danger px-2 py-1">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'complaint_detail' c.pk %}" class="btn btn-outline-primary btn-sm"
+                                        data-en="View Details" data-rw="Ibisobanuro">View Details</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="ri-file-list-3-line fs-1 d-block mb-2"></i>
+                                    <p data-en="You haven't filed any complaints yet."
+                                        data-rw="Ntabwo uratanga ikibazo narimwe.">You haven't filed any complaints yet.
+                                    </p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

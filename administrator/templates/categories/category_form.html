@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Category{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0">{{ action }} Complaint Category</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'admin_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'category_list' %}" data-en="Categories" data-rw="Ibyiciro">Categories</a>
+                </li>
+                <li class="breadcrumb-item active">{{ action }}</li>
+            </ol>
+        </nav>
+    </div>
+
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                    <h3 class="mb-20 fs-18 fw-semibold" data-en="Category Details" data-rw="Amakuru y'Icyiciro">Category
+                        Details</h3>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="mb-20">
+                                <label class="label fs-16 mb-2" data-en="Category Name *"
+                                    data-rw="Izina ry'Icyiciro *">Category Name *</label>
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="categoryName" name="name"
+                                        placeholder="Enter category name" value="{{ category.name|default:'' }}"
+                                        required>
+                                    <label for="categoryName">Enter category name</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="mb-20">
+                                <label class="label fs-16 mb-2" data-en="Description"
+                                    data-rw="Ibisobanuro">Description</label>
+                                <textarea name="description" class="form-control" rows="4"
+                                    placeholder="Brief description of the complaint category...">{{ category.description|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary fw-normal text-white">
+                                    <i class="ri-save-line me-1"></i>
+                                    <span data-en="Save Category" data-rw="Bika Icyiciro">Save Category</span>
+                                </button>
+                                <a href="{% url 'category_list' %}" class="btn btn-danger fw-normal text-white">
+                                    <span data-en="Cancel" data-rw="Hagarika">Cancel</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card bg-white p-20 rounded-10 border border-white mb-4 text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3"
+                        style="width:80px;height:80px;">
+                        <i class="ri-list-settings-line text-primary" style="font-size:38px;"></i>
+                    </div>
+                    <h5 class="fw-semibold text-secondary mb-1" data-en="Category Status"
+                        data-rw="Imiterere y'Icyiciro">
+                        Category Status</h5>
+                    <p class="text-body fs-14 mb-3" data-en="Only active categories are selectable by citizens."
+                        data-rw="Ibyiciro bikora nibyo gusa batoranywa n'abaturage.">
+                        Only active categories are selectable by citizens.
+                    </p>
+                    <hr>
+                    <div class="form-check d-flex align-items-center justify-content-center gap-2 mt-2">
+                        {% if category %}
+                        {% if category.is_active %}
+                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
+                        {% else %}
+                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active">
+                        {% endif %}
+                        {% else %}
+                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
+                        {% endif %}
+                        <label class="form-check-label fs-15 fw-medium" for="is_active" data-en="Category is Active"
+                            data-rw="Icyiciro Kirakora">Category is Active</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

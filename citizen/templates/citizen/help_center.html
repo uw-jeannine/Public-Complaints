@@ -1,0 +1,693 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+    <link href="{% static 'assets/css/remixicon.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="{% static 'assets/images/favicon.png' %}" rel="icon" type="image/png" />
+    <title>Help Center | LandConnect</title>
+    <style>
+        :root {
+            --irembo-blue: #0047bb;
+            --irembo-yellow: #ffc72c;
+            --bg-body: #f8fafc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Nunito Sans', sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-banner {
+            background-color: var(--irembo-yellow);
+            color: #000;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 7px 0;
+            text-align: center;
+        }
+
+        .main-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav-link-item {
+            font-weight: 600;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link-item:hover {
+            color: var(--irembo-blue);
+        }
+
+        .page-hero {
+            background: linear-gradient(135deg, var(--irembo-blue) 0%, #002e7a 100%);
+            color: white;
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .page-hero h1 {
+            font-weight: 800;
+            font-size: 1.85rem;
+            margin-bottom: 8px;
+            color: #ffffff !important;
+        }
+
+        .page-hero p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            margin: 0;
+            color: #ffffff !important;
+        }
+
+        .breadcrumb-bar {
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 0;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb-bar a {
+            color: var(--irembo-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Tab nav */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            font-family: 'Nunito Sans', sans-serif;
+        }
+
+        .tab-btn.active {
+            color: var(--irembo-blue);
+            border-bottom-color: var(--irembo-blue);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Content card */
+        .content-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            padding: 36px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--irembo-blue);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        /* Accordion (FAQ) */
+        .faq-item {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .faq-header {
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 0.93rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            transition: background 0.2s;
+        }
+
+        .faq-header:hover {
+            background: #f8fafc;
+        }
+
+        .faq-header.open {
+            color: var(--irembo-blue);
+            background: rgba(0, 71, 187, 0.04);
+        }
+
+        .faq-arrow {
+            font-size: 18px;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .faq-header.open .faq-arrow {
+            transform: rotate(180deg);
+            color: var(--irembo-blue);
+        }
+
+        .faq-body {
+            display: none;
+            padding: 0 20px 18px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0, 71, 187, 0.02);
+        }
+
+        .faq-body p {
+            margin: 12px 0 0;
+        }
+
+        /* Notice cards */
+        .notice-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 14px;
+            background: #fff;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .notice-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(0, 71, 187, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--irembo-blue);
+            flex-shrink: 0;
+        }
+
+        .notice-info strong {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+        .notice-info span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 3px;
+        }
+
+        .notice-date {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            font-weight: 600;
+            margin-top: 6px;
+            display: block;
+        }
+
+        /* Contact */
+        .contact-card {
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 28px;
+            text-align: center;
+            background: #fff;
+            transition: box-shadow 0.2s;
+        }
+
+        .contact-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+        }
+
+        .contact-card .icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: rgba(0, 71, 187, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--irembo-blue);
+            margin: 0 auto 16px;
+        }
+
+        .contact-card h5 {
+            font-weight: 800;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .contact-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .contact-card a {
+            font-weight: 700;
+            color: var(--irembo-blue);
+            text-decoration: none;
+        }
+
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lang */
+        #lang-en,
+        #lang-rw {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        #lang-en.active,
+        #lang-rw.active {
+            color: var(--irembo-blue);
+        }
+
+        footer {
+            background: #111827;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Banner -->
+    <div class="top-banner">
+        <span data-en="Help Center — LandConnect" data-rw="Ikigo cy'Ubufasha — LandConnect">Help Center —
+            LandConnect</span>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <nav class="navbar navbar-expand-lg py-3">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'landing_page' %}">
+                    <img src="{% static 'assets/images/logo/logo.png' %}" style="height: 38px;" class="me-2" alt="Logo">
+                    <span class="fw-bold fs-20 text-primary">LANDCONNECT</span>
+                </a>
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <a href="{% url 'landing_page' %}" class="nav-link-item d-none d-md-inline" data-en="← Home"
+                        data-rw="← Ahabanza">← Home</a>
+                    <a href="{% url 'complaint_file' %}" class="btn btn-primary btn-sm px-3" style="color:white;"
+                        data-en="File a Complaint" data-rw="Tanga Ikibazo">File a Complaint</a>
+                    <span class="text-muted">|</span>
+                    <span id="lang-en" class="active" onclick="setLanguage('en')">EN</span>
+                    <span class="text-muted">|</span>
+                    <span id="lang-rw" onclick="setLanguage('rw')">RW</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Hero -->
+    <div class="page-hero">
+        <div class="container">
+            <h1 data-en="Help Center" data-rw="Ikigo cy'Ubufasha">Help Center</h1>
+            <p data-en="Find answers, public announcements, and contact details for the Land Authority."
+                data-rw="Shaka ibisubizo, itangazo rya leta, n'uburyo bwo kugera ku buyobozi.">
+                Find answers, public announcements, and contact details for the Land Authority.
+            </p>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <div class="container d-flex align-items-center gap-2">
+            <a href="{% url 'landing_page' %}" data-en="Home" data-rw="Ahabanza">Home</a>
+            <i class="ri-arrow-right-s-line text-muted"></i>
+            <span class="text-muted" data-en="Help Center" data-rw="Ikigo cy'Ubufasha">Help Center</span>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="container py-5" style="flex: 1;">
+        <div style="max-width: 860px; margin: 0 auto;">
+
+            <!-- Tab Nav -->
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="showTab('faq', this)" id="faq-btn">
+                    <i class="ri-question-answer-line me-1"></i>
+                    <span data-en="FAQ" data-rw="Ibibazo Bikunze Kubazwa">FAQ</span>
+                </button>
+                <button class="tab-btn" onclick="showTab('notices', this)" id="notices-btn">
+                    <i class="ri-megaphone-line me-1"></i>
+                    <span data-en="Public Notices" data-rw="Amakuru ya Leta">Public Notices</span>
+                </button>
+                <button class="tab-btn" onclick="showTab('contact', this)" id="contact-btn">
+                    <i class="ri-phone-line me-1"></i>
+                    <span data-en="Contact Authority" data-rw="Vugana no Buyobozi">Contact Authority</span>
+                </button>
+            </div>
+
+            <!-- FAQ Tab -->
+            <div class="tab-pane active" id="tab-faq">
+                <div class="content-card">
+                    <h2 class="section-title"><i class="ri-question-answer-line"></i> <span
+                            data-en="Frequently Asked Questions" data-rw="Ibibazo Bikunze Kubazwa">Frequently Asked
+                            Questions</span></h2>
+
+                    <div class="faq-item">
+                        <div class="faq-header" onclick="toggleFaq(this)">
+                            <span data-en="What is LandConnect?" data-rw="Ni iki LandConnect?">What is
+                                LandConnect?</span>
+                            <i class="ri-arrow-down-s-line faq-arrow"></i>
+                        </div>
+                        <div class="faq-body">
+                            <p data-en="LandConnect is the official online platform of the Rwanda National Land Authority (RNLA) that allows citizens to file, track, and manage land-related complaints."
+                                data-rw="LandConnect ni urubuga rwa interineti rwemewe rwa Urwego Ngenzuramikorere y'Ubutaka mu Rwanda (RNLA) ruha abaturage uburyo bwo gutanga, gukurikirana, no gucunga ibibazo bishingiye ku butaka.">
+                                LandConnect is the official online platform of the Rwanda National Land Authority (RNLA)
+                                that allows citizens to file, track, and manage land-related complaints.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-header" onclick="toggleFaq(this)">
+                            <span data-en="Who can file a complaint?" data-rw="Nde ushoboye gutanga ikibazo?">Who can
+                                file a complaint?</span>
+                            <i class="ri-arrow-down-s-line faq-arrow"></i>
+                        </div>
+                        <div class="faq-body">
+                            <p data-en="Any Rwandan citizen or resident who has a land-related grievance can submit a complaint. You do not need to create an account — simply provide your National ID and contact details."
+                                data-rw="Umunyarwanda wese cyangwa utuye mu Rwanda ufite ikibazo gishingiye ku butaka ashobora gutanga ikirego. Ntugomba gufungura konti — tanga indangamuntu yawe n'amakuru yo kugerwaho.">
+                                Any Rwandan citizen or resident who has a land-related grievance can submit a complaint.
+                                You do not need to create an account — simply provide your National ID and contact
+                                details.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-header" onclick="toggleFaq(this)">
+                            <span data-en="How long does it take to process my complaint?"
+                                data-rw="Bitwara igihe kingana iki gusesengura ikibazo cyange?">How long does it take to
+                                process my complaint?</span>
+                            <i class="ri-arrow-down-s-line faq-arrow"></i>
+                        </div>
+                        <div class="faq-body">
+                            <p data-en="The standard processing time is 30 working days from the date of submission. Complex cases may take longer. You will be notified of any updates via SMS or email."
+                                data-rw="Igihe gisanzwe cyo gusesengura ni iminsi mirongo itatu y'akazi uhereye itariki yo gutanga. Imanza zigoye zishobora gutwara igihe cyimazeyo. Uzabmenyeshwa intambwe zose kuri telefoni cyangwa imeyili.">
+                                The standard processing time is 30 working days from the date of submission. Complex
+                                cases may take longer. You will be notified of any updates via SMS or email.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-header" onclick="toggleFaq(this)">
+                            <span data-en="How do I track my complaint?" data-rw="Nakurikirana ite ikibazo cyange?">How
+                                do I track my complaint?</span>
+                            <i class="ri-arrow-down-s-line faq-arrow"></i>
+                        </div>
+                        <div class="faq-body">
+                            <p data-en="After submitting your complaint, you receive a unique tracking number (e.g. LC-2024-123456). Go to the Tracking page on our website and enter this number to see the current status."
+                                data-rw="Nyuma yo gutanga ikirego, ubona nimero y'igiharuro (urugero: LC-2024-123456). Nza ku ipaji yo Gukurikirana kuri urubuga rwacu hanyuma winjize iyo nimero kugira ngo urebe aho bigeze.">
+                                After submitting your complaint, you receive a unique tracking number (e.g.
+                                LC-2024-123456). Go to the Tracking page on our website and enter this number to see the
+                                current status.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-header" onclick="toggleFaq(this)">
+                            <span data-en="What documents do I need to file a complaint?"
+                                data-rw="Ni inyandiko zihe zisabwa gutanga ikibazo?">What documents do I need to file a
+                                complaint?</span>
+                            <i class="ri-arrow-down-s-line faq-arrow"></i>
+                        </div>
+                        <div class="faq-body">
+                            <p data-en="Required: National ID and the Land UPI (parcel number). Optional but helpful: land title, photos of the land, previous correspondence with other institutions."
+                                data-rw="Bisabwa: Indangamuntu na UPI y'ubutaka (nimero ya parcel). Birashimishije ariko si ngombwa: titre y'ubutaka, amafoto y'ubutaka, inyandiko zaherukira izindi nzego.">
+                                Required: National ID and the Land UPI (parcel number). Optional but helpful: land
+                                title, photos of the land, previous correspondence with other institutions.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-header" onclick="toggleFaq(this)">
+                            <span data-en="Can I submit a complaint without an account?"
+                                data-rw="Narashobora gutanga ikibazo nta konti?">Can I submit a complaint without an
+                                account?</span>
+                            <i class="ri-arrow-down-s-line faq-arrow"></i>
+                        </div>
+                        <div class="faq-body">
+                            <p data-en="Yes. You can file a complaint as a guest by providing your contact information. Creating an account allows you to manage and view all your complaints from a personal dashboard."
+                                data-rw="Yego. Ushobora gutanga ikibazo nta konti utanze amakuru yo kugerwaho. Gufungura konti bigufasha gucunga no kureba ibibazo byawe byose uhereye ku dashboard yawe bwite.">
+                                Yes. You can file a complaint as a guest by providing your contact information. Creating
+                                an account allows you to manage and view all your complaints from a personal dashboard.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Public Notices Tab -->
+            <div class="tab-pane" id="tab-notices">
+                <div class="content-card">
+                    <h2 class="section-title"><i class="ri-megaphone-line"></i> <span data-en="Public Notices"
+                            data-rw="Amakuru ya Leta">Public Notices</span></h2>
+
+                    <div class="notice-card">
+                        <div class="notice-icon"><i class="ri-file-list-3-line"></i></div>
+                        <div class="notice-info">
+                            <strong data-en="New Land Registration Deadline — Q1 2024"
+                                data-rw="Igihe cy'Iyandikisha ry'Ubutaka Gishya — Q1 2024">New Land Registration
+                                Deadline — Q1 2024</strong>
+                            <span
+                                data-en="All unregistered land parcels must be submitted for registration by March 31, 2024. Late submissions will incur penalties."
+                                data-rw="Ubutaka bwose butanditse bugomba gutangwa ngo bwandikishwe mbere ya Werurwe 31, 2024. Gutanga nk'inyuma bizarimo ihazabu.">All
+                                unregistered land parcels must be submitted for registration by March 31, 2024. Late
+                                submissions will incur penalties.</span>
+                            <span class="notice-date"><i class="ri-calendar-line me-1"></i>March 1, 2024</span>
+                        </div>
+                    </div>
+
+                    <div class="notice-card">
+                        <div class="notice-icon"><i class="ri-information-line"></i></div>
+                        <div class="notice-info">
+                            <strong data-en="System Maintenance Notice" data-rw="Itangazo ry'Isuku ya Sisitemu">System
+                                Maintenance Notice</strong>
+                            <span
+                                data-en="The LandConnect portal will be temporarily unavailable on March 20, 2024 from 2:00 AM to 6:00 AM for scheduled maintenance."
+                                data-rw="Urubuga rwa LandConnect ruzaba rutaboneka by'agateganyo ku ya 20 Werurwe 2024 kuva saa 8:00 igicuku kugeza saa 12:00 z'umugoroba kubera isuku igendanye.">The
+                                LandConnect portal will be temporarily unavailable on March 20, 2024 from 2:00 AM to
+                                6:00 AM for scheduled maintenance.</span>
+                            <span class="notice-date"><i class="ri-calendar-line me-1"></i>February 28, 2024</span>
+                        </div>
+                    </div>
+
+                    <div class="notice-card">
+                        <div class="notice-icon"><i class="ri-award-line"></i></div>
+                        <div class="notice-info">
+                            <strong data-en="Land Dispute Resolution Campaign"
+                                data-rw="Inzego zo Gukemura Ibibazo by'Ubutaka">Land Dispute Resolution
+                                Campaign</strong>
+                            <span
+                                data-en="RNLA is launching free mediation sessions for land dispute parties in all districts. Contact your local land office to register."
+                                data-rw="RNLA itanguje inama za bure zo guhuza abantu bafite ibibazo by'ubutaka mu turere twose. Vugana n'ibiro by'ubutaka bya sektori yawe kugira ngo wiyandikishe.">RNLA
+                                is launching free mediation sessions for land dispute parties in all districts. Contact
+                                your local land office to register.</span>
+                            <span class="notice-date"><i class="ri-calendar-line me-1"></i>February 14, 2024</span>
+                        </div>
+                    </div>
+
+                    <div class="notice-card">
+                        <div class="notice-icon"><i class="ri-map-2-line"></i></div>
+                        <div class="notice-info">
+                            <strong data-en="Updated Land Use Zoning Maps Published"
+                                data-rw="Imapu Nshya y'Imikoreshereze y'Ubutaka Yatangiwe">Updated Land Use Zoning Maps
+                                Published</strong>
+                            <span
+                                data-en="New zoning maps for 10 districts are now available on the RNLA website. These maps reflect updated planned land use zones for 2024-2030."
+                                data-rw="Imapu nshya z'aturere 10 zibonetse kuri urubuga rwa RNLA. Izi mapu zigaragaza aho ubutaka bukoreshwa mu 2024-2030.">New
+                                zoning maps for 10 districts are now available on the RNLA website. These maps reflect
+                                updated planned land use zones for 2024-2030.</span>
+                            <span class="notice-date"><i class="ri-calendar-line me-1"></i>January 22, 2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Tab -->
+            <div class="tab-pane" id="tab-contact">
+                <div class="content-card">
+                    <h2 class="section-title"><i class="ri-phone-line"></i> <span data-en="Contact Authority"
+                            data-rw="Vugana n'Ubuyobozi">Contact Authority</span></h2>
+                    <p class="text-muted small mb-4"
+                        data-en="Reach the Rwanda National Land Authority through any of the channels below."
+                        data-rw="Gera kuri Urwego Ngenzuramikorere y'Ubutaka mu Rwanda ukoresheje imwe mu nzira zikurikira.">
+                        Reach the Rwanda National Land Authority through any of the channels below.</p>
+
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="contact-card">
+                                <div class="icon"><i class="ri-phone-fill"></i></div>
+                                <h5 data-en="Phone / Hotline" data-rw="Telefoni / Hotline">Phone / Hotline</h5>
+                                <p data-en="Available Monday–Friday, 8:00 AM – 5:00 PM"
+                                    data-rw="Iboneka Ku wa Mbere–Gatanu, 8:00–17:00">Available Monday–Friday, 8:00 AM –
+                                    5:00 PM</p>
+                                <a href="tel:+250788300000">+250 788 300 000</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="contact-card">
+                                <div class="icon"><i class="ri-mail-fill"></i></div>
+                                <h5 data-en="Email" data-rw="Imeyili">Email</h5>
+                                <p data-en="Send us an email and we'll respond within 2 business days."
+                                    data-rw="Tuhereza imeyili kandi tuzagusubiza mu minsi 2 y'akazi.">Send us an email
+                                    and we'll respond within 2 business days.</p>
+                                <a href="mailto:info@rnla.gov.rw">info@rnla.gov.rw</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="contact-card">
+                                <div class="icon"><i class="ri-map-pin-fill"></i></div>
+                                <h5 data-en="Office Address" data-rw="Aho Ibiro Buri">Office Address</h5>
+                                <p data-en="Visit us at our head office in Kigali."
+                                    data-rw="Tuganire mu biro byacu by'inzamuro i Kigali.">Visit us at our head office
+                                    in Kigali.</p>
+                                <a href="https://maps.google.com" target="_blank" data-en="KN 3 Ave, Kigali, Rwanda"
+                                    data-rw="KN 3 Ave, Kigali, u Rwanda">KN 3 Ave, Kigali, Rwanda</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="contact-card">
+                                <div class="icon"><i class="ri-message-2-fill"></i></div>
+                                <h5 data-en="SMS Tracking" data-rw="Gukurikirana kuri SMS">SMS Tracking</h5>
+                                <p data-en="Text STATUS followed by your tracking number."
+                                    data-rw="Ohereza STATUS ikurikirwa na nimero yawe.">Text STATUS followed by your
+                                    tracking number.</p>
+                                <a href="#">Send to <strong>4646</strong></a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="contact-card">
+                                <div class="icon"><i class="ri-twitter-x-fill"></i></div>
+                                <h5>Twitter / X</h5>
+                                <p data-en="Follow us for news and announcements."
+                                    data-rw="Dukurikire amakuru n'itangazo.">Follow us for news and announcements.</p>
+                                <a href="https://twitter.com/rnlarwanda" target="_blank">@rnlarwanda</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="contact-card">
+                                <div class="icon"><i class="ri-time-fill"></i></div>
+                                <h5 data-en="Working Hours" data-rw="Amasaha y'Akazi">Working Hours</h5>
+                                <p data-en="Our offices are open during these hours."
+                                    data-rw="Ibiro byacu bifungurwa muri aya masaha.">Our offices are open during these
+                                    hours.</p>
+                                <a href="#" data-en="Mon–Fri: 8AM – 5PM"
+                                    data-rw="Ku wa Mbere–Gatanu: 8:00–17:00">Mon–Fri: 8AM – 5PM</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4">
+        <p class="mb-0 text-muted small">© 2024 Rwanda National Land Authority. All rights reserved.</p>
+    </footer>
+
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        function showTab(name, btn) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Open tab based on URL hash
+        const hash = window.location.hash.replace('#', '');
+        if (hash) {
+            const tabBtn = document.getElementById(hash + '-btn');
+            if (tabBtn) showTab(hash, tabBtn);
+        }
+
+        function toggleFaq(header) {
+            const body = header.nextElementSibling;
+            const isOpen = header.classList.contains('open');
+            document.querySelectorAll('.faq-header').forEach(h => { h.classList.remove('open'); h.nextElementSibling.style.display = 'none'; });
+            if (!isOpen) { header.classList.add('open'); body.style.display = 'block'; }
+        }
+
+        function applyLanguage(lang) {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
+            });
+            document.querySelectorAll('#lang-en, #lang-rw').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('lang-' + lang);
+            if (btn) btn.classList.add('active');
+        }
+
+        window.setLanguage = function (lang) { localStorage.setItem('lang', lang); applyLanguage(lang); };
+        applyLanguage(localStorage.getItem('lang') || 'en');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Office{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0 text-danger" data-en="Delete Office" data-rw="Siba Ibiro">Delete Office</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'admin_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'office_list' %}" data-en="Offices" data-rw="Ibiro">Offices</a>
+                </li>
+                <li class="breadcrumb-item active" data-en="Delete" data-rw="Siba">Delete</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border border-white rounded-10 p-20 mb-4" style="max-width: 540px;">
+        <div class="text-center mb-4">
+            <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                style="width:70px; height:70px;">
+                <i class="ri-delete-bin-line text-danger fs-1"></i>
+            </div>
+            <h5 class="fw-semibold text-secondary" data-en="Are you sure?" data-rw="Ese urafite icyo ukurikira?">Are you
+                sure?</h5>
+            <p class="text-body fs-16">
+                <span data-en="You are about to delete the office:" data-rw="Urashaka gusiba ibiro:">
+                    You are about to delete the office:
+                </span>
+                <strong class="text-danger d-block mt-1">{{ office.name }}</strong>
+            </p>
+            <p class="text-muted fs-14" data-en="This action cannot be undone."
+                data-rw="Iyi gikorwa ntishobora gusubirwaho.">
+                This action cannot be undone.
+            </p>
+        </div>
+        <form method="POST" class="d-flex gap-2 justify-content-center">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger fw-normal">
+                <i class="ri-delete-bin-line me-1"></i>
+                <span data-en="Yes, Delete" data-rw="Yego, Siba">Yes, Delete</span>
+            </button>
+            <a href="{% url 'office_list' %}" class="btn btn-outline-secondary fw-normal">
+                <span data-en="Cancel" data-rw="Hagarika">Cancel</span>
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

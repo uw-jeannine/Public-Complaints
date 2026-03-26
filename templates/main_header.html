@@ -1,0 +1,100 @@
+{% load static %}
+
+<!-- Top Banner -->
+<div class="top-banner" id="topBanner">
+    <div class="container" data-en="Welcome to the Public Complaint System (Land Management)"
+        data-rw="Murakaza neza muri Sisitemu yo Gucunga Ibibazo by'Ubutaka">
+        Welcome to the Public Complaint System (Land Management)
+    </div>
+</div>
+
+<!-- Header -->
+<header class="main-header" id="mainHeader">
+    <nav class="navbar navbar-expand-lg py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'landing_page' %}">
+                <img src="{% static 'assets/images/logo/logo.png' %}" style="height: 40px;" class="me-2" alt="Logo">
+                <span class="text-primary fs-24">LANDCONNECT</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item text-center">
+                        <a class="nav-link" href="{% url 'landing_page' %}#resources" data-en="Help Center"
+                            data-rw="Ahatangirwa ubufasha">Help Center</a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a class="nav-link" href="{% url 'landing_page' %}#tracking" data-en="Search Application"
+                            data-rw="Shaka dosiye">Search Application</a>
+                    </li>
+                    {% if not user.is_authenticated %}
+                    <li class="nav-item ms-lg-3 text-center">
+                        <a href="{% url 'sign-in' %}" class="btn btn-outline-primary fw-600 px-4 py-2 border-0"
+                            data-en="Sign In" data-rw="Kwinjira">Sign In</a>
+                    </li>
+                    <li class="nav-item text-center">
+                        <a href="{% url 'sign-up' %}" class="btn btn-primary px-4 py-2 fw-600"
+                            style="color: white !important;" data-en="Register" data-rw="Iyandikishe">Register</a>
+                    </li>
+                    {% else %}
+                    <!-- User Profile Dropdown -->
+                    <li class="nav-item dropdown ms-lg-3 user-dropdown">
+                        <div class="dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar">
+                                {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profile" class="user-avatar"
+                                    style="border: none; box-shadow: none; margin: 0;">
+                                {% else %}
+                                {{ user.full_name|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+                            <div class="user-info d-none d-lg-block text-start">
+                                <span class="user-name">{{ user.full_name }}</span>
+                                <span class="user-role">{{ user.get_user_type_display }}</span>
+                            </div>
+                            <i class="ri-arrow-down-s-line fs-18 text-muted"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'citizen_dashboard' %}">
+                                    <i class="ri-dashboard-line"></i>
+                                    <span data-en="Dashboard" data-rw="Ikibaho Cy'umutangabuzi">Dashboard</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'account-settings' %}">
+                                    <i class="ri-user-settings-line"></i>
+                                    <span data-en="Account Settings" data-rw="Igenamiterere rya Konti">Account
+                                        Settings</span>
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" id="logoutForm" class="d-none">
+                                    {% csrf_token %}
+                                </form>
+                                <a class="dropdown-item logout-item" href="javascript:void(0)"
+                                    onclick="document.getElementById('logoutForm').submit();">
+                                    <i class="ri-logout-box-r-line"></i>
+                                    <span data-en="Sign Out" data-rw="Sohoka">Sign Out</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item ms-lg-3 d-flex gap-2 justify-content-center">
+                        <span class="lang-btn" id="lang-en" onclick="setLanguage('en')">EN</span>
+                        <span class="text-muted">|</span>
+                        <span class="lang-btn" id="lang-rw" onclick="setLanguage('rw')">RW</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

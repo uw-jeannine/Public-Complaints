@@ -1,0 +1,491 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}File a Complaint{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --irembo-blue: #0047bb;
+        --irembo-yellow: #ffc72c;
+        --bg-body: #f8fafc;
+        --card-bg: #ffffff;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+    }
+
+    /* Page content */
+    .form-container {
+        max-width: 860px;
+        margin: 20px auto 50px auto;
+    }
+
+    .page-title {
+        font-weight: 800;
+        font-size: 1.75rem;
+        color: var(--text-dark);
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 40px;
+    }
+
+    /* Step Indicator */
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 50px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .step-connector {
+        flex: 1;
+        height: 2px;
+        background: var(--border-color);
+        transition: background 0.3s ease;
+    }
+
+    .step-connector.done {
+        background: var(--irembo-blue);
+    }
+
+    .step-item {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--border-color);
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        background: white;
+        transition: all 0.3s ease;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .step-item.active {
+        border-color: var(--irembo-blue);
+        color: var(--irembo-blue);
+        box-shadow: 0 0 0 5px rgba(0, 71, 187, 0.1);
+    }
+
+    .step-item.completed {
+        background: var(--irembo-blue);
+        border-color: var(--irembo-blue);
+        color: white;
+    }
+
+    .step-label {
+        position: absolute;
+        bottom: -24px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+
+    .step-item.active .step-label,
+    .step-item.completed .step-label {
+        color: var(--irembo-blue);
+    }
+
+    .form-step {
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Card */
+    .form-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        padding: 40px;
+    }
+
+    .section-header {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--irembo-blue);
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 14px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .sub-section-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 28px;
+        margin-bottom: 18px;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 7px;
+    }
+
+    .btn-primary {
+        background-color: var(--irembo-blue);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 700;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #003499;
+        color: white;
+    }
+
+    .btn-outline-secondary {
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 700;
+        border-color: var(--border-color);
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid pf-4">
+    <div class="form-container">
+        <h2 class="page-title" data-en="Online Complaint Form" data-rw="Inyandiko yo Gutanga Ikibazo">Online
+            Complaint Form</h2>
+        <p class="page-subtitle" data-en="Complete the form below to submit your land-related complaint."
+            data-rw="Uzuza inyandiko hepfo kugira ngo utange ikibazo gishingiye ku butaka.">
+            Complete the form below to submit your land-related complaint.
+        </p>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step-item active" id="step-1-i">
+                1
+                <span class="step-label" data-en="Details" data-rw="Amakuru">Details</span>
+            </div>
+            <div class="step-connector" id="conn-1"></div>
+            <div class="step-item" id="step-2-i">
+                2
+                <span class="step-label" data-en="Land" data-rw="Ubutaka">Land</span>
+            </div>
+            <div class="step-connector" id="conn-2"></div>
+            <div class="step-item" id="step-3-i">
+                3
+                <span class="step-label" data-en="Complaint" data-rw="Ikibazo">Complaint</span>
+            </div>
+        </div>
+
+        <form id="complaintForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Step 1: Complainant Details -->
+            <div class="form-step active" id="step-1">
+                <div class="form-card">
+                    <h4 class="section-header">
+                        <i class="ri-user-3-line"></i>
+                        <span data-en="1. Complainant Details" data-rw="1. Umwirondoro w'Utanga Ikibazo">1.
+                            Complainant Details</span>
+                    </h4>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Full Names *" data-rw="Amazina Yombi *">Full Names
+                                *</label>
+                            <input type="text" name="full_name" class="form-control" placeholder="Enter your full names"
+                                value="{{ user.full_name|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Gender *" data-rw="Igitsina *">Gender *</label>
+                            <select name="gender" class="form-select" required>
+                                <option value="" disabled selected>Select Gender</option>
+                                    <option value="male" {% if user.gede == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if user.gede == 'female' %}selected{% endif %}>Female
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Phone Number *" data-rw="Nimero ya Telefoni *">Phone
+                                Number *</label>
+                            <input type="text" name="phone_number" class="form-control" placeholder="e.g., 078xxxxxxx"
+                                value="{{ user.phone_number|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Email Address *" data-rw="Imeyili *">Email Address
+                                *</label>
+                            <input type="email" name="email" class="form-control" placeholder="name@example.com"
+                                value="{{ user.email|default:'' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" data-en="National ID / Passport *"
+                                data-rw="Indangamuntu / Pasiporo *">National ID / Passport *</label>
+                            <input type="text" name="national_id" class="form-control"
+                                placeholder="Enter your ID number" value="{{ user.national_id|default:'' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <p class="sub-section-title" data-en="Residence Information" data-rw="Amakuru yaho utuye">
+                                Residence Information</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Province *" data-rw="Intara *">Province *</label>
+                            <select name="res_province" id="res_province" class="form-select location-select" required>
+                                <option value="" selected>Select Province</option>
+                                {% for p in provinces %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="District *" data-rw="Akarere *">District *</label>
+                            <select name="res_district" id="res_district" class="form-select location-select" disabled
+                                required>
+                                <option value="">Select District</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" data-en="Sector *" data-rw="Umurenge *">Sector *</label>
+                            <input type="text" name="res_sector" class="form-control" placeholder="Sector" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" data-en="Cell *" data-rw="Akagari *">Cell *</label>
+                            <input type="text" name="res_cell" class="form-control" placeholder="Cell" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" data-en="Village *" data-rw="Umudugudu *">Village *</label>
+                            <input type="text" name="res_village" class="form-control" placeholder="Village" required>
+                        </div>
+                    </div>
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-primary px-5 py-3 next-btn" data-en="Next Step →"
+                            data-rw="Komeza →">Next Step →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Land Information -->
+            <div class="form-step" id="step-2">
+                <div class="form-card">
+                    <h4 class="section-header">
+                        <i class="ri-map-pin-2-line"></i>
+                        <span data-en="2. Information on the Concerned Land" data-rw="2. Amakuru ku butaka buregwaho">2.
+                            Information on the Concerned Land</span>
+                    </h4>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Province *" data-rw="Intara *">Province *</label>
+                            <select name="land_province" id="land_province" class="form-select location-select"
+                                required>
+                                <option value="" selected>Select Province</option>
+                                {% for p in provinces %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="District *" data-rw="Akarere *">District *</label>
+                            <select name="land_district" id="land_district" class="form-select location-select" disabled
+                                required>
+                                <option value="">Select District</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Sector *" data-rw="Umurenge *">Sector *</label>
+                            <input type="text" name="land_sector" class="form-control" placeholder="Sector" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-en="Cell *" data-rw="Akagari *">Cell *</label>
+                            <input type="text" name="land_cell" class="form-control" placeholder="Cell" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" data-en="Parcel Identification (UPI) *"
+                                data-rw="UPI y'Ubutaka *">Parcel Identification (UPI) *</label>
+                            <input type="text" name="upi" class="form-control" placeholder="e.g., 1/03/08/04/1234"
+                                required>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-5 py-3 prev-btn" data-en="← Previous"
+                            data-rw="← Subira inyuma">← Previous</button>
+                        <button type="button" class="btn btn-primary px-5 py-3 next-btn" data-en="Next Step →"
+                            data-rw="Komeza →">Next Step →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Complaint Details -->
+            <div class="form-step" id="step-3">
+                <div class="form-card">
+                    <h4 class="section-header">
+                        <i class="ri-file-text-line"></i>
+                        <span data-en="3. Complaint Details" data-rw="3. Amakuru arambuye y'Ikibazo">3. Complaint
+                            Details</span>
+                    </h4>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="form-label" data-en="Complaint Type *"
+                                data-rw="Icyiciro cy'Ikibazo *">Complaint Type *</label>
+                            <select name="category" class="form-select" required>
+                                <option value="" disabled selected>Select category...</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" data-en="Description *"
+                                data-rw="Ibisobanuro arambuye *">Description *</label>
+                            <textarea name="description" class="form-control" rows="6"
+                                placeholder="Describe your issue in detail..." required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <p class="form-label mb-2" data-en="Have you approached any other institution about this?"
+                                data-rw="Ese hari ahandi waba wagejeje iki kibazo?">Have you approached any other
+                                institution about this?</p>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="approached_other" id="yes"
+                                        value="yes">
+                                    <label class="form-check-label" for="yes" data-en="Yes" data-rw="Yego">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="approached_other" id="no"
+                                        value="no" checked>
+                                    <label class="form-check-label" for="no" data-en="No" data-rw="Oya">No</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="other_inst_fields" style="display: none;" class="col-12">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label" data-en="Which institution?"
+                                        data-rw="Ni uruhe rwego rwandi?">Which institution?</label>
+                                    <input type="text" name="other_inst_name" class="form-control"
+                                        placeholder="Institution name">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" data-en="Briefly describe the outcome/resolution"
+                                        data-rw="Vuga muri make uko byakemuwe">Briefly describe the
+                                        outcome/resolution</label>
+                                    <textarea name="prev_resolution" class="form-control" rows="3"
+                                        placeholder="Result..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" data-en="Supporting Documents (Optional)"
+                                data-rw="Inyandiko zishimangira (Niba zihari)">Supporting Documents
+                                (Optional)</label>
+                            <input type="file" name="attachment" class="form-control">
+                            <small class="text-muted mt-1 d-block">Allowed files: PDF, PNG, JPG (Max 5MB)</small>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-5 py-3 prev-btn" data-en="← Previous"
+                            data-rw="← Subira inyuma">← Previous</button>
+                        <button type="submit" class="btn btn-primary px-5 py-3" data-en="Submit Complaint"
+                            data-rw="Tanga Ikibazo">Submit Complaint</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $('.next-btn').click(function () {
+            const currentStep = $(this).closest('.form-step');
+            const nextStep = currentStep.next('.form-step');
+            let isValid = true;
+            currentStep.find('input[required], select[required], textarea[required]').each(function () {
+                if (!$(this).val()) { $(this).addClass('is-invalid'); isValid = false; }
+                else { $(this).removeClass('is-invalid'); }
+            });
+            if (isValid) {
+                currentStep.removeClass('active');
+                nextStep.addClass('active');
+                updateIndicators(nextStep.attr('id'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        $('.prev-btn').click(function () {
+            const currentStep = $(this).closest('.form-step');
+            const prevStep = currentStep.prev('.form-step');
+            currentStep.removeClass('active');
+            prevStep.addClass('active');
+            updateIndicators(prevStep.attr('id'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        function updateIndicators(stepId) {
+            const stepNum = parseInt(stepId.split('-')[1]);
+            $('.step-item').removeClass('active completed');
+            $('.step-connector').removeClass('done');
+            for (let i = 1; i <= 3; i++) {
+                if (i < stepNum) { $('#step-' + i + '-i').addClass('completed'); $('#conn-' + i).addClass('done'); }
+                if (i === stepNum) { $('#step-' + i + '-i').addClass('active'); }
+            }
+        }
+
+        $('input[name="approached_other"]').change(function () {
+            if ($(this).val() === 'yes') { $('#other_inst_fields').slideDown(); }
+            else { $('#other_inst_fields').slideUp(); }
+        });
+
+        $('.location-select').change(function () {
+            const type = $(this).attr('name').includes('res') ? 'res' : 'land';
+            const level = $(this).attr('id').includes('province') ? 'province' : 'district';
+            const id = $(this).val();
+            if (level === 'province') {
+                const districtSelect = $('#' + type + '_district');
+                districtSelect.prop('disabled', true).html('<option value="">Loading...</option>');
+                if (id) {
+                    $.getJSON('/ajax/get-locations/', { parent_id: id, type: 'province' }, function (data) {
+                        let options = '<option value="">Select District</option>';
+                        data.forEach(item => { options += `<option value="${item.id}">${item.name}</option>`; });
+                        districtSelect.html(options).prop('disabled', false);
+                    });
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

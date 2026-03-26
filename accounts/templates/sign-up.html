@@ -1,0 +1,398 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+    <!-- Links Of CSS File -->
+    <link href="{% static 'assets/css/sidebar-menu.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/simplebar.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/prism.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/quill.snow.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/remixicon.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/swiper-bundle.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/jsvectormap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Favicon -->
+    <link href="{% static 'assets/images/logo/logo.png' %}" rel="icon" type="image/png" />
+    <link href="{% static 'assets/css/header.css' %}" rel="stylesheet" />
+    <!-- Title -->
+
+    <title>Sign Up | Public Complaint</title>
+    <style>
+        :root {
+            --primary-blue: #0f79f3;
+            --bg-white: #ffffff;
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            background: var(--bg-white);
+            font-family: 'Nunito Sans', sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .auth-main-content {
+            padding: 60px 0;
+            min-height: calc(100vh - 120px);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid #f1f5f9;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            padding: 40px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+            position: relative;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            background-color: var(--input-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(15, 121, 243, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0d66d0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 121, 243, 0.3);
+        }
+
+        .password-wrapper .password-toggle-icon {
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+        }
+
+
+        .form-check-input {
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .login-link {
+            color: var(--primary-blue);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'auth_header.html' %}
+
+    <!-- Start Preloader Area -->
+    <div class="preloader" id="preloader">
+        <div class="preloader">
+            <div class="waviy position-relative">
+                <span class="d-inline-block">L</span>
+                <span class="d-inline-block">O</span>
+                <span class="d-inline-block">A</span>
+                <span class="d-inline-block">D</span>
+                <span class="d-inline-block">I</span>
+                <span class="d-inline-block">N</span>
+                <span class="d-inline-block">G</span>
+            </div>
+        </div>
+    </div>
+    <!-- End Preloader Area -->
+
+    <div class="auth-main-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="auth-card">
+                        {% if messages %}
+                        <div class="mb-4">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <!-- Personal Information -->
+                                <div class="col-12">
+                                    <h5 class="section-title" data-en="Personal Information"
+                                        data-rw="Amakuru yawe bwite">Personal Information</h5>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" data-en="Full Name" data-rw="Amazina yombi">Full
+                                        Name</label>
+                                    <input type="text" class="form-control" name="full_name"
+                                        placeholder="Enter your full name" data-en-placeholder="Enter your full name"
+                                        data-rw-placeholder="Injira amazina yawe yombi" required>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" data-en="Username"
+                                        data-rw="Izina ry'idukoresha">Username</label>
+                                    <input type="text" class="form-control" name="username"
+                                        placeholder="Choose a username" data-en-placeholder="Choose a username"
+                                        data-rw-placeholder="Hitamo izina ry'idukoresha" required>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" data-en="Phone Number" data-rw="Nimero ya terefone">Phone
+                                        Number</label>
+                                    <input type="text" class="form-control" name="phone_number"
+                                        placeholder="Enter your phone number"
+                                        data-en-placeholder="Enter your phone number"
+                                        data-rw-placeholder="Injira nimero ya terefone" required>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" data-en="National ID" data-rw="Indangamuntu">National ID
+                                        <span class="text-muted fw-normal" data-en="(Optional)"
+                                            data-rw="(Ntabwo ari itegeko)">(Optional)</span></label>
+                                    <input type="text" class="form-control" name="national_id"
+                                        placeholder="Enter national ID" data-en-placeholder="Enter national ID"
+                                        data-rw-placeholder="Injira nimero y'indangamuntu">
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <label class="form-label" data-en="Email Address" data-rw="Imeri">Email Address
+                                        <span class="text-muted fw-normal" data-en="(Optional)"
+                                            data-rw="(Ntabwo ari itegeko)">(Optional)</span></label>
+                                    <input type="email" class="form-control" name="email" placeholder="Enter your email"
+                                        data-en-placeholder="Enter your email" data-rw-placeholder="Injira imeri yawe">
+                                </div>
+
+
+                                <!-- Location Information -->
+                                <div class="col-12 mt-3">
+                                    <h5 class="section-title" data-en="Location Information"
+                                        data-rw="Amakuru y'aho utuye">Location Information</h5>
+                                </div>
+
+                                <div class="col-md-3 mb-4">
+                                    <label class="form-label" data-en="Province" data-rw="Intara">Province</label>
+                                    <select class="form-select" name="province" id="id_province" required>
+                                        <option value="" data-en="Select Province" data-rw="Hitamo Intara">Select
+                                            Province</option>
+
+                                        {% for p in provinces %}
+                                        <option value="{{ p.id }}">{{ p.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-4">
+                                    <label class="form-label" data-en="District" data-rw="Akarere">District</label>
+                                    <select class="form-select" name="district" id="id_district" required disabled>
+                                        <option value="" data-en="Select District" data-rw="Hitamo Akarere">Select
+                                            District</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3 mb-4">
+                                    <label class="form-label" data-en="Sector" data-rw="Umurenge">Sector</label>
+                                    <select class="form-select" name="sector" id="id_sector" required disabled>
+                                        <option value="" data-en="Select Sector" data-rw="Hitamo Umurenge">Select Sector
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3 mb-4">
+                                    <label class="form-label" data-en="Village" data-rw="Umudugudu">Village</label>
+                                    <select class="form-select" name="village" id="id_village" required disabled>
+                                        <option value="" data-en="Select Village" data-rw="Hitamo Umudugudu">Select
+                                            Village</option>
+                                    </select>
+                                </div>
+
+
+                                <!-- Security -->
+                                <div class="col-12 mt-3">
+                                    <h5 class="section-title" data-en="Security" data-rw="Umutekano">Security</h5>
+                                </div>
+
+                                <div class="col-12 mb-4">
+                                    <label class="form-label" data-en="Password"
+                                        data-rw="Ijambo ry'ibanga">Password</label>
+                                    <div class="password-wrapper position-relative">
+                                        <input type="password" class="form-control password" name="password"
+                                            placeholder="Create a password" data-en-placeholder="Create a password"
+                                            data-rw-placeholder="Shaka ijambo ry'ibanga" required>
+                                        <i
+                                            class="ri-eye-off-line password-toggle-icon position-absolute top-50 translate-middle-y end-0 me-3"></i>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-12 mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="termsAccepted" required>
+                                        <label class="form-check-label fs-14" for="termsAccepted"
+                                            data-en="I accept the Terms and conditions"
+                                            data-rw="Nemeye amategeko n'amabwiriza">
+                                            I accept the <a href="#" class="login-link" data-en="Terms and conditions"
+                                                data-rw="Amategeko n'amabwiriza">Terms and conditions</a>
+                                        </label>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-12 mb-4">
+                                    <button type="submit" class="btn btn-primary w-100 text-white" data-en="Sign Up"
+                                        data-rw="Iyandikishe">Sign Up</button>
+                                </div>
+
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <p class="mb-0 fs-15" data-en="Already have an account?" data-rw="Usanzwe ufite konti?">
+                                    Already have an account? <a href="{% url 'sign-in' %}" class="login-link"
+                                        data-en="Sign In" data-rw="Kwinjira">Sign In</a></p>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Link Of JS File -->
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/custom/custom.js' %}"></script>
+    <script>
+        // Simple password toggle logic
+        document.querySelector('.password-toggle-icon').addEventListener('click', function () {
+            const passwordInput = document.querySelector('.password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.classList.replace('ri-eye-off-line', 'ri-eye-line');
+            } else {
+                passwordInput.type = 'password';
+                this.classList.replace('ri-eye-line', 'ri-eye-off-line');
+            }
+        });
+
+        // Location hierarchy logic
+        $(document).ready(function () {
+            function loadOptions(type, parentId, targetId, nextId) {
+                const target = $("#" + targetId);
+                target.empty().append('<option value="">Loading...</option>').prop('disabled', true);
+
+                // Also reset children
+                if (nextId) {
+                    $("#" + nextId).empty().append('<option value="">Select Option</option>').prop('disabled', true);
+                    // If there's a village, reset it too when province/district changes
+                    if (targetId === 'id_district') $("#id_village").empty().append('<option value="">Select Option</option>').prop('disabled', true);
+                }
+
+                $.ajax({
+                    url: "{% url 'get_locations' %}",
+                    data: { 'type': type, 'parent_id': parentId },
+                    success: function (data) {
+                        target.empty().append('<option value="">Select Option</option>');
+                        $.each(data, function (index, item) {
+                            target.append('<option value="' + item.id + '">' + item.name + '</option>');
+                        });
+                        target.prop('disabled', false);
+                    }
+                });
+            }
+
+            $("#id_province").change(function () {
+                const provinceId = $(this).val();
+                if (provinceId) loadOptions('province', provinceId, 'id_district', 'id_sector');
+            });
+
+            $("#id_district").change(function () {
+                const districtId = $(this).val();
+                if (districtId) loadOptions('district', districtId, 'id_sector', 'id_village');
+            });
+
+            $("#id_sector").change(function () {
+                const sectorId = $(this).val();
+                if (sectorId) loadOptions('sector', sectorId, 'id_village', null);
+            });
+        });
+
+        // Preloader hide
+        window.addEventListener('load', function () {
+            const preloader = document.getElementById('preloader');
+            if (preloader) preloader.style.display = 'none';
+        });
+    </script>
+    <script src="{% static 'assets/js/header.js' %}"></script>
+</body>
+
+
+</html>

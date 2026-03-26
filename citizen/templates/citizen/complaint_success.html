@@ -1,0 +1,45 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Submission Successful{% endblock %}
+
+{% block content %}
+<div class="container-fluid pf-4 py-5">
+    <div class="container text-center">
+        <div class="card p-5 shadow-sm border-0 mx-auto" style="max-width: 600px; border-radius: 20px;">
+            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-4"
+                style="width: 100px; height: 100px;">
+                <i class="ri-checkbox-circle-fill text-success" style="font-size: 60px;"></i>
+            </div>
+            <h2 class="fw-bold mb-3" data-en="Complaint Submitted Successfully!" data-rw="Ikibazo CYakirwe neza!">
+                Complaint Submitted Successfully!</h2>
+            <p class="text-muted fs-18 mb-4">
+                <span
+                    data-en="Your complaint has been recorded. Please save your tracking number to check the status later."
+                    data-rw="Ikibazo cyawe cyanditswe. Wagumana nimero yo kugikurikira kugira ngo uzabashe kureba aho kigeze.">
+                    Your complaint has been recorded. Please save your tracking number to check the status later.
+                </span>
+            </p>
+
+            <div class="bg-light p-4 rounded-3 mb-4">
+                <span class="d-block text-muted small text-uppercase fw-bold mb-1" data-en="Tracking Number"
+                    data-rw="Nimero yo Gukurikirana">Tracking Number</span>
+                <h1 class="display-6 fw-bold text-primary mb-0">{{ complaint.tracking_number }}</h1>
+            </div>
+
+            <div class="d-grid gap-2">
+                {% if user.is_authenticated %}
+                <a href="{% url 'citizen_dashboard' %}" class="btn btn-outline-secondary py-3 fw-bold"
+                    data-en="Back to Dashboard" data-rw="Subira ku Ikibaho">Back to Dashboard</a>
+                {% else %}
+                <a href="{% url 'landing_page' %}" class="btn btn-outline-secondary py-3 fw-bold" data-en="Back to Home"
+                    data-rw="Subira Ahabanza">Back to Home</a>
+                {% endif %}
+                <a href="{% url 'complaint_track' %}?tracking_number={{ complaint.tracking_number }}"
+                    class="btn btn-primary py-3 fw-bold" data-en="Track Progress" data-rw="Kurikirana Aho Bigeze">Track
+                    Progress</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0" data-en="Settings" data-rw="Igenamiterere">Settings</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="index.html">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14 hover" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li aria-current="page" class="breadcrumb-item active">
+                    <span class="text-secondary" data-en="Settings" data-rw="Igenamiterere">Settings</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border border-white rounded-10 p-20 mb-4">
+        <ul class="ps-0 mb-4 list-unstyled d-flex flex-wrap gap-2 gap-lg-3">
+            <li>
+                <a class="btn btn-primary border-primary bg-primary text-white fs-16 fw-normal px-3 px-lg-4"
+                    href="{% url 'account-settings' %}">
+                    <span data-en="Account Settings" data-rw="Igenamiterere ry'Konti">Account Settings</span>
+                </a>
+            </li>
+            <li>
+                <a class="btn btn-primary border-border-color-70 bg-transparent text-secondary fs-16 fw-normal px-3 px-lg-4"
+                    href="{% url 'change-password' %}">
+                    <span data-en="Change Password" data-rw="Hindura Ijambo banga">Change Password</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="mb-20">
+            <h3 class="mb-1 fs-22" data-en="Profile" data-rw="Umwirondoro">Profile</h3>
+            <p class="fs-16 lh-1-8" data-en="Update your photo and personal details here."
+                data-rw="Hindura ifoto yawe n'amakuru bwite hano.">
+                Update your photo and personal details here.
+            </p>
+        </div>
+
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="Full Name" data-rw="Amazina Yuzuye">Full Name</label>
+                        <div class="form-floating">
+                            {{ form.full_name }}
+                            <label for="floatingInput1" data-en="Full name" data-rw="Amazina Yuzuye">Full name</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="Email Address" data-rw="Imeyili">Email Address</label>
+                        <div class="form-floating">
+                            {{ form.email }}
+                            <label for="floatingInput3" data-en="Email address" data-rw="Imeyili">Email address</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="Phone Number" data-rw="Telefoni">Phone Number</label>
+                        <div class="form-floating">
+                            {{ form.phone_number }}
+                            <label for="floatingInput4" data-en="Phone number" data-rw="Telefoni">Phone number</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="Gender" data-rw="Igitsina">Gender</label>
+                        <div class="form-floating">
+                            {{ form.gender }}
+                            <label for="floatingSelect8" data-en="Select Gender" data-rw="Hitamo Igitsina">Select
+                                Gender</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <h5 class="fs-18 fw-semibold mt-3 mb-3 border-bottom pb-2 text-dark" data-en="Location Information"
+                        data-rw="Amakuru y'Ahantu">Location Information</h5>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="Province" data-rw="Intara">Province</label>
+                        <div class="form-floating">
+                            {{ form.province }}
+                            <label for="province" data-en="Select Province" data-rw="Hitamo Intara">Select
+                                Province</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="District" data-rw="Akarere">District</label>
+                        <div class="form-floating">
+                            {{ form.district }}
+                            <label for="district" data-en="Select District" data-rw="Hitamo Akarere">Select
+                                District</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="Sector" data-rw="Umurenge">Sector</label>
+                        <div class="form-floating">
+                            {{ form.sector }}
+                            <label for="sector" data-en="Select Sector" data-rw="Hitamo Umurenge">Select Sector</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="Village" data-rw="Umudugudu">Village</label>
+                        <div class="form-floating">
+                            {{ form.village }}
+                            <label for="village" data-en="Select Village" data-rw="Hitamo Umudugudu">Select
+                                Village</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="mb-20 mt-4">
+                        <h3 class="mb-1 fs-22" data-en="Your Photo" data-rw="Ifoto Yawe">Your Photo</h3>
+                        <p class="fs-16 lh-1-8" data-en="This will be displayed on your profile."
+                            data-rw="Iyi izagaragara ku mwirondoro wawe.">
+                            This will be displayed on your profile.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group mb-4 only-file-upload" id="file-upload">
+                        <div class="form-control h-100 text-center position-relative p-4 p-lg-5">
+                            <div class="product-upload" onclick="document.getElementById('upload-files').click();">
+                                <label class="file-upload mb-0">
+                                    <i
+                                        class="ri-folder-image-line bg-primary bg-opacity-10 p-2 rounded-1 text-primary"></i>
+                                    <span class="d-block text-body fs-14">
+                                        <span data-en="Drag and drop an image or" data-rw="Kururura ifoto cyangwa">Drag
+                                            and drop an image or</span>
+                                        <span class="text-primary text-decoration-underline" data-en="Browse"
+                                            data-rw="Shakisha">Browse</span>
+                                    </span>
+                                </label>
+                                <label class="position-absolute top-0 bottom-0 start-0 end-0 cursor"
+                                    id="upload-container">
+                                    {{ form.profile_picture }}
+                                </label>
+                            </div>
+                        </div>
+                        {% if request.user.profile_picture %}
+                        <div class="mt-3">
+                            <img src="{{ request.user.profile_picture.url }}" alt="Profile" class="rounded-circle"
+                                style="width: 100px; height: 100px; object-fit: cover;">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary fw-normal text-white" type="submit">
+                            <span data-en="Update Profile" data-rw="Vugurura Umwirondoro">Update Profile</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <style>
+        #upload-files {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0 !important;
+            cursor: pointer !important;
+            z-index: 10;
+        }
+
+        #upload-container {
+            z-index: 5;
+            cursor: pointer !important;
+        }
+    </style>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .location-disabled {
+        background-color: #e9ecef !important;
+        pointer-events: none;
+        opacity: 0.65;
+    }
+</style>
+<script>
+    $(function () {
+        // ── image preview ─────────────────────────────────────────────
+        var fileInput = document.getElementById('upload-files');
+        var previewContainer = document.getElementById('file-upload');
+        if (fileInput) {
+            fileInput.addEventListener('change', function (e) {
+                if (e.target.files && e.target.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (ev) {
+                        var preview = previewContainer.querySelector('img.rounded-circle');
+                        if (!preview) {
+                            var div = document.createElement('div');
+                            div.className = 'mt-3';
+                            preview = document.createElement('img');
+                            preview.className = 'rounded-circle';
+                            preview.style.cssText = 'width:100px;height:100px;object-fit:cover;';
+                            div.appendChild(preview);
+                            previewContainer.appendChild(div);
+                        }
+                        preview.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+
+        // ── location helpers ──────────────────────────────────────────
+        function disableSelect(id, label) {
+            $('#' + id)
+                .empty()
+                .append('<option value="">' + label + '</option>')
+                .addClass('location-disabled');
+        }
+
+        function loadOptions(type, parentId, targetId, targetLabel, callback, selectedId) {
+            var target = $('#' + targetId);
+            target.empty().append('<option value="">Loading...</option>').addClass('location-disabled');
+
+            $.ajax({
+                url: '{% url "get_locations" %}',
+                data: { type: type, parent_id: parentId },
+                success: function (data) {
+                    target.empty().append('<option value="">' + targetLabel + '</option>');
+                    $.each(data, function (i, item) {
+                        var sel = (selectedId && item.id == selectedId) ? ' selected' : '';
+                        target.append('<option value="' + item.id + '"' + sel + '>' + item.name + '</option>');
+                    });
+                    target.removeClass('location-disabled');   // enable!
+                    if (callback) callback();
+                },
+                error: function () {
+                    target.empty().append('<option value="">' + targetLabel + '</option>');
+                    target.removeClass('location-disabled');
+                }
+            });
+        }
+
+        // start district/sector/village as visually disabled
+        disableSelect('district', 'Select District');
+        disableSelect('sector', 'Select Sector');
+        disableSelect('village', 'Select Village');
+
+        // ── pre-load saved location on page open ──────────────────────
+        var savedProvince = '{{ form.instance.province_id|default:"" }}';
+        var savedDistrict = '{{ form.instance.district_id|default:"" }}';
+        var savedSector = '{{ form.instance.sector_id|default:"" }}';
+        var savedVillage = '{{ form.instance.village_id|default:"" }}';
+
+        if (savedProvince) {
+            $('#province').val(savedProvince);
+            loadOptions('province', savedProvince, 'district', 'Select District', function () {
+                if (savedDistrict) {
+                    $('#district').val(savedDistrict);
+                    loadOptions('district', savedDistrict, 'sector', 'Select Sector', function () {
+                        if (savedSector) {
+                            $('#sector').val(savedSector);
+                            loadOptions('sector', savedSector, 'village', 'Select Village', function () {
+                                if (savedVillage) $('#village').val(savedVillage);
+                            }, savedVillage);
+                        }
+                    }, savedSector);
+                }
+            }, savedDistrict);
+        }
+
+        // ── cascade on user selection ─────────────────────────────────
+        $('#province').change(function () {
+            var id = $(this).val();
+            disableSelect('sector', 'Select Sector');
+            disableSelect('village', 'Select Village');
+            if (id) {
+                loadOptions('province', id, 'district', 'Select District', null, null);
+            } else {
+                disableSelect('district', 'Select District');
+            }
+        });
+
+        $('#district').change(function () {
+            var id = $(this).val();
+            disableSelect('village', 'Select Village');
+            if (id) {
+                loadOptions('district', id, 'sector', 'Select Sector', null, null);
+            } else {
+                disableSelect('sector', 'Select Sector');
+            }
+        });
+
+        $('#sector').change(function () {
+            var id = $(this).val();
+            if (id) {
+                loadOptions('sector', id, 'village', 'Select Village', null, null);
+            } else {
+                disableSelect('village', 'Select Village');
+            }
+        });
+
+        // ── bilingual support ─────────────────────────────────────────
+        var currentLang = localStorage.getItem('lang') || 'en';
+        applyLanguage(currentLang);
+
+        window.setLanguage = function (lang) {
+            localStorage.setItem('lang', lang);
+            applyLanguage(lang);
+        };
+
+        function applyLanguage(lang) {
+            $('[data-en]').each(function () {
+                $(this).text($(this).data(lang));
+            });
+            if (lang === 'en') {
+                $('#lang-en').removeClass('btn-outline-primary').addClass('btn-primary');
+                $('#lang-rw').removeClass('btn-primary').addClass('btn-outline-secondary');
+            } else {
+                $('#lang-rw').removeClass('btn-outline-secondary').addClass('btn-primary');
+                $('#lang-en').removeClass('btn-primary').addClass('btn-outline-primary');
+            }
+        }
+    });
+</script>
+{% endblock %}

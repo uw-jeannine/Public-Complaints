@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Complaints{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0" data-en="All Complaints" data-rw="Ibibazo Byose">All Complaints</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'admin_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" data-en="Complaints Review" data-rw="Gusuzuma Ibibazo">Complaints
+                    Review</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-white border-0 rounded-10 p-3 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="ri-file-list-3-line text-primary fs-24"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fs-20 fw-bold">{{ stats.total }}</h4>
+                        <p class="text-muted mb-0" data-en="Total Complaints" data-rw="Ibibazo Byose">Total Complaints
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-white border-0 rounded-10 p-3 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="ri-time-line text-warning fs-24"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fs-20 fw-bold">{{ stats.pending }}</h4>
+                        <p class="text-muted mb-0" data-en="Pending Review" data-rw="Bitegereje">Pending Review</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-white border-0 rounded-10 p-3 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="ri-checkbox-circle-line text-success fs-24"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fs-20 fw-bold">{{ stats.resolved }}</h4>
+                        <p class="text-muted mb-0" data-en="Resolved" data-rw="Byakemutse">Resolved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters & Table -->
+    <div class="card bg-white rounded-10 border-0 mb-4 shadow-sm">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <form method="GET" class="d-flex gap-2 flex-grow-1" style="max-width: 500px;">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="ri-search-line text-muted"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0"
+                        placeholder="Search by tracking #, name or ID..." value="{{ q }}">
+                </div>
+                <select name="status" class="form-select w-auto" onchange="this.form.submit()">
+                    <option value="" data-en="All Statuses" data-rw="Imiterere Yose">All Statuses</option>
+                    <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="in_progress" {% if current_status == 'in_progress' %}selected{% endif %}>In Progress
+                    </option>
+                    <option value="resolved" {% if current_status == 'resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary px-3" data-en="Filter"
+                    data-rw="Shungura">Filter</button>
+            </form>
+        </div>
+
+        <div class="p-3">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col" data-en="Tracking #" data-rw="Nimero">Tracking #</th>
+                            <th scope="col" data-en="Complainant" data-rw="Uwatunze ikibazo">Complainant</th>
+                            <th scope="col" data-en="Category" data-rw="Icyiciro">Category</th>
+                            <th scope="col" data-en="Date" data-rw="Itariki">Date</th>
+                            <th scope="col" data-en="Status" data-rw="Imiterere">Status</th>
+                            <th scope="col" data-en="Priority" data-rw="Icyihutirwa">Priority</th>
+                            <th scope="col" class="text-end" data-en="Actions" data-rw="Ibikorwa">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in complaints %}
+                        <tr>
+                            <td><span class="fw-bold text-primary">{{ c.tracking_number }}</span></td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-semibold">{{ c.full_name }}</span>
+                                    <small class="text-muted">{{ c.phone_number }}</small>
+                                </div>
+                            </td>
+                            <td>{{ c.category.name }}</td>
+                            <td>{{ c.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if c.status == 'pending' %}
+                                <span class="badge bg-warning-subtle text-warning px-3 py-2">Pending</span>
+                                {% elif c.status == 'in_progress' %}
+                                <span class="badge bg-primary-subtle text-primary px-3 py-2">In Progress</span>
+                                {% elif c.status == 'resolved' %}
+                                <span class="badge bg-success-subtle text-success px-3 py-2">Resolved</span>
+                                {% else %}
+                                <span class="badge bg-danger-subtle text-danger px-3 py-2">Rejected</span>
+                                {% endif %}
+                            <td>
+                                {% if c.risk_score > 0.7 %}
+                                <span class="text-danger fw-bold"><i class="ri-fire-fill"></i> High ({{c.risk_percentage }}%)</span>
+                                {% elif c.risk_score > 0.4 %}
+                                <span class="text-warning fw-bold"><i class="ri-alert-line"></i> Medium ({{c.risk_percentage }}%)</span>
+                                {% else %}
+                                <span class="text-success fw-bold"><i class="ri-check-line"></i> Low ({{c.risk_percentage }}%)</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'admin_complaint_detail' c.pk %}"
+                                    class="text-primary fw-bold text-decoration-none small" data-en="Review"
+                                    data-rw="Suzuma">
+                                    <i class="ri-arrow-right-line"></i> Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <p class="text-muted mb-0" data-en="No complaints found matching your criteria."
+                                    data-rw="Nta bibazo byabonetse bihwanye n'ibyo washatse.">No complaints found
+                                    matching your criteria.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if complaints.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if complaints.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ complaints.previous_page_number }}&q={{ q }}&status={{ current_status }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in complaints.paginator.page_range %}
+                    <li class="page-item {% if complaints.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}&q={{ q }}&status={{ current_status }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if complaints.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ complaints.next_page_number }}&q={{ q }}&status={{ current_status }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

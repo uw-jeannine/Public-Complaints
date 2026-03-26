@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+    <!-- Links Of CSS File -->
+    <link href="{% static 'assets/css/sidebar-menu.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/simplebar.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/prism.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/quill.snow.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/remixicon.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/swiper-bundle.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/jsvectormap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Favicon -->
+    <link href="{% static 'assets/images/logo/logo.png' %}" rel="icon" type="image/png" />
+    <link href="{% static 'assets/css/header.css' %}" rel="stylesheet" />
+    <!-- Title -->
+
+    <title>Sign In | Public Complaint</title>
+    <style>
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+        }
+
+        .auth-main-content {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: calc(100vh - 120px);
+            /* Adjust for header height (banner + navbar) */
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .auth-logo {
+            max-width: 120px;
+            margin-bottom: 30px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+        }
+
+        .btn-primary {
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(15, 121, 243, 0.4);
+        }
+
+        .social-btn {
+            width: 45px;
+            height: 45px;
+            line-height: 45px;
+            border-radius: 50%;
+            display: inline-block;
+            text-align: center;
+            color: #fff;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .social-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .facebook {
+            background-color: #3b5998;
+        }
+
+        .google {
+            background-color: #db4437;
+        }
+
+        .twitter {
+            background-color: #1da1f2;
+        }
+
+        .linkedin {
+            background-color: #0077b5;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'auth_header.html' %}
+    <!-- Start Preloader Area -->
+    <div class="preloader" id="preloader">
+        <div class="preloader">
+            <div class="waviy position-relative">
+                <span class="d-inline-block">L</span>
+                <span class="d-inline-block">O</span>
+                <span class="d-inline-block">A</span>
+                <span class="d-inline-block">D</span>
+                <span class="d-inline-block">I</span>
+                <span class="d-inline-block">N</span>
+                <span class="d-inline-block">G</span>
+            </div>
+        </div>
+    </div>
+    <!-- End Preloader Area -->
+
+    <div class="auth-main-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card auth-card bg-white p-4 p-md-5">
+                        <div class="text-center">
+                            <a href="/">
+                                <img src="{% static 'assets/images/logo/logo.png' %}" alt="Logo" class="auth-logo">
+                            </a>
+                            <h3 class="fs-28 fw-bold mb-2" data-en="Welcome Back" data-rw="Murakaza neza">Welcome Back
+                            </h3>
+                            <p class="text-secondary mb-4" data-en="Sign in to continue to Public Complaint"
+                                data-rw="Injira kugira ngo ukomeze muri LandConnect">Sign in to continue to Public
+                                Complaint</p>
+
+                        </div>
+
+                        {% if messages %}
+                        <div class="mb-3">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label fw-medium" data-en="Username or Phone Number"
+                                    data-rw="Izina ryo gukoresha cyangwa Nimero ya terefone">Username or Phone
+                                    Number</label>
+                                <input type="text" class="form-control" name="username"
+                                    placeholder="Enter your username or phone"
+                                    data-en-placeholder="Enter your username or phone"
+                                    data-rw-placeholder="Injira izina ryo gukoresha cyangwa terefone" required>
+
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-medium mb-0" data-en="Password"
+                                        data-rw="Ijambo ry'ibanga">Password</label>
+                                </div>
+                                <div class="password-wrapper position-relative">
+                                    <input type="password" class="form-control password" name="password"
+                                        placeholder="Enter your password" data-en-placeholder="Enter your password"
+                                        data-rw-placeholder="Injira ijambo ry'ibanga ryawe" required>
+
+                                    <i class="ri-eye-off-line password-toggle-icon position-absolute top-50 translate-middle-y end-0 me-3 cursor text-secondary"
+                                        style="font-size: 20px;"></i>
+                                </div>
+                            </div>
+                            <div class="mb-4 d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label fs-14" for="rememberMe" data-en="Remember me"
+                                        data-rw="Nyibuka">Remember me</label>
+                                </div>
+
+                            </div>
+                            <div class="mb-4">
+                                <button type="submit" class="btn btn-primary w-100 text-white" data-en="Sign In"
+                                    data-rw="Kwinjira">Sign In</button>
+
+                            </div>
+
+                            <div class="text-center">
+                                <p class="mb-0 fs-15" data-en="Don't have an account?" data-rw="Ntabwo ufite konti?">
+                                    Don't have an account? <a href="{% url 'sign-up' %}"
+                                        class="text-primary fw-bold text-decoration-none login-link" data-en="Sign Up"
+                                        data-rw="Iyandikishe">Sign Up</a></p>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link Of JS File -->
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/custom/custom.js' %}"></script>
+    <script>
+        // Simple password toggle logic
+        document.querySelector('.password-toggle-icon').addEventListener('click', function () {
+            const passwordInput = document.querySelector('.password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.classList.replace('ri-eye-off-line', 'ri-eye-line');
+            } else {
+                passwordInput.type = 'password';
+                this.classList.replace('ri-eye-line', 'ri-eye-off-line');
+            }
+        });
+
+        // Preloader hide
+        window.addEventListener('load', function () {
+            document.getElementById('preloader').style.display = 'none';
+        });
+    </script>
+    <script src="{% static 'assets/js/header.js' %}"></script>
+</body>
+
+
+</html>

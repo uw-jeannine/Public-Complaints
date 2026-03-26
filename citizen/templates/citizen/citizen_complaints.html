@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Complaints{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0" data-en="My Complaints" data-rw="Ibibazo Byanjye">My Complaints</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'citizen_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" data-en="All Complaints" data-rw="Ibibazo Byose">All Complaints</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Complaints List Table -->
+    <div class="card bg-white rounded-10 border-0 mb-4">
+        <div class="d-flex justify-content-between align-items-center p-4 border-bottom">
+            <h3 class="fs-18 fw-semibold mb-0" data-en="Complaints History" data-rw="Urutonde rw'Ibibazo">Complaints
+                History</h3>
+            <a href="{% url 'complaint_file' %}" class="btn btn-primary btn-sm" data-en="+ File New Complaint"
+                data-rw="+ Tanga Ikibazo Gishya">+ File New Complaint</a>
+        </div>
+        <div class="p-4">
+            <div class="default-table-area style-two">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col" data-en="Tracking #" data-rw="Nimero">Tracking #</th>
+                                <th scope="col" data-en="Category" data-rw="Icyiciro">Category</th>
+                                <th scope="col" data-en="Date Filed" data-rw="Itariki">Date Filed</th>
+                                <th scope="col" data-en="Status" data-rw="Imiterere">Status</th>
+                                <th scope="col" data-en="Action" data-rw="Igikorwa">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in complaints %}
+                            <tr>
+                                <td class="fw-bold text-primary">{{ c.tracking_number }}</td>
+                                <td>{{ c.category.name }}</td>
+                                <td>{{ c.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if c.status == 'pending' %}
+                                    <span class="badge bg-warning-subtle text-warning px-2 py-1">Pending</span>
+                                    {% elif c.status == 'in_progress' %}
+                                    <span class="badge bg-primary-subtle text-primary px-2 py-1">In Progress</span>
+                                    {% elif c.status == 'resolved' %}
+                                    <span class="badge bg-success-subtle text-success px-2 py-1">Resolved</span>
+                                    {% else %}
+                                    <span class="badge bg-danger-subtle text-danger px-2 py-1">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary btn-sm bg-transparent border-0 text-body p-0"
+                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ri-more-2-fill fs-18"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                            <li>
+                                                <a class="dropdown-item" href="{% url 'complaint_detail' c.pk %}">
+                                                    <i class="ri-eye-line me-2 text-primary"></i> <span
+                                                        data-en="View Details" data-rw="Ibisobanuro">View Details</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="ri-file-list-3-line fs-1 d-block mb-2"></i>
+                                    <p data-en="You haven't filed any complaints yet."
+                                        data-rw="Ntabwo uratanga ikibazo narimwe.">You haven't filed any complaints yet.
+                                    </p>
+                                    <a href="{% url 'complaint_file' %}" class="btn btn-primary mt-3"
+                                        data-en="File Your First Complaint" data-rw="Tanga Ikibazo Cyawe cya Mbere">File
+                                        Your First Complaint</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

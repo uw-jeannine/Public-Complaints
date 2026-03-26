@@ -1,0 +1,482 @@
+{% extends 'base_public.html' %}
+{% load static %}
+
+{% block title %}Welcome to LandConnect{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --irembo-blue: #0047bb;
+        --irembo-yellow: #ffc72c;
+    }
+
+    /* Announcement Banner */
+    .announcement-banner {
+        background-color: #fff3cd;
+        border-bottom: 1px solid #ffeeba;
+        padding: 12px 0;
+        z-index: 1001;
+    }
+
+    .announcement-badge {
+        background: var(--irembo-blue);
+        color: white;
+        padding: 3px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .announcement-btn {
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(rgba(0, 46, 122, 0.8), rgba(0, 46, 122, 0.7)),
+        url("{% static 'assets/images/land-consolidation.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        padding: 130px 0;
+        color: white;
+        margin-bottom: 40px;
+        border-bottom: 5px solid var(--irembo-yellow);
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4.2rem);
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        color: white !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        max-width: 850px;
+        opacity: 0.95;
+        font-weight: 500;
+        color: #f8fafc !important;
+        line-height: 1.6;
+    }
+
+    /* Search Container */
+    .search-container {
+        max-width: 750px;
+    }
+
+    .search-box {
+        background: white;
+        padding: 10px;
+        border-radius: 50px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .search-box input {
+        font-size: 1.1rem;
+        padding-left: 20px;
+    }
+
+    .search-box input:focus {
+        box-shadow: none;
+    }
+
+    .search-box .btn-primary {
+        border-radius: 50px;
+        padding-left: 35px;
+        padding-right: 35px;
+    }
+
+    /* Search Results */
+    .search-results-dropdown {
+        position: absolute;
+        top: 105%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 20px;
+        margin-top: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1010;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        text-align: left;
+    }
+
+    .search-results-dropdown.open {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    .search-result-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 24px;
+        text-decoration: none;
+        color: #1e293b;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s;
+    }
+
+    .search-result-item:hover {
+        background: #f8fafc;
+        color: var(--irembo-blue);
+    }
+
+    .search-result-icon {
+        width: 40px;
+        height: 40px;
+        background: #f1f5f9;
+        color: var(--irembo-blue);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-right: 15px;
+    }
+
+    .search-result-text strong {
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .search-result-text span {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+    }
+
+    .search-no-results {
+        padding: 30px;
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    /* Service Cards */
+    .service-card {
+        background: white;
+        padding: 50px 35px;
+        border-radius: 28px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border: 1px solid #e2e8f0;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border-color: var(--irembo-blue);
+    }
+
+    .service-icon {
+        width: 64px;
+        height: 64px;
+        background: #f0f7ff;
+        color: var(--irembo-blue);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        margin: 0 auto 24px;
+        transition: all 0.3s;
+    }
+
+    .service-card:hover .service-icon {
+        background: var(--irembo-blue);
+        color: white;
+    }
+
+    .service-card h4 {
+        color: #1e293b;
+        font-size: 1.25rem;
+        font-weight: 800;
+    }
+
+    /* Resources Section */
+    .resource-item {
+        background: white;
+        padding: 30px;
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .resource-item:hover {
+        border-color: var(--irembo-blue);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .resource-icon-sm {
+        width: 52px;
+        height: 52px;
+        background: #eff6ff;
+        color: var(--irembo-blue);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Announcement Banner -->
+{% if announcement %}
+<div class="announcement-banner">
+    <div class="container d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <div class="announcement-badge" data-en="NEW" data-rw="KASHI">NEW</div>
+            <p class="mb-0 fw-500 text-truncate" style="max-width: 700px;">
+                <span data-en="{{ announcement.title_en }}" data-rw="{{ announcement.title_rw }}">
+                    {{ announcement.title_en }}
+                </span>
+            </p>
+        </div>
+        <a href="{% url 'complaint_file' %}" class="btn btn-primary px-3 py-2 fw-600 announcement-btn"
+            data-en="File a Complaint" data-rw="Tanga Ikibazo">File a Complaint</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="hero-title" data-en="Resolve Land Disputes Efficiently"
+            data-rw="Kemura Ibibazo by'Ubutaka mu buryo Bwihuse">
+            Resolve Land Disputes Efficiently
+        </h1>
+        <p class="hero-subtitle mb-5 mx-auto"
+            data-en="A transparent and accessible platform for citizens to report, track, and resolve land-related grievances with ease."
+            data-rw="Uburyo bworoshye kandi bugaragara butuma abaturage bageza ibibazo byabo ku nzego zishinzwe ubutaka, bakabikurikira kugeza bikemutse.">
+            A transparent and accessible platform for citizens to report, track, and resolve land-related grievances
+            with ease.
+        </p>
+
+        <div class="search-container mx-auto position-relative">
+            <div class="search-box d-flex align-items-center">
+                <i class="ri-search-line fs-20 text-muted ms-3"></i>
+                <input type="text" id="searchInput" class="form-control border-0"
+                    placeholder="Search for services, guidelines, track status..."
+                    data-en-placeholder="Search for services, guidelines, track status..."
+                    data-rw-placeholder="Shaka serivisi, amabwiriza, reba aho dosiye igeze...">
+                <button class="btn btn-primary mx-1 px-4 py-2 fw-600" id="searchBtn" data-en="Search"
+                    data-rw="Shaka">Search</button>
+            </div>
+            <div id="searchResults" class="search-results-dropdown shadow"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section class="py-5" id="services">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="service-card text-center">
+                    <div class="service-icon"><i class="ri-edit-box-line"></i></div>
+                    <h4 class="fw-700 mb-3" data-en="File a New Complaint" data-rw="Tanga Ikibazo Gishya">File a New
+                        Complaint</h4>
+                    <p class="text-muted mb-4 small"
+                        data-en="Submit your land-related grievance directly to the National Land Authority."
+                        data-rw="Uzuza inyandiko ugaragaza ikibazo cy'ubutaka ufite ugihejeje ku buyobozi bw'ubutaka.">
+                        Submit your land-related grievance directly to the National Land Authority.</p>
+                    <a href="{% url 'complaint_file' %}" class="btn btn-outline-primary w-100 py-2 fw-600"
+                        data-en="Start Now" data-rw="Tangira ubu">Start Now</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card text-center">
+                    <div class="service-icon"><i class="ri-radar-line"></i></div>
+                    <h4 class="fw-700 mb-3" data-en="Track Progress" data-rw="Kurikirana aho bigeze">Track Progress</h4>
+                    <p class="text-muted mb-4 small"
+                        data-en="Use your reference number to monitor the status and resolution of your case."
+                        data-rw="Reba aho ikibazo witanze kigeze ukoresheje nimero wahawe dosiye yakiriwe.">
+                        Use your reference number to monitor the status and resolution of your case.</p>
+                    <a href="{% url 'complaint_track' %}" class="btn btn-outline-primary w-100 py-2 fw-600"
+                        data-en="Track Status" data-rw="Reba aho bigeze">Track Status</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card text-center">
+                    <div class="service-icon"><i class="ri-message-2-line"></i></div>
+                    <h4 class="fw-700 mb-3" data-en="Check via SMS" data-rw="Reba kuri SMS">Check via SMS</h4>
+                    <p class="text-muted mb-4 small"
+                        data-en="Get instant updates on your mobile phone by sending your tracking ID to 1234."
+                        data-rw="Bona amakuru yaho dosiye igeze kuri telefoni yawe wohereje nimero ya dosiye kuri 1234.">
+                        Get instant updates on your mobile phone by sending your tracking ID to 1234.</p>
+                    <button class="btn btn-outline-primary w-100 py-2 fw-600" data-bs-toggle="modal"
+                        data-bs-target="#smsModal" data-en="How it works" data-rw="Uko bikora">How it works</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Resources/FAQ -->
+<section class="py-5 bg-light" id="resources">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-800" data-en="Resources & Support" data-rw="Ubufasha n'Amabwiriza">Resources & Support</h2>
+            <p class="text-muted" data-en="Everything you need to know about the land dispute process."
+                data-rw="Ibyo wamenya byose ku bijyanye n'uburyo ibibazo by'ubutaka bikemurwa.">Everything you need to
+                know about the land dispute process.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <div class="resource-item d-flex align-items-start gap-3">
+                    <div class="resource-icon-sm"><i class="ri-file-text-line"></i></div>
+                    <div>
+                        <h5 class="fw-700 mb-1" data-en="Guidelines" data-rw="Amabwiriza">Guidelines</h5>
+                        <p class="text-muted small mb-0" data-en="Download official procedures and requirements."
+                            data-rw="Shaka amabwiriza agenga iyakirwa ry'ibibazo by'ubutaka.">Download official
+                            procedures and requirements.</p>
+                        <a href="{% url 'complaint_guidelines' %}"
+                            class="text-primary fw-600 mt-2 d-inline-block small">View
+                            Handbook →</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="resource-item d-flex align-items-start gap-3">
+                    <div class="resource-icon-sm"><i class="ri-question-line"></i></div>
+                    <div>
+                        <h5 class="fw-700 mb-1" data-en="Common FAQs" data-rw="Ibibazo Bikunze Kubazwa">Common FAQs</h5>
+                        <p class="text-muted small mb-0" data-en="Quick answers to frequently asked questions."
+                            data-rw="Bona ibisubizo by'ibibazo abantu bakunze kubaza.">Quick answers to frequently asked
+                            questions.</p>
+                        <a href="{% url 'help_center' %}#faq" class="text-primary fw-600 mt-2 d-inline-block small">Read
+                            FAQs →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SMS Modal -->
+<div class="modal fade" id="smsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 20px;">
+            <div class="modal-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="ri-message-line text-primary" style="font-size: 60px;"></i>
+                </div>
+                <h4 class="fw-800 mb-3" data-en="Track via SMS" data-rw="Kurikirana kuri SMS">Track via SMS</h4>
+                <p class="text-muted mb-4"
+                    data-en="Simply send your tracking ID to our shortcode to get the latest status directly on your phone."
+                    data-rw="Kohereza nimero y'ikibazo cyawe kuri nimero ngufi yacu kugira ngo uhite ubona aho bigeze kuri telefoni yawe.">
+                    Simply send your tracking ID to our shortcode to get the latest status directly on your phone.
+                </p>
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <code class="fs-20 fw-800 text-primary">ID [TRACKING_NUMBER]</code>
+                    <p class="mb-0 mt-2 small text-muted" data-en="Ex: ID LA2024-5582 to 1234"
+                        data-rw="Urugero: ID LA2024-5582 kuri 1234">Ex: ID LA2024-5582 to 1234</p>
+                </div>
+                <button type="button" class="btn btn-primary w-100 py-3 fw-700" data-bs-dismiss="modal" data-en="Got it"
+                    data-rw="Nabyumvise">Got it</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        // ── Live Search ──────────────────────────────────────────────
+        const SERVICES = [
+            { label: 'File a New Complaint', labelRw: 'Tanga Ikibazo Gishya', url: '{% url "complaint_file" %}', icon: 'ri-edit-box-line', cat: 'Complaints' },
+            { label: 'Complaint Guidelines', labelRw: 'Amabwiriza yo Gutanga Ikibazo', url: '{% url "complaint_guidelines" %}', icon: 'ri-file-list-3-line', cat: 'Complaints' },
+            { label: 'Required Documents', labelRw: 'Inyandiko Zisabwa', url: '{% url "complaint_guidelines" %}', icon: 'ri-folder-open-line', cat: 'Complaints' },
+            { label: 'Track Complaint Status', labelRw: 'Kurikirana Ikibazo', url: '{% url "complaint_track" %}', icon: 'ri-radar-line', cat: 'Tracking' },
+            { label: 'Check Status by SMS', labelRw: 'Reba Aho Bigeze kuri SMS', url: '#', icon: 'ri-message-2-line', cat: 'Tracking', action: 'sms' },
+            { label: 'Frequently Asked Questions', labelRw: 'Ibibazo Bikunze Kubazwa', url: '{% url "help_center" %}#faq', icon: 'ri-question-answer-line', cat: 'Resources' },
+            { label: 'Public Notices', labelRw: 'Amatangazo ya Leta', url: '{% url "help_center" %}#notices', icon: 'ri-megaphone-line', cat: 'Resources' },
+            { label: 'Contact Authority', labelRw: 'Vugana n\'Ubuyobozi', url: '{% url "help_center" %}#contact', icon: 'ri-phone-line', cat: 'Resources' },
+            { label: 'Sign In', labelRw: 'Injira', url: '{% url "sign-in" %}', icon: 'ri-login-box-line', cat: 'Account' },
+            { label: 'Register / Sign Up', labelRw: 'Iyandikishe', url: '{% url "sign-up" %}', icon: 'ri-user-add-line', cat: 'Account' },
+            { label: 'Citizen Dashboard', labelRw: 'Ibikubiye ku Konti Yawe', url: '{% url "citizen_dashboard" %}', icon: 'ri-dashboard-line', cat: 'Account' },
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const searchBtn = document.getElementById('searchBtn');
+        const lang = () => localStorage.getItem('lang') || 'en';
+
+        function renderResults(query) {
+            const q = query.toLowerCase().trim();
+            searchResults.innerHTML = '';
+            if (!q) { searchResults.classList.remove('open'); return; }
+
+            const filtered = SERVICES.filter(s => {
+                const label = lang() === 'rw' ? s.labelRw : s.label;
+                return label.toLowerCase().includes(q) || s.cat.toLowerCase().includes(q);
+            });
+
+            if (!filtered.length) {
+                searchResults.innerHTML = `<div class="search-no-results"><i class="ri-search-line me-2"></i>No results for "<strong>${query}</strong>"</div>`;
+            } else {
+                filtered.forEach(s => {
+                    const label = lang() === 'rw' ? s.labelRw : s.label;
+                    const a = document.createElement('a');
+                    a.className = 'search-result-item';
+                    a.href = s.url;
+                    if (s.action === 'sms') {
+                        a.href = '#';
+                        a.setAttribute('data-bs-toggle', 'modal');
+                        a.setAttribute('data-bs-target', '#smsModal');
+                    }
+                    a.innerHTML = `
+                        <div class="search-result-icon"><i class="${s.icon}"></i></div>
+                        <div class="search-result-text">
+                            <strong>${label}</strong>
+                            <span>${s.cat}</span>
+                        </div>
+                        <i class="ri-arrow-right-s-line ms-auto text-muted"></i>`;
+                    searchResults.appendChild(a);
+                });
+            }
+            searchResults.classList.add('open');
+        }
+
+        searchInput.addEventListener('input', (e) => renderResults(e.target.value));
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('open');
+            }
+        });
+    });
+</script>
+{% endblock %}

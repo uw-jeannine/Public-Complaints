@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete User{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0 text-danger" data-en="Delete User Account" data-rw="Siba Konti">Delete User Account</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'admin_dashboard' %}" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'office_user_list' %}" data-en="Office Users" data-rw="Abakoresha">Office Users</a>
+                </li>
+                <li class="breadcrumb-item active" data-en="Delete" data-rw="Siba">Delete</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border border-white rounded-10 p-20 mb-4" style="max-width: 540px;">
+        <div class="text-center mb-4">
+            <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                style="width:70px; height:70px;">
+                <i class="ri-user-unfollow-line text-danger fs-1"></i>
+            </div>
+            <h5 class="fw-semibold text-secondary" data-en="Delete this user account?" data-rw="Siba iyi konti?">Delete
+                this user account?</h5>
+            <p class="text-body fs-16">
+                <strong class="text-danger d-block">{{ user.full_name|default:user.username }}</strong>
+                <small class="text-muted">@{{ user.username }}</small>
+            </p>
+            {% if user.office %}
+            <p class="fs-14 text-body">
+                <span data-en="Assigned to:" data-rw="Bashinzwe:">Assigned to:</span>
+                <strong>{{ user.office.name }}</strong>
+            </p>
+            {% endif %}
+            <p class="text-muted fs-14" data-en="This will permanently delete their login access."
+                data-rw="Ibi bizasiba uburenganzira bwabo bwo kwinjira.">
+                This will permanently delete their login access.
+            </p>
+        </div>
+        <form method="POST" class="d-flex gap-2 justify-content-center">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger fw-normal">
+                <i class="ri-delete-bin-line me-1"></i>
+                <span data-en="Yes, Delete" data-rw="Yego, Siba">Yes, Delete</span>
+            </button>
+            <a href="{% url 'office_user_list' %}" class="btn btn-outline-secondary fw-normal">
+                <span data-en="Cancel" data-rw="Hagarika">Cancel</span>
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

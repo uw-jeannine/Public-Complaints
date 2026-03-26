@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+    <link href="{% static 'assets/css/sidebar-menu.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/simplebar.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/prism.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/quill.snow.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/remixicon.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/swiper-bundle.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/jsvectormap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="{% static 'assets/images/favicon.png' %}" rel="icon" type="image/png" />
+    <title>
+        Public Complaint System | {% block title %}{% endblock %}
+    </title>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-body-bg" style="font-family: 'Nunito Sans', sans-serif;">
+    <div class="preloader" id="preloader">
+        <div class="preloader">
+            <div class="waviy position-relative">
+                <span class="d-inline-block">
+                    L
+                </span>
+                <span class="d-inline-block">
+                    A
+                </span>
+                <span class="d-inline-block">
+                    N
+                </span>
+                <span class="d-inline-block">
+                    D
+                </span>
+            </div>
+        </div>
+    </div>
+    {% include 'sidebar.html' %}
+    <div class="container-fluid">
+        <div class="main-content d-flex flex-column">
+            {% include 'header.html' %}
+            {% block content %}{% endblock %}
+            <div class="flex-grow-1">
+            </div>
+            {% include 'footer.html' %}
+        </div>
+    </div>
+
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/sidebar-menu.js' %}"></script>
+    <script src="{% static 'assets/js/quill.min.js' %}"></script>
+    <script src="{% static 'assets/js/data-table.js' %}"></script>
+    <script src="{% static 'assets/js/prism.js' %}"></script>
+    <script src="{% static 'assets/js/clipboard.min.js' %}"></script>
+    <script src="{% static 'assets/js/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/js/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/js/echarts.min.js' %}"></script>
+    <script src="{% static 'assets/js/swiper-bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/fullcalendar.main.js' %}"></script>
+    <script src="{% static 'assets/js/jsvectormap.min.js' %}"></script>
+    <script src="{% static 'assets/js/world-merc.js' %}"></script>
+    <script src="{% static 'assets/js/custom/apexcharts.js' %}"></script>
+    <script src="{% static 'assets/js/custom/echarts.js' %}"></script>
+    <script src="{% static 'assets/js/custom/maps.js' %}"></script>
+    <script src="{% static 'assets/js/custom/custom.js' %}"></script>
+    <script>
+        (function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9bc284948f78f7b9',t:'MTc2ODExNDYyNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();
+    </script>
+    {% block scripts %}{% endblock %}
+    <script>
+        // Global EN/RW bilingual support — runs on every page
+        (function () {
+            function applyLanguage(lang) {
+                document.querySelectorAll('[data-en]').forEach(function (el) {
+                    el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
+                });
+                var enBtn = document.getElementById('lang-en');
+                var rwBtn = document.getElementById('lang-rw');
+                if (!enBtn || !rwBtn) return;
+                if (lang === 'rw') {
+                    enBtn.className = enBtn.className.replace('btn-primary', 'btn-outline-primary');
+                    rwBtn.className = rwBtn.className.replace('btn-outline-secondary', 'btn-primary');
+                } else {
+                    enBtn.className = enBtn.className.replace('btn-outline-primary', 'btn-primary');
+                    rwBtn.className = rwBtn.className.replace('btn-primary', 'btn-outline-secondary');
+                }
+            }
+
+            window.setLanguage = function (lang) {
+                localStorage.setItem('lang', lang);
+                applyLanguage(lang);
+            };
+
+            // Apply on page load
+            applyLanguage(localStorage.getItem('lang') || 'en');
+        })();
+    </script>
+</body>
+
+</html>

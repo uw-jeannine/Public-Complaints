@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+    <link href="{% static 'assets/css/remixicon.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/header.css' %}" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="{% static 'assets/images/favicon.png' %}" rel="icon" type="image/png" />
+    <title>Public Complaint System | {% block title %}{% endblock %}</title>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    {% include 'main_header.html' %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: #111827; color: #9ca3af;" class="text-center py-4 mt-5">
+        <p class="mb-0 small text-muted">© 2024 Rwanda National Land Authority. All rights reserved.</p>
+    </footer>
+
+    <!-- Scroll Top -->
+    <button id="scrollTop"
+        style="display: none; position: fixed; bottom: 30px; right: 30px; z-index: 1000; width: 45px; height: 45px; border-radius: 50%; background: var(--irembo-blue, #0047bb); color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; align-items: center; justify-content: center;">
+        <i class="ri-arrow-up-line fs-20"></i>
+    </button>
+
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/header.js' %}"></script>
+    {% block scripts %}{% endblock %}
+
+    <script>
+        // Global EN/RW bilingual support — runs on every page
+        (function () {
+            function applyLanguage(lang) {
+                document.querySelectorAll('[data-en]').forEach(function (el) {
+                    el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
+                });
+                var enBtn = document.getElementById('lang-en');
+                var rwBtn = document.getElementById('lang-rw');
+                if (!enBtn || !rwBtn) return;
+                if (lang === 'rw') {
+                    if (enBtn.classList.contains('active')) enBtn.classList.remove('active');
+                    rwBtn.classList.add('active');
+                } else {
+                    if (rwBtn.classList.contains('active')) rwBtn.classList.remove('active');
+                    enBtn.classList.add('active');
+                }
+            }
+
+            window.setLanguage = function (lang) {
+                localStorage.setItem('lang', lang);
+                applyLanguage(lang);
+            };
+
+            // Apply on page load
+            applyLanguage(localStorage.getItem('lang') || 'en');
+        })();
+    </script>
+</body>
+
+</html>

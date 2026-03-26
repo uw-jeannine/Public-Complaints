@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complaint Categories{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0" data-en="Complaint Categories" data-rw="Ibyiciro by'Ibibazo">Complaint Categories</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'admin_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" data-en="Categories" data-rw="Ibyiciro">Categories</li>
+            </ol>
+        </nav>
+    </div>
+
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card bg-white rounded-10 border border-white mb-4">
+        <!-- Table Header: Search + Add button -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 p-20">
+            <form class="table-src-form position-relative m-0" method="GET">
+                <input class="form-control w-344" name="q" placeholder="Search categories..." type="text"
+                    value="{{ request.GET.q|default:'' }}" />
+                <div class="src-btn position-absolute top-50 start-0 translate-middle-y bg-transparent p-0 border-0">
+                    <span class="material-symbols-outlined">search</span>
+                </div>
+            </form>
+            <a href="{% url 'category_create' %}" class="text-decoration-none fs-16 text-primary fw-medium">
+                <i class="ri-add-line"></i>
+                <span data-en="+ Add New Category" data-rw="+ Ongeraho Icyiciro">+ Add New Category</span>
+            </a>
+        </div>
+
+        <!-- Table -->
+        <div class="default-table-area mx-minus-1 style-two">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th class="fw-medium" scope="col" data-en="#" data-rw="#">#</th>
+                            <th class="fw-medium" scope="col" data-en="Category Name" data-rw="Izina ry'Icyiciro">
+                                Category Name</th>
+                            <th class="fw-medium" scope="col" data-en="Description" data-rw="Ibisobanuro">Description
+                            </th>
+                            <th class="fw-medium" scope="col" data-en="Status" data-rw="Imiterere">Status</th>
+                            <th class="fw-medium text-start" scope="col" data-en="Action" data-rw="Ibikorwa">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="style-two">
+                        {% for category in categories %}
+                        <tr>
+                            <td class="text-body">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                                        style="width: 36px; height: 36px;">
+                                        <i class="ri-list-settings-line text-primary fs-16"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-2">
+                                        <h3 class="fw-medium mb-0 fs-15">{{ category.name }}</h3>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-body text-truncate" style="max-width: 300px;">{{category.description|default:"—" }}</td>
+                            <td>
+                                {% if category.is_active %}
+                                <span class="badge bg-success-subtle text-success px-2 py-1" data-en="Active"
+                                    data-rw="Irakora">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger-subtle text-danger px-2 py-1" data-en="Inactive"
+                                    data-rw="Itirakora">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-start" style="gap: 12px;">
+                                    <a href="{% url 'category_update' category.pk %}"
+                                        class="bg-transparent p-0 border-0 hover-text-success" title="Edit">
+                                        <i
+                                            class="material-symbols-outlined fs-16 fw-normal text-body">drive_file_rename_outline</i>
+                                    </a>
+                                    <a href="{% url 'category_delete' category.pk %}"
+                                        class="bg-transparent p-0 border-0 hover-text-danger" title="Delete">
+                                        <i class="material-symbols-outlined fs-16 fw-normal text-body">delete</i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <i class="ri-list-settings-line fs-2 d-block mb-2"></i>
+                                <span data-en="No categories found. Add your first category."
+                                    data-rw="Nta byiciro bibonetse. Ongeraho icyiciro cya mbere.">
+                                    No categories found. Add your first category.
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if categories.has_other_pages %}
+            <div
+                class="d-flex justify-content-center justify-content-sm-between align-items-center text-center flex-wrap gap-2 showing-wrap p-20">
+                <span class="fs-15">
+                    Showing {{ categories.start_index }} to {{ categories.end_index }} of {{ categories.paginator.count }} entries
+                </span>
+                <nav aria-label="Categories pagination" class="custom-pagination">
+                    <ul class="pagination mb-0 justify-content-center">
+                        <li class="page-item {% if not categories.has_previous %}disabled{% endif %}">
+                            <a class="page-link icon"
+                                href="?page={{ categories.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                <i class="material-symbols-outlined">west</i>
+                            </a>
+                        </li>
+                        {% for num in categories.paginator.page_range %}
+                        <li class="page-item">
+                            <a class="page-link {% if categories.number == num %}active{% endif %}"
+                                href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                        <li class="page-item {% if not categories.has_next %}disabled{% endif %}">
+                            <a class="page-link icon"
+                                href="?page={{ categories.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                <i class="material-symbols-outlined">east</i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

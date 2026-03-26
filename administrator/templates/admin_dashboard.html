@@ -1,0 +1,635 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Admin Dashboard | Public Complaint System{% endblock %}
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="card bg-white p-20 rounded-10 border border-white mb-4 py-50">
+        <div class="row">
+            <div class="col-xxl-3 col-md-6 col-xxxl-6">
+                <div class="position-relative border-end-custom pe-10">
+                    <div class="d-sm-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-10">
+                                New Users
+                            </h3>
+                            <h2 class="fs-26 fw-medium mb-0 lh-1">
+                                705
+                            </h2>
+                        </div>
+                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
+                            <div class="chart-position" id="new_user_chart">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
+                        <span class="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success"
+                            style="padding: 3px 5px;">
+                            <i class="material-symbols-outlined fs-14 text-success">
+                                trending_up
+                            </i>
+                            <span class="lh-1 fs-14 text-success">
+                                2.15%
+                            </span>
+                        </span>
+                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
+                            This Week
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-3 col-md-6 col-xxxl-6">
+                <div class="position-relative border-end-custom pe-10">
+                    <div class="d-sm-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-10">
+                                Active Users
+                            </h3>
+                            <h2 class="fs-26 fw-medium mb-0 lh-1">
+                                94,817
+                            </h2>
+                        </div>
+                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
+                            <div class="chart-position" id="active_user_chart">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
+                        <span class="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success"
+                            style="padding: 3px 5px;">
+                            <i class="material-symbols-outlined fs-14 text-success">
+                                trending_up
+                            </i>
+                            <span class="lh-1 fs-14 text-success">
+                                8.75%
+                            </span>
+                        </span>
+                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
+                            This Month
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-3 col-md-6 col-xxxl-6">
+                <div class="position-relative border-end-custom pe-10">
+                    <div class="d-sm-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-10">
+                                Lead Conversation
+                            </h3>
+                            <h2 class="fs-26 fw-medium mb-0 lh-1">
+                                25.99%
+                            </h2>
+                        </div>
+                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
+                            <div class="chart-position" id="lead_conversation_chart">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
+                        <span class="d-flex align-content-center gap-1 bg-danger bg-opacity-10 border border-danger"
+                            style="padding: 3px 5px;">
+                            <i class="material-symbols-outlined fs-14 text-danger">
+                                trending_down
+                            </i>
+                            <span class="lh-1 fs-14 text-danger">
+                                1.25%
+                            </span>
+                        </span>
+                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
+                            Last Week
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-3 col-md-6 col-xxxl-6">
+                <div class="position-relative pe-10">
+                    <div class="d-sm-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-10">
+                                Revenue Growth
+                            </h3>
+                            <h2 class="fs-26 fw-medium mb-0 lh-1">
+                                $1,207
+                            </h2>
+                        </div>
+                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
+                            <div class="chart-position" id="revenue_growth_chart" style="bottom: -8px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
+                        <span class="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success"
+                            style="padding: 3px 5px;">
+                            <i class="material-symbols-outlined fs-14 text-success">
+                                trending_up
+                            </i>
+                            <span class="lh-1 fs-14 text-success">
+                                20.75%
+                            </span>
+                        </span>
+                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
+                            Weekly Growth
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xxl-4 col-xxxl-6">
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
+                    <h3>
+                        Most Leads
+                    </h3>
+                    <div class="dropdown select-dropdown without-border">
+                        <button aria-expanded="false" class="dropdown-toggle bg-transparent text-secondary fs-15"
+                            data-bs-toggle="dropdown">
+                            This Month
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
+                            data-simplebar="">
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Day
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Week
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Month
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Year
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div id="most_leads_chart" style="max-width: 305px; margin: auto;">
+                    </div>
+                </div>
+                <ul class="p-0 mb-0 list-unstyled last-child-none icon-bg">
+                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
+                        style="border-bottom: 1px dashed;">
+                        <div class="d-flex align-items-center">
+                            <div class="text-center rounded-circle"
+                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
+                                <i class="material-symbols-outlined fs-24 text-primary position-relative"
+                                    style="line-height: 50px; left: -2px;">
+                                    share
+                                </i>
+                            </div>
+                            <span class="ms-12 fs-16 text-secondary fw-medium">
+                                Social
+                            </span>
+                        </div>
+                        <span class="fs-16">
+                            9,562
+                        </span>
+                        <span class="fs-16">
+                            30%
+                        </span>
+                    </li>
+                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
+                        style="border-bottom: 1px dashed;">
+                        <div class="d-flex align-items-center">
+                            <div class="text-center rounded-circle"
+                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
+                                <i class="material-symbols-outlined fs-24 text-info" style="line-height: 50px;">
+                                    email
+                                </i>
+                            </div>
+                            <span class="ms-12 fs-16 text-secondary fw-medium">
+                                Email
+                            </span>
+                        </div>
+                        <span class="fs-16">
+                            18,426
+                        </span>
+                        <span class="fs-16">
+                            55%
+                        </span>
+                    </li>
+                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
+                        style="border-bottom: 1px dashed;">
+                        <div class="d-flex align-items-center">
+                            <div class="text-center rounded-circle"
+                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
+                                <i class="material-symbols-outlined fs-24 text-primary-50" style="line-height: 50px;">
+                                    call
+                                </i>
+                            </div>
+                            <span class="ms-12 fs-16 text-secondary fw-medium">
+                                Call
+                            </span>
+                        </div>
+                        <span class="fs-16">
+                            4,753
+                        </span>
+                        <span class="fs-16">
+                            10%
+                        </span>
+                    </li>
+                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
+                        style="border-bottom: 1px dashed;">
+                        <div class="d-flex align-items-center">
+                            <div class="text-center rounded-circle"
+                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
+                                <i class="material-symbols-outlined fs-24 text-warning" style="line-height: 50px;">
+                                    category
+                                </i>
+                            </div>
+                            <span class="ms-12 fs-16 text-secondary fw-medium">
+                                Others
+                            </span>
+                        </div>
+                        <span class="fs-16">
+                            2,657
+                        </span>
+                        <span class="fs-16">
+                            5%
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xxl-4 col-xxxl-6">
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
+                    <h3>
+                        Country Stats
+                    </h3>
+                    <div class="dropdown select-dropdown without-border">
+                        <button aria-expanded="false" class="dropdown-toggle bg-transparent text-secondary fs-15"
+                            data-bs-toggle="dropdown">
+                            This Month
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
+                            data-simplebar="">
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Day
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Week
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Month
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-secondary">
+                                    This Year
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mb-3">
+                    <div id="country_stats_map" style="height: 284px;">
+                    </div>
+                </div>
+                <div class="default-table-area mx-minus-1 country-stats-table">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="bg-transparent py-0 ps-0" scope="col">
+                                        Country
+                                    </th>
+                                    <th class="bg-transparent py-0" scope="col">
+                                        User
+                                    </th>
+                                    <th class="bg-transparent py-0 pe-0" scope="col">
+                                        Bounce Rate
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-0">
+                                        <div class="d-flex align-items-center text-decoration-none">
+                                            <div class="flex-shrink-0">
+                                                <img alt="usa" class="rounded-circle" src="assets/images/usa.png"
+                                                    style="width: 20px; height: 20px;" />
+                                            </div>
+                                            <div class="flex-grow-1 ms-2">
+                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
+                                                    United States
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-body fw-normal">
+                                        17003
+                                    </td>
+                                    <td class="text-body fw-normal pe-0">
+                                        0.83%
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-0">
+                                        <div class="d-flex align-items-center text-decoration-none">
+                                            <div class="flex-shrink-0">
+                                                <img alt="china" class="rounded-circle" src="assets/images/china.png"
+                                                    style="width: 20px; height: 20px;" />
+                                            </div>
+                                            <div class="flex-grow-1 ms-2">
+                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
+                                                    China
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-body fw-normal">
+                                        16843
+                                    </td>
+                                    <td class="text-body fw-normal pe-0">
+                                        0.75%
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="ps-0">
+                                        <div class="d-flex align-items-center text-decoration-none">
+                                            <div class="flex-shrink-0">
+                                                <img alt="germany" class="rounded-circle"
+                                                    src="assets/images/germany.png"
+                                                    style="width: 20px; height: 20px;" />
+                                            </div>
+                                            <div class="flex-grow-1 ms-2">
+                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
+                                                    Germany
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-body fw-normal">
+                                        14285
+                                    </td>
+                                    <td class="text-body fw-normal pe-0">
+                                        0.49%
+                                    </td>
+                                </tr>
+                                <tr class="last-child-border-none">
+                                    <td class="ps-0">
+                                        <div class="d-flex align-items-center text-decoration-none">
+                                            <div class="flex-shrink-0">
+                                                <img alt="australia" class="rounded-circle"
+                                                    src="assets/images/australia.png"
+                                                    style="width: 20px; height: 20px;" />
+                                            </div>
+                                            <div class="flex-grow-1 ms-2">
+                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
+                                                    Australia
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-body fw-normal">
+                                        9573
+                                    </td>
+                                    <td class="text-body fw-normal pe-0">
+                                        0.18%
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-4 col-xxxl-12">
+            <div class="row">
+                <div class="col-xxxl-6 col-xxl-12">
+                    <div class="card p-20 rounded-10 border border-white mb-4"
+                        style="background: linear-gradient(180deg, #5c4edb, #796df6) !important;">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-0">
+                            <h3 class="text-white">
+                                Tasks Stats
+                            </h3>
+                            <div class="dropdown select-dropdown without-border">
+                                <button aria-expanded="false"
+                                    class="dropdown-toggle down-arrow-white bg-transparent text-white fs-15"
+                                    data-bs-toggle="dropdown">
+                                    Year 2025
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
+                                    data-simplebar="">
+                                    <li>
+                                        <button class="dropdown-item text-secondary">
+                                            Year 2025
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-secondary">
+                                            Year 2025
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-secondary">
+                                            Year 2023
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="tasks_stats_chart" style="margin-bottom: -17px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxxl-6 col-xxl-12">
+                    <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-0">
+                            <h3>
+                                Earning Reports
+                            </h3>
+                            <div class="dropdown select-dropdown">
+                                <button aria-expanded="false"
+                                    class="dropdown-toggle bg-transparent text-secondary fs-15"
+                                    data-bs-toggle="dropdown">
+                                    This Week
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
+                                    data-simplebar="">
+                                    <li>
+                                        <button class="dropdown-item text-secondary">
+                                            This Day
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-secondary">
+                                            This Week
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-secondary">
+                                            This Month
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-secondary">
+                                            This Year
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="earning_reports_chart" style="margin-bottom: -17px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Add New Task -->
+    <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="exampleModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered rounded-10" style="max-width: 550px;">
+            <form class="modal-content bg-white">
+                <div class="modal-header border-border-color-40 p-20">
+                    <h1 class="modal-title fs-18 fw-medium mb-0" id="exampleModalLabel">
+                        Add New Task
+                    </h1>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button">
+                    </button>
+                </div>
+                <div class="modal-body p-20 pb-0">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="mb-20">
+                                <label class="label">
+                                    Task Name
+                                </label>
+                                <div class="form-floating">
+                                    <input class="form-control" id="floatingInput" placeholder="Task Name"
+                                        type="email" />
+                                    <label for="floatingInput">
+                                        Task Name
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-20">
+                                <label class="label">
+                                    Assigned To
+                                </label>
+                                <div class="form-floating">
+                                    <select aria-label="Floating label select example" class="form-select form-control"
+                                        id="floatingSelect2">
+                                        <option selected="">
+                                            Select
+                                        </option>
+                                        <option value="1">
+                                            Juli Johnson
+                                        </option>
+                                        <option value="2">
+                                            Catalina Engles
+                                        </option>
+                                        <option value="3">
+                                            Louis Nagle
+                                        </option>
+                                        <option value="4">
+                                            Michael Marquez
+                                        </option>
+                                        <option value="4">
+                                            Roberto Cruz
+                                        </option>
+                                    </select>
+                                    <label for="floatingSelect2">
+                                        Select
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-20">
+                                <label class="label">
+                                    Due Date
+                                </label>
+                                <input class="form-control" type="date" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-20">
+                                <label class="label">
+                                    Priority
+                                </label>
+                                <div class="form-floating">
+                                    <select aria-label="Floating label select example" class="form-select form-control"
+                                        id="floatingSelect3">
+                                        <option selected="">
+                                            Select
+                                        </option>
+                                        <option value="1">
+                                            Medium
+                                        </option>
+                                        <option value="2">
+                                            Low
+                                        </option>
+                                        <option value="3">
+                                            High
+                                        </option>
+                                    </select>
+                                    <label for="floatingSelect3">
+                                        Select
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-20">
+                                <label class="label">
+                                    Status
+                                </label>
+                                <div class="form-floating">
+                                    <select aria-label="Floating label select example" class="form-select form-control"
+                                        id="floatingSelect4">
+                                        <option selected="">
+                                            Select
+                                        </option>
+                                        <option value="1">
+                                            Pending
+                                        </option>
+                                        <option value="2">
+                                            Completed
+                                        </option>
+                                        <option value="3">
+                                            Not Started
+                                        </option>
+                                        <option value="4">
+                                            In Progress
+                                        </option>
+                                    </select>
+                                    <label for="floatingSelect4">
+                                        Select
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-20 pt-0">
+                    <button class="btn btn-danger fw-normal text-white" data-bs-dismiss="modal" type="button">
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary fw-normal text-white" type="button">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

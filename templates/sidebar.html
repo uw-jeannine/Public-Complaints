@@ -1,0 +1,157 @@
+{% load static %}
+<div class="sidebar-area" id="sidebar-area">
+    <div class="logo position-relative d-flex align-items-center justify-content-between p-3 p-xl-4">
+        <a class="d-block text-decoration-none" href="index.html">
+            <img alt="logo-icon" src="{% static 'assets/images/logo/logo.png' %}"
+                style="max-height: 80px; width: auto; object-fit: contain;" />
+        </a>
+        <button
+            class="sidebar-burger-menu-close bg-transparent py-3 border-0 opacity-0 z-n1 position-absolute top-50 end-0 translate-middle-y"
+            id="sidebar-burger-menu-close">
+            <span class="border-1 d-block for-dark-burger"
+                style="border-bottom: 1px solid #475569; height: 1px; width: 25px; transform: rotate(45deg);">
+            </span>
+            <span class="border-1 d-block for-dark-burger"
+                style="border-bottom: 1px solid #475569; height: 1px; width: 25px; transform: rotate(-45deg);">
+            </span>
+        </button>
+        <button class="sidebar-burger-menu bg-transparent p-0 border-0" id="sidebar-burger-menu">
+            <span class="border-1 d-block for-dark-burger"
+                style="border-bottom: 1px solid #475569; height: 1px; width: 25px;">
+            </span>
+            <span class="border-1 d-block for-dark-burger"
+                style="border-bottom: 1px solid #475569; height: 1px; width: 25px; margin: 6px 0;">
+            </span>
+            <span class="border-1 d-block for-dark-burger"
+                style="border-bottom: 1px solid #475569; height: 1px; width: 25px;">
+            </span>
+        </button>
+    </div>
+    <aside class="layout-menu menu-vertical menu active" data-simplebar="" id="layout-menu">
+        <ul class="menu-inner">
+            <li class="menu-title small text-uppercase">
+                <span class="menu-title-text" data-en="MAIN" data-rw="IBIKUBIYE">
+                    MAIN
+                </span>
+            </li>
+            {% if user.is_administrator %}
+            <li class="menu-item open">
+                <a class="menu-link active" href="{% url 'admin_dashboard' %}">
+                    <span class="material-symbols-outlined menu-icon">dashboard</span>
+                    <span class="title" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                </a>
+            </li>
+            {% elif user.is_office %}
+            <li class="menu-item open">
+                <a class="menu-link active" href="{% url 'office_dashboard' %}">
+                    <span class="material-symbols-outlined menu-icon">dashboard</span>
+                    <span class="title" data-en="Office Dashboard" data-rw="Ikibaho cy'Ibiro">Office Dashboard</span>
+                </a>
+            </li>
+            {% elif user.is_citizen %}
+            <li class="menu-item open">
+                <a class="menu-link active" href="{% url 'citizen_dashboard' %}">
+                    <span class="material-symbols-outlined menu-icon">dashboard</span>
+                    <span class="title" data-en="My Dashboard" data-rw="Ikibaho Kyanjye">My Dashboard</span>
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="menu-title small text-uppercase">
+                <span class="menu-title-text" data-en="MENU" data-rw="IMENU">MENU</span>
+            </li>
+
+            {% if user.is_administrator %}
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'admin_complaints_list' %}">
+                    <span class="material-symbols-outlined menu-icon">ballot</span>
+                    <span class="title" data-en="Complaints" data-rw="Ibibazo">Complaints</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'category_list' %}">
+                    <span class="material-symbols-outlined menu-icon">category</span>
+                    <span class="title" data-en="Complaint Categories" data-rw="Ibyiciro by'Ibibazo">Complaint
+                        Categories</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'office_user_list' %}">
+                    <span class="material-symbols-outlined menu-icon">manage_accounts</span>
+                    <span class="title" data-en="All Users" data-rw="Abakoresha Bose">All Users</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link menu-toggle active" href="javascript:void(0);">
+                    <span class="material-symbols-outlined menu-icon">email</span>
+                    <span class="title" data-en="Offices" data-rw="Ibiro">Offices</span>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a class="menu-link" href="{% url 'office_list' %}">
+                            <span data-en="View Offices" data-rw="Reba Ibiro">View Offices</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a class="menu-link" href="{% url 'office_create' %}">
+                            <span data-en="Add Office" data-rw="Ongeraho Ibiro">Add Office</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            {% elif user.is_office %}
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'office_dashboard' %}">
+                    <span class="material-symbols-outlined menu-icon">assignment</span>
+                    <span class="title" data-en="Assigned Cases" data-rw="Ibibazo Byanjye">Assigned Cases</span>
+                </a>
+            </li>
+            {% elif user.is_citizen %}
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'citizen_complaints_list' %}">
+                    <span class="material-symbols-outlined menu-icon">list_alt</span>
+                    <span class="title" data-en="My Complaints" data-rw="Ibibazo Byanjye">My Complaints</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'complaint_file' %}">
+                    <span class="material-symbols-outlined menu-icon">add_task</span>
+                    <span class="title" data-en="File Complaint" data-rw="Tanga Ikibazo">File Complaint</span>
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'account-settings' %}">
+                    <span class="material-symbols-outlined menu-icon">account_circle</span>
+                    <span class="title" data-en="My Profile" data-rw="Umwirondoro Wanjye">My Profile</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a class="menu-link menu-toggle active" href="javascript:void(0);">
+                    <span class="material-symbols-outlined menu-icon">settings</span>
+                    <span class="title" data-en="Settings" data-rw="Igenamiterere">Settings</span>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a class="menu-link" href="{% url 'account-settings' %}">
+                            <span data-en="Account Settings" data-rw="Igenamiterere ry'Konti">Account Settings</span>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a class="menu-link" href="{% url 'change-password' %}">
+                            <span data-en="Change Password" data-rw="Hindura Ijambo banga">Change Password</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item">
+                <a class="menu-link" href="{% url 'logout' %}">
+                    <span class="material-symbols-outlined menu-icon">logout</span>
+                    <span class="title" data-en="Logout" data-rw="Sohoka">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+</div>
