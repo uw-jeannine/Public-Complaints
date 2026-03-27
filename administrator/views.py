@@ -6,15 +6,67 @@ from django.contrib import messages
 from accounts.decorators import administrator_required
 from .models import Office, ComplaintCategory
 from citizen.models import Complaint
+from .utils import send_intouch_sms
 
 @login_required
 @administrator_required
 def admin_dashboard(request):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    # Complaints metrics
+    total_complaints = Complaint.objects.count()
+    pending_complaints = Complaint.objects.filter(status='pending').count()
+    in_progress_complaints = Complaint.objects.filter(status='in_progress').count()
+    resolved_complaints = Complaint.objects.filter(status='resolved').count()
+    rejected_complaints = Complaint.objects.filter(status='rejected').count()
+    
+    # User metrics
+    total_citizens = User.objects.filter(user_type='citizen').count()
+    total_office_staff = User.objects.filter(user_type='office').count()
+    
+    # Office metrics
     total_offices = Office.objects.count()
     active_offices = Office.objects.filter(is_active=True).count()
+    
+    # Recent complaints for the table
+    recent_complaints = Complaint.objects.select_related('category', 'citizen').order_by('-created_at')[:10]
+    
+    # Data for charts    # Complaints by Category (Donut Chart)
+    categories = ComplaintCategory.objects.annotate(complaint_count=models.Count('complaints'))
+    category_data = [
+        {'name': cat.name, 'count': cat.complaint_count}
+        for cat in categories if cat.complaint_count > 0
+    ]
+
+    # Trends for the last 7 days (Small sparkline charts)
+    from django.db.models.functions import TruncDate
+    from datetime import timedelta
+    seven_days_ago = timezone.now().date() - timedelta(days=6)
+    daily_stats = Complaint.objects.filter(
+        created_at__date__gte=seven_days_ago
+    ).annotate(date=TruncDate('created_at')).values('date').annotate(count=models.Count('id')).order_by('date')
+    
+    # Fill in zeros for days with no complaints
+    stats_dict = {stat['date']: stat['count'] for stat in daily_stats}
+    complaint_trend = []
+    for i in range(7):
+        date = seven_days_ago + timedelta(days=i)
+        complaint_trend.append(stats_dict.get(date, 0))
+
     return render(request, 'admin_dashboard.html', {
+        'total_complaints': total_complaints,
+        'pending_complaints': pending_complaints,
+        'in_progress_complaints': in_progress_complaints,
+        'resolved_complaints': resolved_complaints,
+        'rejected_complaints': rejected_complaints,
+        'total_citizens': total_citizens,
+        'total_office_staff': total_office_staff,
         'total_offices': total_offices,
         'active_offices': active_offices,
+        'recent_complaints': recent_complaints,
+        'category_data': category_data,
+        'complaint_trend': complaint_trend,
     })
 
 
@@ -198,6 +250,11 @@ def office_user_create(request):
             if office_id:
                 user.office = get_object_or_404(Office, pk=office_id)
                 user.save()
+            
+            # Send SMS with credentials
+            sms_msg = f"Hello {full_name}, your account on Jeanine System is created. Username: {username}, Password: {password}"
+            send_intouch_sms(phone, sms_msg)
+            
             messages.success(request, f'User account for "{full_name}" created successfully.')
             return redirect('office_user_list')
 
@@ -216,6 +273,90 @@ def office_user_delete(request, pk):
         messages.success(request, f'User "{name}" deleted.')
         return redirect('office_user_list')
     return render(request, 'users/office_user_confirm_delete.html', {'user': user})
+
+
+@login_required
+@administrator_required
+def admin_user_detail(request, pk):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    target_user = get_object_or_404(User, pk=pk)
+    
+    # Get user's activity
+    if target_user.user_type == 'citizen':
+        complaint_count = Complaint.objects.filter(citizen=target_user).count()
+        recent_complaints = Complaint.objects.filter(citizen=target_user).order_by('-created_at')[:5]
+    else:
+        complaint_count = Complaint.objects.filter(assigned_to=target_user).count()
+        recent_complaints = Complaint.objects.filter(assigned_to=target_user).order_by('-created_at')[:5]
+        
+    return render(request, 'users/user_detail.html', {
+        'target_user': target_user,
+        'complaint_count': complaint_count,
+        'recent_complaints': recent_complaints,
+    })
+
+
+@login_required
+@administrator_required
+def admin_user_update(request, pk):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    target_user = get_object_or_404(User, pk=pk)
+    offices = Office.objects.filter(is_active=True)
+
+    if request.method == 'POST':
+        target_user.full_name = request.POST.get('full_name', '').strip()
+        target_user.email = request.POST.get('email', '').strip()
+        target_user.phone_number = request.POST.get('phone', '').strip()
+        office_id = request.POST.get('office')
+        
+        if office_id:
+            target_user.office = get_object_or_404(Office, pk=office_id)
+        else:
+            target_user.office = None
+            
+        target_user.save()
+        messages.success(request, f'User "{target_user.full_name or target_user.username}" updated successfully.')
+        return redirect('office_user_list')
+
+    return render(request, 'users/user_form.html', {
+        'target_user': target_user,
+        'offices': offices,
+        'action': 'Update'
+    })
+
+
+@login_required
+@administrator_required
+def admin_user_password_reset(request, pk):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    target_user = get_object_or_404(User, pk=pk)
+
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
+
+        if not password or password != password_confirm:
+            messages.error(request, "Passwords do not match or are empty.")
+        elif len(password) < 8:
+            messages.error(request, "Password must be at least 8 characters long.")
+        else:
+            target_user.set_password(password)
+            target_user.save()
+            
+            # Send SMS with new password
+            sms_msg = f"Hello {target_user.full_name or target_user.username}, your password has been reset. Your new password is: {password}"
+            if target_user.phone_number:
+                send_intouch_sms(target_user.phone_number, sms_msg)
+                
+            messages.success(request, f"Password for {target_user.username} has been reset successfully.")
+            return redirect('admin_user_detail', pk=pk)
+
+    return render(request, 'users/user_password_reset.html', {
+        'target_user': target_user
+    })
 
 
 # \u2500\u2500 Complaint Category Management \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500

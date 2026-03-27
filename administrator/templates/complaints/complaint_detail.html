@@ -8,8 +8,7 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
         <h3 class="mb-0">
             <span data-en="Review Complaint: {{ complaint.tracking_number }}"
-                data-rw="Suzuma Ikibazo: {{ complaint.tracking_number }}">Review Complaint: {{ complaint.tracking_number
-                }}</span>
+                data-rw="Suzuma Ikibazo: {{ complaint.tracking_number }}">Review Complaint: {{ complaint.tracking_number}}</span>
             {% if complaint.is_appeal %}
             <span class="badge bg-danger ms-2 fs-14" data-en="APPEAL" data-rw="UBURURANE">APPEAL</span>
             {% endif %}
@@ -87,8 +86,7 @@
                         <div class="col-md-6">
                             <label class="text-muted small text-uppercase fw-bold" data-en="Land Location"
                                 data-rw="Aho Ubutaka Buherereye">Land Location</label>
-                            <p class="fs-16 mb-0">{{ complaint.land_province.name }}, {{ complaint.land_district.name
-                                }}, {{ complaint.land_sector }}, {{ complaint.land_cell }}</p>
+                            <p class="fs-16 mb-0">{{ complaint.land_province.name }}, {{ complaint.land_district.name }}, {{ complaint.land_sector }}, {{ complaint.land_cell }}</p>
                         </div>
 
                         <div class="col-12 border-top pt-4">
@@ -106,13 +104,10 @@
                             <div class="d-flex align-items-center p-3 border rounded-3 bg-white">
                                 <i class="ri-file-text-line fs-24 text-primary me-3"></i>
                                 <div class="flex-grow-1">
-                                    <p class="mb-0 fw-semibold">{{
-                                        complaint.attachment.name|cut:"complaint_attachments/" }}</p>
-                                    <small class="text-muted" data-en="Click to download"
-                                        data-rw="Kanda ubimanure">Click to download</small>
+                                    <p class="mb-0 fw-semibold">{{ complaint.attachment.name|cut:"complaint_attachments/" }}</p>
+                                    <small class="text-muted" data-en="Click to download" data-rw="Kanda ubimanure">Click to download</small>
                                 </div>
-                                <a href="{{ complaint.attachment.url }}" class="btn btn-outline-primary btn-sm"
-                                    target="_blank">
+                                <a href="{{ complaint.attachment.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
                                     <i class="ri-download-2-line"></i> Download
                                 </a>
                             </div>
@@ -138,14 +133,12 @@
                         <div class="col-md-4">
                             <label class="text-muted small text-uppercase fw-bold" data-en="Assigned To"
                                 data-rw="Ushinzwe">Assigned To</label>
-                            <p class="fs-16 mb-0">{% if complaint.assigned_to %}{{ complaint.assigned_to.full_name }}{%
-                                else %}<span class="text-muted italic">Unassigned</span>{% endif %}</p>
+                            <p class="fs-16 mb-0">{% if complaint.assigned_to %}{{ complaint.assigned_to.full_name }}{% else %}<span class="text-muted italic">Unassigned</span>{% endif %}</p>
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small text-uppercase fw-bold" data-en="Assigned At"
                                 data-rw="Yashinzwe ku">Assigned At</label>
-                            <p class="fs-16 mb-0">{% if complaint.assigned_at %}{{ complaint.assigned_at|date:"M d, Y
-                                H:i" }}{% else %}-{% endif %}</p>
+                            <p class="fs-16 mb-0">{% if complaint.assigned_at %}{{ complaint.assigned_at|date:"M d, Y H:i" }}{% else %}-{% endif %}</p>
                         </div>
                         {% if complaint.status == 'resolved' or complaint.status == 'rejected' %}
                         <div class="col-md-4">
@@ -156,8 +149,7 @@
                         <div class="col-12">
                             <label class="text-muted small text-uppercase fw-bold" data-en="Resolution Details"
                                 data-rw="Ibyavuyemo">Resolution Details</label>
-                            <p class="fs-15 mb-0 bg-light p-2 rounded">{{ complaint.resolution_details|default:"No
-                                details provided." }}</p>
+                            <p class="fs-15 mb-0 bg-light p-2 rounded">{{ complaint.resolution_details|default:"No details provided." }}</p>
                         </div>
                         {% endif %}
                     </div>
@@ -206,15 +198,13 @@
                             <p class="mb-1">
                                 Assigned to
                                 <strong>
-                                    {% if assign.office %}{{ assign.office.name }}{% else %}{{ assign.user.full_name
-                                    }}{% endif %}
+                                    {% if assign.office %}{{ assign.office.name }}{% else %}{{ assign.user.full_name }}{% endif %}
                                 </strong>
                             </p>
                             {% if assign.notes %}
                             <p class="mb-0 small text-muted"><em>"{{ assign.notes }}"</em></p>
                             {% endif %}
-                            <div class="mt-1"><small class="text-muted italic">Assigned by {{
-                                    assign.assigned_by.full_name }}</small></div>
+                            <div class="mt-1"><small class="text-muted italic">Assigned by {{ assign.assigned_by.full_name }}</small></div>
                         </div>
                         {% endfor %}
                     </div>
@@ -334,13 +324,13 @@
                             <label class="form-label fw-bold" data-en="Update Status" data-rw="Hindura Imiterere">Update
                                 Status</label>
                             <select name="status" class="form-select border-primary-subtle">
-                                <option value="pending" {% if complaint.status=='pending' %}selected{% endif %}>Pending
+                                <option value="pending" {% if complaint.status == 'pending' %}selected{% endif %}>Pending
                                 </option>
-                                <option value="in_progress" {% if complaint.status=='in_progress' %}selected{% endif %}>
+                                <option value="in_progress" {% if complaint.status == 'in_progress' %}selected{% endif %}>
                                     In Progress</option>
-                                <option value="resolved" {% if complaint.status=='resolved' %}selected{% endif %}>
+                                <option value="resolved" {% if complaint.status == 'resolved' %}selected{% endif %}>
                                     Resolved</option>
-                                <option value="rejected" {% if complaint.status=='rejected' %}selected{% endif %}>
+                                <option value="rejected" {% if complaint.status == 'rejected' %}selected{% endif %}>
                                     Rejected</option>
                             </select>
                         </div>
@@ -363,8 +353,7 @@
                             <select name="office_id" class="form-select border-primary-subtle">
                                 <option value="">-- Select Office --</option>
                                 {% for off in offices %}
-                                <option value="{{ off.pk }}" {% if complaint.assigned_office_id==off.pk %}selected{%
-                                    endif %}>{{ off.name }}</option>
+                                <option value="{{ off.pk }}" {% if complaint.assigned_office_id == off.pk %}selected{% endif %}>{{ off.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -390,8 +379,7 @@
                             <select name="user_id" class="form-select border-primary-subtle">
                                 <option value="">-- Select Staff --</option>
                                 {% for u in staff_users %}
-                                <option value="{{ u.pk }}" {% if complaint.assigned_to_id==u.pk %}selected{% endif %}>{{
-                                    u.full_name }} ({{ u.get_user_type_display }})</option>
+                                <option value="{{ u.pk }}" {% if complaint.assigned_to_id == u.pk %}selected{% endif %}>{{ u.full_name }} ({{ u.get_user_type_display }})</option>
                                 {% endfor %}
                             </select>
                         </div>

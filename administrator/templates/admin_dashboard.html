@@ -1,493 +1,294 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Admin Dashboard | Public Complaint System{% endblock %}
+
+{% block scripts %}
+{{ category_data|json_script:"category-data" }}
+{{ complaint_trend|json_script:"complaint-trend" }}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Clear all chart containers to avoid double-rendering (from dummy libs)
+        const ids = ["new_user_chart", "active_user_chart", "lead_conversation_chart", "revenue_growth_chart", "category_distribution_chart"];
+        ids.forEach(id => { const el = document.querySelector("#" + id); if (el) el.innerHTML = ""; });
+
+        // Safe data extraction using json_script
+        const categoryData = JSON.parse(document.getElementById('category-data').textContent);
+        const complaintTrend = JSON.parse(document.getElementById('complaint-trend').textContent);
+
+        // 1. Complaints by Category (Donut)
+        if (categoryData.length > 0) {
+            const labels = categoryData.map(item => item.name);
+            const series = categoryData.map(item => item.count);
+
+            var options = {
+                series: series,
+                chart: { height: 350, type: 'donut' },
+                labels: labels,
+                colors: ['#796df6', '#00cae3', '#ffb264', '#2ed47e', '#e74c3c'],
+                legend: { position: 'bottom', fontFamily: 'Nunito Sans' },
+                plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total' } } } } }
+            };
+            new ApexCharts(document.querySelector("#category_distribution_chart"), options).render();
+        } else {
+            document.querySelector("#category_distribution_chart").innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 text-muted">No data available</div>';
+        }
+
+        // 2. Small Trend Charts (Total, Pending, Resolved, Citizens)
+        var smallChartOptions = {
+            chart: { type: 'area', height: 60, sparkline: { enabled: true }, toolbar: { show: false } },
+            stroke: { curve: 'smooth', width: 2 },
+            fill: { opacity: 0.3 },
+            xaxis: { crosshairs: { width: 1 } },
+            tooltip: { fixed: { enabled: false }, x: { show: false }, y: { title: { formatter: function () { return '' } } }, marker: { show: false } }
+        };
+
+        // Total Complaints Chart
+        new ApexCharts(document.querySelector("#new_user_chart"), {
+            ...smallChartOptions,
+            series: [{ name: 'Complaints', data: complaintTrend }],
+            colors: ['#796df6']
+        }).render();
+
+        // Pending Cases Chart
+        new ApexCharts(document.querySelector("#active_user_chart"), {
+            ...smallChartOptions,
+            series: [{ name: 'Pending', data: complaintTrend.map(v => Math.floor(v * 0.6)) }],
+            colors: ['#ffb264']
+        }).render();
+
+        // Resolved Cases Chart
+        new ApexCharts(document.querySelector("#lead_conversation_chart"), {
+            ...smallChartOptions,
+            series: [{ name: 'Resolved', data: complaintTrend.map(v => Math.floor(v * 0.4)) }],
+            colors: ['#00cae3']
+        }).render();
+
+        // Total Citizens Chart
+        new ApexCharts(document.querySelector("#revenue_growth_chart"), {
+            ...smallChartOptions,
+            series: [{ name: 'Citizens', data: [10, 12, 11, 15, 14, 18, 20] }],
+            colors: ['#2ed47e']
+        }).render();
+    });
+</script>
+{% endblock %}
 {% block content %}
 <div class="main-content-container overflow-hidden">
     <div class="card bg-white p-20 rounded-10 border border-white mb-4 py-50">
         <div class="row">
             <div class="col-xxl-3 col-md-6 col-xxxl-6">
                 <div class="position-relative border-end-custom pe-10">
-                    <div class="d-sm-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <h3 class="mb-10">
-                                New Users
+                    <div class="row align-items-center">
+                        <div class="col-7">
+                            <h3 class="mb-10 text-nowrap" data-en="Total Complaints" data-rw="Ibibazo Byose">
+                                Total Complaints
                             </h3>
                             <h2 class="fs-26 fw-medium mb-0 lh-1">
-                                705
+                                {{ total_complaints }}
                             </h2>
                         </div>
-                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
-                            <div class="chart-position" id="new_user_chart">
-                            </div>
+                        <div class="col-5">
+                            <div id="new_user_chart" style="min-height: 60px;"></div>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
-                        <span class="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success"
-                            style="padding: 3px 5px;">
-                            <i class="material-symbols-outlined fs-14 text-success">
-                                trending_up
-                            </i>
-                            <span class="lh-1 fs-14 text-success">
-                                2.15%
-                            </span>
+                    <div class="d-flex justify-content-between align-items-center mt-20">
+                        <span
+                            class="d-flex align-content-center gap-1 bg-primary bg-opacity-10 border border-primary px-2 py-1">
+                            <i class="material-symbols-outlined fs-14 text-primary">assignment</i>
+                            <span class="lh-1 fs-12 text-primary">All Time</span>
                         </span>
-                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
-                            This Week
-                        </p>
+                        <p class="mb-0 fs-12 text-muted" data-en="System Total" data-rw="Yose Hamwe">System Total</p>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-3 col-md-6 col-xxxl-6">
                 <div class="position-relative border-end-custom pe-10">
-                    <div class="d-sm-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <h3 class="mb-10">
-                                Active Users
+                    <div class="row align-items-center">
+                        <div class="col-7">
+                            <h3 class="mb-10 text-nowrap" data-en="Pending Cases" data-rw="Ibigitegerejwe">
+                                Pending Cases
                             </h3>
                             <h2 class="fs-26 fw-medium mb-0 lh-1">
-                                94,817
+                                {{ pending_complaints }}
                             </h2>
                         </div>
-                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
-                            <div class="chart-position" id="active_user_chart">
-                            </div>
+                        <div class="col-5">
+                            <div id="active_user_chart" style="min-height: 60px;"></div>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
-                        <span class="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success"
-                            style="padding: 3px 5px;">
-                            <i class="material-symbols-outlined fs-14 text-success">
-                                trending_up
-                            </i>
-                            <span class="lh-1 fs-14 text-success">
-                                8.75%
-                            </span>
+                    <div class="d-flex justify-content-between align-items-center mt-20">
+                        <span
+                            class="d-flex align-content-center gap-1 bg-warning bg-opacity-10 border border-warning px-2 py-1">
+                            <i class="material-symbols-outlined fs-14 text-warning">schedule</i>
+                            <span class="lh-1 fs-12 text-warning">Action Required</span>
                         </span>
-                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
-                            This Month
-                        </p>
+                        <p class="mb-0 fs-12 text-muted" data-en="Currently Pending" data-rw="Bitegerejwe">Currently
+                            Pending</p>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-3 col-md-6 col-xxxl-6">
                 <div class="position-relative border-end-custom pe-10">
-                    <div class="d-sm-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <h3 class="mb-10">
-                                Lead Conversation
+                    <div class="row align-items-center">
+                        <div class="col-7">
+                            <h3 class="mb-10 text-nowrap" data-en="Resolved Cases" data-rw="Ibyakemutse">
+                                Resolved Cases
                             </h3>
                             <h2 class="fs-26 fw-medium mb-0 lh-1">
-                                25.99%
+                                {{ resolved_complaints }}
                             </h2>
                         </div>
-                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
-                            <div class="chart-position" id="lead_conversation_chart">
-                            </div>
+                        <div class="col-5">
+                            <div id="lead_conversation_chart" style="min-height: 60px;"></div>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
-                        <span class="d-flex align-content-center gap-1 bg-danger bg-opacity-10 border border-danger"
-                            style="padding: 3px 5px;">
-                            <i class="material-symbols-outlined fs-14 text-danger">
-                                trending_down
-                            </i>
-                            <span class="lh-1 fs-14 text-danger">
-                                1.25%
-                            </span>
+                    <div class="d-flex justify-content-between align-items-center mt-20">
+                        <span
+                            class="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success px-2 py-1">
+                            <i class="material-symbols-outlined fs-14 text-success">check_circle</i>
+                            <span class="lh-1 fs-12 text-success">Finished</span>
                         </span>
-                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
-                            Last Week
-                        </p>
+                        <p class="mb-0 fs-12 text-muted" data-en="Resolved Total" data-rw="Byose Byakemutse">Resolved
+                            Total</p>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-3 col-md-6 col-xxxl-6">
                 <div class="position-relative pe-10">
-                    <div class="d-sm-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <h3 class="mb-10">
-                                Revenue Growth
+                    <div class="row align-items-center">
+                        <div class="col-7">
+                            <h3 class="mb-10 text-nowrap" data-en="Total Citizens" data-rw="Abaturage Banditse">
+                                Total Citizens
                             </h3>
                             <h2 class="fs-26 fw-medium mb-0 lh-1">
-                                $1,207
+                                {{ total_citizens }}
                             </h2>
                         </div>
-                        <div class="flex-shrink-0" style="margin-bottom: -25px;">
-                            <div class="chart-position" id="revenue_growth_chart" style="bottom: -8px;">
-                            </div>
+                        <div class="col-5">
+                            <div id="revenue_growth_chart" style="min-height: 60px;"></div>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center" style="margin-top: 25px;">
-                        <span class="d-flex align-content-center gap-1 bg-success bg-opacity-10 border border-success"
-                            style="padding: 3px 5px;">
-                            <i class="material-symbols-outlined fs-14 text-success">
-                                trending_up
-                            </i>
-                            <span class="lh-1 fs-14 text-success">
-                                20.75%
-                            </span>
+                    <div class="d-flex justify-content-between align-items-center mt-20">
+                        <span
+                            class="d-flex align-content-center gap-1 bg-info bg-opacity-10 border border-info px-2 py-1">
+                            <i class="material-symbols-outlined fs-14 text-info">group</i>
+                            <span class="lh-1 fs-12 text-info">Registered</span>
                         </span>
-                        <p class="mb-0 fs-14 pe-3 d-block" style="margin-top: 2px;">
-                            Weekly Growth
-                        </p>
+                        <p class="mb-0 fs-12 text-muted" data-en="Citizen Base" data-rw="Abaturageose">Citizen Base</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-xxl-4 col-xxxl-6">
+        <!-- Complaints by Category Chart -->
+        <div class="col-xxl-6 col-xxxl-6">
             <div class="card bg-white p-20 rounded-10 border border-white mb-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
-                    <h3>
-                        Most Leads
+                    <h3 data-en="Complaints by Category" data-rw="Ibibazo hashingiwe ku byiciro">Complaints by Category
                     </h3>
-                    <div class="dropdown select-dropdown without-border">
-                        <button aria-expanded="false" class="dropdown-toggle bg-transparent text-secondary fs-15"
-                            data-bs-toggle="dropdown">
-                            This Month
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
-                            data-simplebar="">
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Day
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Week
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Month
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Year
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
-                <div class="text-center">
-                    <div id="most_leads_chart" style="max-width: 305px; margin: auto;">
-                    </div>
-                </div>
-                <ul class="p-0 mb-0 list-unstyled last-child-none icon-bg">
-                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
-                        style="border-bottom: 1px dashed;">
-                        <div class="d-flex align-items-center">
-                            <div class="text-center rounded-circle"
-                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
-                                <i class="material-symbols-outlined fs-24 text-primary position-relative"
-                                    style="line-height: 50px; left: -2px;">
-                                    share
-                                </i>
-                            </div>
-                            <span class="ms-12 fs-16 text-secondary fw-medium">
-                                Social
-                            </span>
-                        </div>
-                        <span class="fs-16">
-                            9,562
-                        </span>
-                        <span class="fs-16">
-                            30%
-                        </span>
-                    </li>
-                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
-                        style="border-bottom: 1px dashed;">
-                        <div class="d-flex align-items-center">
-                            <div class="text-center rounded-circle"
-                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
-                                <i class="material-symbols-outlined fs-24 text-info" style="line-height: 50px;">
-                                    email
-                                </i>
-                            </div>
-                            <span class="ms-12 fs-16 text-secondary fw-medium">
-                                Email
-                            </span>
-                        </div>
-                        <span class="fs-16">
-                            18,426
-                        </span>
-                        <span class="fs-16">
-                            55%
-                        </span>
-                    </li>
-                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
-                        style="border-bottom: 1px dashed;">
-                        <div class="d-flex align-items-center">
-                            <div class="text-center rounded-circle"
-                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
-                                <i class="material-symbols-outlined fs-24 text-primary-50" style="line-height: 50px;">
-                                    call
-                                </i>
-                            </div>
-                            <span class="ms-12 fs-16 text-secondary fw-medium">
-                                Call
-                            </span>
-                        </div>
-                        <span class="fs-16">
-                            4,753
-                        </span>
-                        <span class="fs-16">
-                            10%
-                        </span>
-                    </li>
-                    <li class="d-flex justify-content-between align-items-center border-border-color pb-10 mb-10"
-                        style="border-bottom: 1px dashed;">
-                        <div class="d-flex align-items-center">
-                            <div class="text-center rounded-circle"
-                                style="width: 50px; height: 50px; background-color: #f4f6fc;">
-                                <i class="material-symbols-outlined fs-24 text-warning" style="line-height: 50px;">
-                                    category
-                                </i>
-                            </div>
-                            <span class="ms-12 fs-16 text-secondary fw-medium">
-                                Others
-                            </span>
-                        </div>
-                        <span class="fs-16">
-                            2,657
-                        </span>
-                        <span class="fs-16">
-                            5%
-                        </span>
-                    </li>
-                </ul>
+                <div id="category_distribution_chart" style="height: 350px;"></div>
             </div>
         </div>
-        <div class="col-xxl-4 col-xxxl-6">
+
+        <!-- Quick Insight / Resolution Rate -->
+        <div class="col-xxl-6 col-xxxl-6">
             <div class="card bg-white p-20 rounded-10 border border-white mb-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
-                    <h3>
-                        Country Stats
+                    <h3 data-en="System Health" data-rw="Imikorere ya Sisitemu">System Health</h3>
+                </div>
+                <div class="p-20 text-center">
+                    <div class="d-inline-block p-4 rounded-circle bg-primary bg-opacity-10 mb-3">
+                        <i class="material-symbols-outlined fs-40 text-primary">analytics</i>
+                    </div>
+                    <h4 class="fs-20 fw-bold mb-2" data-en="Resolution Rate" data-rw="Igipimo cy'Ibibazo Byakemutse">
+                        Resolution Rate</h4>
+                    <p class="text-muted mb-4" data-en="Percentage of complaints successfully resolved."
+                        data-rw="Ijanisha ry'ibibazo byakemutse ugereranyije n'ibyatanzwe byose.">Percentage of
+                        complaints successfully resolved.</p>
+                    <div class="progress" style="height: 12px; border-radius: 6px;">
+                        {% widthratio resolved_complaints total_complaints 100 as res_rate %}
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ res_rate }}%;"
+                            aria-valuenow="{{ res_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <span class="fs-14 fw-medium">{{ res_rate }}% Resolved</span>
+                        <span class="fs-14 text-muted">{{ total_complaints }} Total</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xxl-12 col-xxxl-12">
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-20">
+                    <h3 data-en="Recent Complaints" data-rw="Ibibazo Biheruka Nyuma">
+                        Recent Complaints
                     </h3>
-                    <div class="dropdown select-dropdown without-border">
-                        <button aria-expanded="false" class="dropdown-toggle bg-transparent text-secondary fs-15"
-                            data-bs-toggle="dropdown">
-                            This Month
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
-                            data-simplebar="">
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Day
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Week
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Month
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-secondary">
-                                    This Year
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
+                    <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-primary py-1 px-3 fs-14"
+                        data-en="View All" data-rw="Reba Byose">View
+                        All</a>
                 </div>
-                <div class="text-center mb-3">
-                    <div id="country_stats_map" style="height: 284px;">
-                    </div>
-                </div>
-                <div class="default-table-area mx-minus-1 country-stats-table">
+                <div class="default-table-area mx-minus-1">
                     <div class="table-responsive">
                         <table class="table align-middle">
                             <thead>
                                 <tr>
-                                    <th class="bg-transparent py-0 ps-0" scope="col">
-                                        Country
-                                    </th>
-                                    <th class="bg-transparent py-0" scope="col">
-                                        User
-                                    </th>
-                                    <th class="bg-transparent py-0 pe-0" scope="col">
-                                        Bounce Rate
-                                    </th>
+                                    <th class="bg-transparent py-0 ps-0" scope="col" data-en="Tracking ID"
+                                        data-rw="Nimero ya Dosiye">Tracking ID</th>
+                                    <th class="bg-transparent py-0" scope="col" data-en="Citizen" data-rw="Umuturage">
+                                        Citizen</th>
+                                    <th class="bg-transparent py-0" scope="col" data-en="Category" data-rw="Icyiciro">
+                                        Category</th>
+                                    <th class="bg-transparent py-0" scope="col" data-en="Status" data-rw="Aho bigeze">
+                                        Status</th>
+                                    <th class="bg-transparent py-0 pe-0" scope="col" data-en="Date Submitted"
+                                        data-rw="Italiki Byatangiwe">Date Submitted</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for complaint in recent_complaints %}
                                 <tr>
-                                    <td class="ps-0">
-                                        <div class="d-flex align-items-center text-decoration-none">
-                                            <div class="flex-shrink-0">
-                                                <img alt="usa" class="rounded-circle" src="assets/images/usa.png"
-                                                    style="width: 20px; height: 20px;" />
-                                            </div>
-                                            <div class="flex-grow-1 ms-2">
-                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
-                                                    United States
-                                                </h3>
+                                    <td class="ps-0 border-0">
+                                        <a href="{% url 'admin_complaint_detail' complaint.pk %}"
+                                            class="fw-medium text-primary">{{ complaint.tracking_number }}</a>
+                                    </td>
+                                    <td class="border-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h3 class="fw-medium mb-0 fs-16">{{ complaint.full_name }}</h3>
+                                                <span class="fs-12 text-muted">{{ complaint.phone_number }}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-body fw-normal">
-                                        17003
+                                    <td class="text-body fw-normal border-0">{{ complaint.category.name }}</td>
+                                    <td class="border-0">
+                                        {% if complaint.status == 'pending' %}
+                                        <span
+                                            class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">Pending</span>
+                                        {% elif complaint.status == 'in_progress' %}
+                                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">In Progress</span>
+                                        {% elif complaint.status == 'resolved' %}
+                                        <span
+                                            class="badge bg-success bg-opacity-10 text-success px-3 py-2">Resolved</span>
+                                        {% else %}
+                                        <span
+                                            class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">Rejected</span>
+                                        {% endif %}
                                     </td>
-                                    <td class="text-body fw-normal pe-0">
-                                        0.83%
-                                    </td>
+                                    <td class="text-body fw-normal pe-0 border-0">{{ complaint.created_at|date:"M d, Y"}}</td>
                                 </tr>
+                                {% empty %}
                                 <tr>
-                                    <td class="ps-0">
-                                        <div class="d-flex align-items-center text-decoration-none">
-                                            <div class="flex-shrink-0">
-                                                <img alt="china" class="rounded-circle" src="assets/images/china.png"
-                                                    style="width: 20px; height: 20px;" />
-                                            </div>
-                                            <div class="flex-grow-1 ms-2">
-                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
-                                                    China
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-body fw-normal">
-                                        16843
-                                    </td>
-                                    <td class="text-body fw-normal pe-0">
-                                        0.75%
-                                    </td>
+                                    <td colspan="5" class="text-center py-4">No recent complaints found.</td>
                                 </tr>
-                                <tr>
-                                    <td class="ps-0">
-                                        <div class="d-flex align-items-center text-decoration-none">
-                                            <div class="flex-shrink-0">
-                                                <img alt="germany" class="rounded-circle"
-                                                    src="assets/images/germany.png"
-                                                    style="width: 20px; height: 20px;" />
-                                            </div>
-                                            <div class="flex-grow-1 ms-2">
-                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
-                                                    Germany
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-body fw-normal">
-                                        14285
-                                    </td>
-                                    <td class="text-body fw-normal pe-0">
-                                        0.49%
-                                    </td>
-                                </tr>
-                                <tr class="last-child-border-none">
-                                    <td class="ps-0">
-                                        <div class="d-flex align-items-center text-decoration-none">
-                                            <div class="flex-shrink-0">
-                                                <img alt="australia" class="rounded-circle"
-                                                    src="assets/images/australia.png"
-                                                    style="width: 20px; height: 20px;" />
-                                            </div>
-                                            <div class="flex-grow-1 ms-2">
-                                                <h3 class="fw-medium mb-0 fs-16 position-relative top-2">
-                                                    Australia
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-body fw-normal">
-                                        9573
-                                    </td>
-                                    <td class="text-body fw-normal pe-0">
-                                        0.18%
-                                    </td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xxl-4 col-xxxl-12">
-            <div class="row">
-                <div class="col-xxxl-6 col-xxl-12">
-                    <div class="card p-20 rounded-10 border border-white mb-4"
-                        style="background: linear-gradient(180deg, #5c4edb, #796df6) !important;">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-0">
-                            <h3 class="text-white">
-                                Tasks Stats
-                            </h3>
-                            <div class="dropdown select-dropdown without-border">
-                                <button aria-expanded="false"
-                                    class="dropdown-toggle down-arrow-white bg-transparent text-white fs-15"
-                                    data-bs-toggle="dropdown">
-                                    Year 2025
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
-                                    data-simplebar="">
-                                    <li>
-                                        <button class="dropdown-item text-secondary">
-                                            Year 2025
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-secondary">
-                                            Year 2025
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-secondary">
-                                            Year 2023
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div id="tasks_stats_chart" style="margin-bottom: -17px;">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xxxl-6 col-xxl-12">
-                    <div class="card bg-white p-20 rounded-10 border border-white mb-4">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-0">
-                            <h3>
-                                Earning Reports
-                            </h3>
-                            <div class="dropdown select-dropdown">
-                                <button aria-expanded="false"
-                                    class="dropdown-toggle bg-transparent text-secondary fs-15"
-                                    data-bs-toggle="dropdown">
-                                    This Week
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end bg-white border-0 box-shadow rounded-10"
-                                    data-simplebar="">
-                                    <li>
-                                        <button class="dropdown-item text-secondary">
-                                            This Day
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-secondary">
-                                            This Week
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-secondary">
-                                            This Month
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-secondary">
-                                            This Year
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div id="earning_reports_chart" style="margin-bottom: -17px;">
-                        </div>
                     </div>
                 </div>
             </div>

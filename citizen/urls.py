@@ -11,4 +11,5 @@ urlpatterns = [
     path('complaints/', views.citizen_complaints_list, name='citizen_complaints_list'),
     path('complaint-detail/<int:pk>/', views.complaint_detail, name='complaint_detail'),
     path('citizen/dashboard/', views.citizen_dashboard, name='citizen_dashboard'),
+    path('notifications/read/', views.mark_notifications_read, name='mark_notifications_read'),
 ]

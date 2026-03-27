@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Details - {{ target_user.username }}{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 mt-1">
+        <h3 class="mb-0" data-en="User Details" data-rw="Ibiranga Umukoresha">User Details</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a class="d-flex align-items-center text-decoration-none" href="{% url 'admin_dashboard' %}">
+                        <i class="ri-home-8-line fs-15 text-primary me-1"></i>
+                        <span class="text-body fs-14" data-en="Dashboard" data-rw="Ikibaho">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a class="text-decoration-none text-body fs-14" href="{% url 'office_user_list' %}" data-en="Users"
+                        data-rw="Abakoresha">Users</a>
+                </li>
+                <li class="breadcrumb-item active" data-en="Details" data-rw="Andi Makuru">Details</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card bg-white border-0 rounded-10 mb-4 p-4">
+                <div class="text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        {% if target_user.profile_picture %}
+                        <img src="{{ target_user.profile_picture.url }}" class="rounded-circle"
+                            style="width:120px;height:120px;object-fit:cover;border:4px solid #f8f9fa;">
+                        {% else %}
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                            style="width:120px;height:120px;">
+                            <i class="ri-user-line text-primary" style="font-size: 60px;"></i>
+                        </div>
+                        {% endif %}
+                        <span
+                            class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle"
+                            style="width:20px;height:20px;"></span>
+                    </div>
+                    <h4 class="mb-1">{{ target_user.full_name|default:target_user.username }}</h4>
+                    <p class="text-muted mb-3">@{{ target_user.username }}</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <span
+                            class="badge bg-{% if target_user.user_type == 'citizen' %}success{% elif target_user.user_type == 'office' %}warning{% else %}danger{% endif %}-subtle text-{% if target_user.user_type == 'citizen' %}success{% elif target_user.user_type == 'office' %}warning{% else %}danger{% endif %} px-3 py-2">
+                            {{ target_user.get_user_type_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-50">
+
+                <div class="user-info-list">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="ri-mail-line fs-18 text-primary me-3"></i>
+                        <div>
+                            <p class="mb-0 fs-12 text-muted">Email Address</p>
+                            <p class="mb-0 fw-medium">{{ target_user.email|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="ri-phone-line fs-18 text-primary me-3"></i>
+                        <div>
+                            <p class="mb-0 fs-12 text-muted">Phone Number</p>
+                            <p class="mb-0 fw-medium">{{ target_user.phone_number|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="ri-building-line fs-18 text-primary me-3"></i>
+                        <div>
+                            <p class="mb-0 fs-12 text-muted">Assigned Office</p>
+                            <p class="mb-0 fw-medium">{{ target_user.office.name|default:"General / None" }}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="ri-calendar-line fs-18 text-primary me-3"></i>
+                        <div>
+                            <p class="mb-0 fs-12 text-muted">Joined Date</p>
+                            <p class="mb-0 fw-medium">{{ target_user.date_joined|date:"d M Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-grid gap-2">
+                    <a href="{% url 'admin_user_update' target_user.pk %}" class="btn btn-primary py-2 text-white">
+                        <i class="ri-edit-line me-1"></i> Edit Profile
+                    </a>
+                    <a href="{% url 'admin_user_password_reset' target_user.pk %}" class="btn btn-outline-danger py-2">
+                        <i class="ri-lock-password-line me-1"></i> Reset Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card bg-white border-0 rounded-10 mb-4 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fs-18 mb-0">
+                        {% if target_user.user_type == 'citizen' %}
+                        Submitted Complaints
+                        {% else %}
+                        Assigned Complaints
+                        {% endif %}
+                        <span class="badge bg-primary bg-opacity-10 text-primary ms-2 fs-12">{{ complaint_count }}</span>
+                    </h3>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="fs-13 fw-bold text-uppercase text-muted">Tracking ID</th>
+                                <th class="fs-13 fw-bold text-uppercase text-muted">Subject</th>
+                                <th class="fs-13 fw-bold text-uppercase text-muted">Status</th>
+                                <th class="fs-13 fw-bold text-uppercase text-muted">Date</th>
+                                <th class="fs-13 fw-bold text-uppercase text-muted text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in recent_complaints %}
+                            <tr>
+                                <td>
+                                    <span class="fw-medium text-secondary">#{{ complaint.tracking_number }}</span>
+                                </td>
+                                <td>
+                                    <p class="mb-0 text-truncate" style="max-width: 200px;">{{ complaint.issue_description|truncatechars:50 }}</p>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge rounded-pill bg-{{ complaint.status }} bg-opacity-10 text-{{ complaint.status }}">
+                                        {{ complaint.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="fs-13 text-muted">
+                                    {{ complaint.created_at|date:"d M Y" }}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'admin_complaint_detail' complaint.id %}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    No activity found for this user.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-pending {
+        background-color: #ffc107;
+        color: #fff;
+    }
+
+    .bg-in_progress {
+        background-color: #0dcaf0;
+        color: #fff;
+    }
+
+    .bg-resolved {
+        background-color: #198754;
+        color: #fff;
+    }
+
+    .bg-rejected {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    .text-pending {
+        color: #ffc107;
+    }
+
+    .text-in_progress {
+        color: #0dcaf0;
+    }
+
+    .text-resolved {
+        color: #198754;
+    }
+
+    .text-rejected {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}

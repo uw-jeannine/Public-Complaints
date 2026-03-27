@@ -178,14 +178,24 @@
                             </td>
                             <td class="text-body fs-13">{{ user.date_joined|date:"d M Y" }}</td>
                             <td>
-                                <div class="d-flex justify-content-start" style="gap:12px;">
+                                <div class="d-flex justify-content-start align-items-center" style="gap:10px;">
+                                    <a href="{% url 'admin_user_detail' user.pk %}"
+                                        class="bg-transparent p-0 border-0 text-primary" title="View Details">
+                                        <i class="material-symbols-outlined fs-18">visibility</i>
+                                    </a>
+                                    <a href="{% url 'admin_user_update' user.pk %}"
+                                        class="bg-transparent p-0 border-0 text-warning" title="Edit">
+                                        <i class="material-symbols-outlined fs-18">edit</i>
+                                    </a>
+                                    <a href="{% url 'admin_user_password_reset' user.pk %}"
+                                        class="bg-transparent p-0 border-0 text-secondary" title="Reset Password">
+                                        <i class="material-symbols-outlined fs-18">lock_reset</i>
+                                    </a>
                                     {% if user.user_type == 'office' %}
                                     <a href="{% url 'office_user_delete' user.pk %}"
-                                        class="bg-transparent p-0 border-0 hover-text-danger" title="Delete">
-                                        <i class="material-symbols-outlined fs-16 fw-normal text-body">delete</i>
+                                        class="bg-transparent p-0 border-0 text-danger" title="Delete">
+                                        <i class="material-symbols-outlined fs-18">delete</i>
                                     </a>
-                                    {% else %}
-                                    <span class="text-muted fs-13">—</span>
                                     {% endif %}
                                 </div>
                             </td>

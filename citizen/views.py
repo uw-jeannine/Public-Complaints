@@ -1,7 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Complaint
+from .models import Complaint, Notification
+
+@login_required
+def mark_notifications_read(request):
+    Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    return redirect(request.META.get('HTTP_REFERER', 'landing_page'))
+
 from administrator.models import ComplaintCategory
 from accounts.models import Province, District
 

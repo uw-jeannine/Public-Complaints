@@ -10,6 +10,9 @@ urlpatterns = [
     # Office User accounts
     path('administrator/users/', views.office_user_list, name='office_user_list'),
     path('administrator/users/create/', views.office_user_create, name='office_user_create'),
+    path('administrator/users/<int:pk>/', views.admin_user_detail, name='admin_user_detail'),
+    path('administrator/users/<int:pk>/edit/', views.admin_user_update, name='admin_user_update'),
+    path('administrator/users/<int:pk>/password-reset/', views.admin_user_password_reset, name='admin_user_password_reset'),
     path('administrator/users/<int:pk>/delete/', views.office_user_delete, name='office_user_delete'),
     # Complaint Category management
     path('administrator/categories/', views.category_list, name='category_list'),
