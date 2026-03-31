@@ -90,8 +90,7 @@
                                     <span class="fw-medium fs-16 text-secondary" data-en="Notifications"
                                         data-rw="Incamake">
                                         Notifications
-                                        <span class="fw-normal text-body fs-16">({{ unread_notifications_count
-                                            }})</span>
+                                        <span class="fw-normal text-body fs-16">({{ unread_notifications_count }})</span>
                                     </span>
                                     <a href="{% url 'mark_notifications_read' %}"
                                         class="p-0 m-0 bg-transparent border-0 fs-14 text-primary fw-medium text-decoration-none">
@@ -102,21 +101,19 @@
                                     {% for notification in recent_notifications %}
                                     <div class="notification-menu {% if not notification.is_read %}unseen{% endif %}">
                                         <a class="dropdown-item"
-                                            href="{% if notification.complaint %}{% url 'complaint_detail' notification.complaint.id %}{% else %}#{% endif %}">
+                                            href="">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-shrink-0">
                                                     <i
                                                         class="material-symbols-outlined {% if 'Status' in notification.title %}text-info{% elif 'Assigned' in notification.title %}text-warning{% else %}text-primary{% endif %}">
-                                                        {% if 'Status' in notification.title %}info{% elif 'Assigned' in
-                                                        notification.title %}assignment_ind{% else %}mail{% endif %}
+                                                        {% if 'Status' in notification.title %}info{% elif 'Assigned' in notification.title %}assignment_ind{% else %}mail{% endif %}
                                                     </i>
                                                 </div>
                                                 <div class="flex-grow-1 ms-3">
                                                     <p class="fs-15 fw-medium text-secondary mb-1">
                                                         {{ notification.title }}
                                                     </p>
-                                                    <p class="fs-13 text-muted mb-1">{{
-                                                        notification.message|truncatechars:60 }}</p>
+                                                    <p class="fs-13 text-muted mb-1">{{ notification.message|truncatechars:60 }}</p>
                                                     <span class="fs-12 fw-medium text-muted">
                                                         {{ notification.created_at|timesince }} ago
                                                     </span>
@@ -204,7 +201,7 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item admin-item-link d-flex align-items-center text-body"
-                                            href="settings.html">
+                                            href="{% url 'account-settings' %}">
                                             <i class="material-symbols-outlined">
                                                 settings
                                             </i>

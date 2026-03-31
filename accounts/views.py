@@ -23,7 +23,7 @@ def sign_up(request):
             messages.success(request, "Registration successful.")
             return redirect(get_user_redirect_url(user))
         else:
-            for error in form.errors.values():
+            for error in form.non_field_errors():
                 messages.error(request, error)
     else:
         form = UserSignUpForm()

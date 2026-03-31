@@ -168,17 +168,6 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="auth-card">
-                        {% if messages %}
-                        <div class="mb-4">
-                            {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
 
                         <form method="POST">
                             {% csrf_token %}
@@ -192,43 +181,78 @@
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" data-en="Full Name" data-rw="Amazina yombi">Full
                                         Name</label>
-                                    <input type="text" class="form-control" name="full_name"
+                                    <input type="text"
+                                        class="form-control {% if form.full_name.errors %}is-invalid{% endif %}"
+                                        name="full_name" value="{{ request.POST.full_name }}"
                                         placeholder="Enter your full name" data-en-placeholder="Enter your full name"
                                         data-rw-placeholder="Injira amazina yawe yombi" required>
+                                    {% if form.full_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.full_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" data-en="Username"
                                         data-rw="Izina ry'idukoresha">Username</label>
-                                    <input type="text" class="form-control" name="username"
+                                    <input type="text"
+                                        class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                        name="username" value="{{ request.POST.username }}"
                                         placeholder="Choose a username" data-en-placeholder="Choose a username"
                                         data-rw-placeholder="Hitamo izina ry'idukoresha" required>
+                                    {% if form.username.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" data-en="Phone Number" data-rw="Nimero ya terefone">Phone
                                         Number</label>
-                                    <input type="text" class="form-control" name="phone_number"
+                                    <input type="text"
+                                        class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}"
+                                        name="phone_number" value="{{ request.POST.phone_number }}"
                                         placeholder="Enter your phone number"
                                         data-en-placeholder="Enter your phone number"
                                         data-rw-placeholder="Injira nimero ya terefone" required>
+                                    {% if form.phone_number.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.phone_number.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" data-en="National ID" data-rw="Indangamuntu">National ID
                                         <span class="text-muted fw-normal" data-en="(Optional)"
                                             data-rw="(Ntabwo ari itegeko)">(Optional)</span></label>
-                                    <input type="text" class="form-control" name="national_id"
+                                    <input type="text"
+                                        class="form-control {% if form.national_id.errors %}is-invalid{% endif %}"
+                                        name="national_id" value="{{ request.POST.national_id }}"
                                         placeholder="Enter national ID" data-en-placeholder="Enter national ID"
                                         data-rw-placeholder="Injira nimero y'indangamuntu">
+                                    {% if form.national_id.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.national_id.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-12 mb-4">
                                     <label class="form-label" data-en="Email Address" data-rw="Imeri">Email Address
                                         <span class="text-muted fw-normal" data-en="(Optional)"
                                             data-rw="(Ntabwo ari itegeko)">(Optional)</span></label>
-                                    <input type="email" class="form-control" name="email" placeholder="Enter your email"
+                                    <input type="email"
+                                        class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                        name="email" value="{{ request.POST.email }}" placeholder="Enter your email"
                                         data-en-placeholder="Enter your email" data-rw-placeholder="Injira imeri yawe">
+                                    {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
 
@@ -240,37 +264,61 @@
 
                                 <div class="col-md-3 mb-4">
                                     <label class="form-label" data-en="Province" data-rw="Intara">Province</label>
-                                    <select class="form-select" name="province" id="id_province" required>
+                                    <select class="form-select {% if form.province.errors %}is-invalid{% endif %}"
+                                        name="province" id="id_province" required>
                                         <option value="" data-en="Select Province" data-rw="Hitamo Intara">Select
                                             Province</option>
 
                                         {% for p in provinces %}
-                                        <option value="{{ p.id }}">{{ p.name }}</option>
+                                        <option value="{{ p.id }}" {% if request.POST.province == p.id|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
                                         {% endfor %}
                                     </select>
+                                    {% if form.province.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.province.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-3 mb-4">
                                     <label class="form-label" data-en="District" data-rw="Akarere">District</label>
-                                    <select class="form-select" name="district" id="id_district" required disabled>
+                                    <select class="form-select {% if form.district.errors %}is-invalid{% endif %}"
+                                        name="district" id="id_district" required disabled>
                                         <option value="" data-en="Select District" data-rw="Hitamo Akarere">Select
                                             District</option>
                                     </select>
+                                    {% if form.district.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.district.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-3 mb-4">
                                     <label class="form-label" data-en="Sector" data-rw="Umurenge">Sector</label>
-                                    <select class="form-select" name="sector" id="id_sector" required disabled>
+                                    <select class="form-select {% if form.sector.errors %}is-invalid{% endif %}"
+                                        name="sector" id="id_sector" required disabled>
                                         <option value="" data-en="Select Sector" data-rw="Hitamo Umurenge">Select Sector
                                         </option>
                                     </select>
+                                    {% if form.sector.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.sector.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
                                 <div class="col-md-3 mb-4">
                                     <label class="form-label" data-en="Village" data-rw="Umudugudu">Village</label>
-                                    <select class="form-select" name="village" id="id_village" required disabled>
+                                    <select class="form-select {% if form.village.errors %}is-invalid{% endif %}"
+                                        name="village" id="id_village" required disabled>
                                         <option value="" data-en="Select Village" data-rw="Hitamo Umudugudu">Select
                                             Village</option>
                                     </select>
+                                    {% if form.village.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.village.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
 
@@ -279,16 +327,42 @@
                                     <h5 class="section-title" data-en="Security" data-rw="Umutekano">Security</h5>
                                 </div>
 
-                                <div class="col-12 mb-4">
+                                <div class="col-md-6 mb-4">
                                     <label class="form-label" data-en="Password"
                                         data-rw="Ijambo ry'ibanga">Password</label>
                                     <div class="password-wrapper position-relative">
-                                        <input type="password" class="form-control password" name="password"
-                                            placeholder="Create a password" data-en-placeholder="Create a password"
+                                        <input type="password"
+                                            class="form-control password {% if form.password1.errors %}is-invalid{% endif %}"
+                                            name="password1" placeholder="Create a password"
+                                            data-en-placeholder="Create a password"
                                             data-rw-placeholder="Shaka ijambo ry'ibanga" required>
                                         <i
                                             class="ri-eye-off-line password-toggle-icon position-absolute top-50 translate-middle-y end-0 me-3"></i>
                                     </div>
+                                    {% if form.password1.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password1.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" data-en="Confirm Password"
+                                        data-rw="Gushimangira ijambo ry'ibanga">Confirm Password</label>
+                                    <div class="password-wrapper position-relative">
+                                        <input type="password"
+                                            class="form-control password {% if form.password2.errors %}is-invalid{% endif %}"
+                                            name="password2" placeholder="Confirm your password"
+                                            data-en-placeholder="Confirm your password"
+                                            data-rw-placeholder="Subiramo ijambo ry'ibanga" required>
+                                        <i
+                                            class="ri-eye-off-line password-toggle-icon position-absolute top-50 translate-middle-y end-0 me-3"></i>
+                                    </div>
+                                    {% if form.password2.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password2.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
                                 </div>
 
 
@@ -332,15 +406,17 @@
     <script src="{% static 'assets/js/custom/custom.js' %}"></script>
     <script>
         // Simple password toggle logic
-        document.querySelector('.password-toggle-icon').addEventListener('click', function () {
-            const passwordInput = document.querySelector('.password');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                this.classList.replace('ri-eye-off-line', 'ri-eye-line');
-            } else {
-                passwordInput.type = 'password';
-                this.classList.replace('ri-eye-line', 'ri-eye-off-line');
-            }
+        document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+            icon.addEventListener('click', function () {
+                const passwordInput = this.parentElement.querySelector('.password');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.classList.replace('ri-eye-off-line', 'ri-eye-line');
+                } else {
+                    passwordInput.type = 'password';
+                    this.classList.replace('ri-eye-line', 'ri-eye-off-line');
+                }
+            });
         });
 
         // Location hierarchy logic

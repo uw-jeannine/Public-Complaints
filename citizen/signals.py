@@ -16,9 +16,7 @@ def create_complaint_notifications(sender, instance, created, **kwargs):
                 complaint=instance
             )
     else:
-        # 2. Notify Office users if assigned_office changed
         if instance.assigned_office:
-            from accounts.models import User
             staff = User.objects.filter(office=instance.assigned_office)
             for member in staff:
                 # Check if notification already exists to avoid duplicates on every save
