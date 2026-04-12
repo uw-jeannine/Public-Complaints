@@ -8,7 +8,8 @@
  *
  */
 class RdataTB {
-    constructor(IdTable, Options = { RenderJSON: null,
+    constructor(IdTable, Options = {
+        RenderJSON: null,
         ShowSearch: true,
         ShowSelect: true,
         ShowPaginate: true,
@@ -18,7 +19,8 @@ class RdataTB {
         fixedTable: false,
         sortAnimate: true,
         ShowTfoot: false,
-        ExcludeColumnExport: [] }) {
+        ExcludeColumnExport: []
+    }) {
         var _a, _b, _c, _d;
         this.HeaderDataTable = []; // header table to array
         this.RowDataTable = []; // get Table to json
@@ -34,12 +36,13 @@ class RdataTB {
         this.searchValue = '';
         this.ListHiding = [];
         this.SelectionNumber = [10, 15, 20, 50],
-        this.SelectElementString = '';
+            this.SelectElementString = '';
         this.ShowHighlight = false;
         this.listTypeDate = [];
         this.PageNow = 1;
         this.ExcludeColumnExport = [];
         this.TableElement = document.getElementById(IdTable);
+        this.IdTable = IdTable; // Store IdTable for unique IDs
         this.Options = Options;
         this.detectTyped();
         this.StyleS();
@@ -53,7 +56,7 @@ class RdataTB {
             this.JSONinit(Options.RenderJSON);
         }
         if (!Options.ShowSelect && Options.hasOwnProperty('ShowSelect')) {
-            (_a = document.getElementById('my-select')) === null || _a === void 0 ? void 0 : _a.remove();
+            (_a = document.getElementById('my-select_' + this.IdTable)) === null || _a === void 0 ? void 0 : _a.remove();
         }
         this.ShowHighlight = Options === null || Options === void 0 ? void 0 : Options.ShowHighlight;
         if (Options.fixedTable && Options.hasOwnProperty('fixedTable')) {
@@ -63,7 +66,7 @@ class RdataTB {
             (_c = this.TableElement) === null || _c === void 0 ? void 0 : _c.classList.remove("table_layout_fixed");
         }
         if (!Options.ShowSearch && Options.hasOwnProperty('ShowSearch')) {
-            (_d = document.getElementById('SearchControl')) === null || _d === void 0 ? void 0 : _d.remove();
+            (_d = document.getElementById('SearchControl_' + this.IdTable)) === null || _d === void 0 ? void 0 : _d.remove();
         }
         if (Options.HideColumn != null && Options.hasOwnProperty('HideColumn')) {
             this.ListHiding = Options.HideColumn;
@@ -88,7 +91,9 @@ class RdataTB {
         }
     }
     StyleS() {
+        if (document.getElementById('RdataTB_Styles')) return; // Avoid duplicate style tags
         const style = document.createElement('style');
+        style.id = 'RdataTB_Styles';
         style.innerHTML = `
         .table_layout_fixed { 
             table-layout:fixed;
@@ -133,7 +138,7 @@ class RdataTB {
         for (let x = 0; x < this.SelectionNumber.length; x++) {
             this.SelectElementString += `<option value="${this.SelectionNumber[x]}">${this.SelectionNumber[x]}</option>`;
         }
-        let ElSelect = document.getElementById("my-select");
+        let ElSelect = document.getElementById("my-select_" + this.IdTable);
         if (ElSelect) {
             ElSelect.innerHTML = this.SelectElementString;
         }
@@ -142,13 +147,13 @@ class RdataTB {
     Control() {
         const span1 = document.createElement('span');
         span1.innerHTML = `
-        <table id="C" border="0" style="width:100%;margin-bottom:12px;">
+        <table id="C_${this.IdTable}" border="0" style="width:100%;margin-bottom:12px;">
         <tr>
           <td style="width:100%; display: flex; justify-content: space-between; padding: 20px;">
-             <select id="my-select" class="form-select shadow-none" style="float:left;width:99px!important;margin-right:10px;">
+             <select id="my-select_${this.IdTable}" class="form-select shadow-none" style="float:left;width:99px!important;margin-right:10px;">
              <option value="5">5</option><option value="10">10</option><option value="20">20</option><option value="50">50</option>
              </select>
-             <input id="SearchControl" class="form-control shadow-none" placeholder="Search" type="text" style="width: 145px;height:40px">
+             <input id="SearchControl_${this.IdTable}" class="form-control shadow-none" placeholder="Search" type="text" style="width: 145px;height:40px">
           </td>
         </tr>
       </table>
@@ -161,16 +166,16 @@ class RdataTB {
             this.i = 0;
             this.RenderToHTML();
         };
-        let selectEl = document.getElementById('my-select');
+        let selectEl = document.getElementById('my-select_' + this.IdTable);
         selectEl === null || selectEl === void 0 ? void 0 : selectEl.addEventListener('change', function () {
             ChangeV(this.value);
         });
-        document.getElementById('x__NEXT__X').onclick = () => {
+        document.getElementById('x__NEXT__X_' + this.IdTable).onclick = () => {
             this.nextItem();
             this.highlight(this.searchValue);
             this.DoHide();
         };
-        document.getElementById('x__PREV__X').onclick = () => {
+        document.getElementById('x__PREV__X_' + this.IdTable).onclick = () => {
             this.prevItem();
             this.highlight(this.searchValue);
             this.DoHide();
@@ -195,18 +200,18 @@ class RdataTB {
     paginateRender() {
         const k = `
         <div class="d-flex justify-content-center justify-content-sm-between align-items-center text-center flex-wrap gap-2 p-20">
-            <div class="fs-16 fw-normal" id="PF"></div>
+            <div class="fs-16 fw-normal" id="PF_${this.IdTable}"></div>
             
-            <div class="pagination overflow-hidden" id="pgN">
+            <div class="pagination overflow-hidden" id="pgN_${this.IdTable}">
                 <nav class="custom-pagination" aria-label="Page navigation example">
                     <ul class="pagination mb-0 justify-content-center align-items-center">
                         <li class="page-item">
-                            <a class="page-link icon" aria-label="Previous" id="x__PREV__X">
+                            <a class="page-link icon" aria-label="Previous" id="x__PREV__X_${this.IdTable}">
                                 <i class="material-symbols-outlined">west</i>
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link icon" aria-label="Next" id="x__NEXT__X">
+                            <a class="page-link icon" aria-label="Next" id="x__NEXT__X_${this.IdTable}">
                                 <i class="material-symbols-outlined">east</i>
                             </a>
                         </li>
@@ -221,15 +226,15 @@ class RdataTB {
         this.TableElement.parentNode.insertBefore(span, this.TableElement.nextSibling);
     }
     PaginateUpdate() {
-        if (document.getElementById('PF') != null) {
-            document.getElementById('PF').innerHTML = `
+        if (document.getElementById('PF_' + this.IdTable) != null) {
+            document.getElementById('PF_' + this.IdTable).innerHTML = `
             <a style="">Page ${this.i + 1} to ${this.Divide().length} of ${(this.DataTable === undefined) ? 0 : this.DataTable.length} Entries</a>`;
         }
     }
     search() {
         var _a;
         this.DataSearch = this.DataTable;
-        (_a = document.getElementById('SearchControl')) === null || _a === void 0 ? void 0 : _a.addEventListener('input', (evt) => {
+        (_a = document.getElementById('SearchControl_' + this.IdTable)) === null || _a === void 0 ? void 0 : _a.addEventListener('input', (evt) => {
             this.searchValue = evt.target.value;
             this.DataTable = this.DataSearch.filter((element) => {
                 for (let index = 0; index < this.HeaderDataTable.length; index++) {
@@ -284,7 +289,7 @@ class RdataTB {
         //clear 
         this.TableElement.innerHTML = '';
         // check if is sorted
-        const CheckIFSorted = (this.DataSorted === null || this.DataSorted === [] || this.DataSorted === undefined) ?
+        const CheckIFSorted = (this.DataSorted === null || (Array.isArray(this.DataSorted) && this.DataSorted.length === 0) || this.DataSorted === undefined) ?
             this.Divide()[0]
             : this.Divide()[0];
         this.DataToRender = CheckIFSorted;
@@ -292,8 +297,9 @@ class RdataTB {
         let header = '';
         let footer = '';
         for (let I = 0; I < this.HeaderDataTable.length; I++) {
-            header += `<th style="cursor: pointer;" id="${this.HeaderDataTable[I]}_header" class="columns tablesorter-header">${this.HeaderDataTable[I]}</th>\n`;
-            footer += `<th style="cursor: pointer;" id="${this.HeaderDataTable[I]}_footer" class="columns tablesorter-header">${this.HeaderDataTable[I]}</th>\n`;
+            const safeHeaderId = this.HeaderDataTable[I].replace(/\s/g, '_');
+            header += `<th style="cursor: pointer;" id="${this.IdTable}_${safeHeaderId}_header" class="columns tablesorter-header">${this.HeaderDataTable[I]}</th>\n`;
+            footer += `<th style="cursor: pointer;" id="${this.IdTable}_${safeHeaderId}_footer" class="columns tablesorter-header">${this.HeaderDataTable[I]}</th>\n`;
         }
         // RowDataTable To Element
         const ifUndefinded = (this.DataToRender === undefined) ? 0 : this.DataToRender.length;
@@ -324,28 +330,33 @@ class RdataTB {
         }
         this.TableElement.innerHTML = ToEl;
         for (let n = 0; n < this.HeaderDataTable.length; n++) {
-            const cv = document.getElementById(`${this.HeaderDataTable[n]}_header`);
-            document.getElementById(`${this.HeaderDataTable[n]}_header`).style.opacity = '100%';
-            cv.onclick = () => {
-                this.sort(this.HeaderDataTable[n]);
-                let GetElsHeaderList = document.getElementById(`${this.HeaderDataTable[n]}_header`);
-                document.getElementById(`${this.HeaderDataTable[n]}_header`).style.opacity = '100%';
-                if (this.Assc) {
-                    GetElsHeaderList.classList.remove('tablesorter-header-asc');
-                    GetElsHeaderList.classList.add('tablesorter-header-desc');
-                }
-                else {
-                    GetElsHeaderList.classList.remove('tablesorter-header-desc');
-                    GetElsHeaderList.classList.add('tablesorter-header-asc');
-                }
-                //animate
-                if (this.Options.sortAnimate) {
-                    const s = document.getElementsByClassName(`${this.HeaderDataTable[n]}__row`);
-                    for (let NN = 0; NN < s.length; NN++) {
-                        setTimeout(() => s[NN].classList.add('blink_me'), 21 * NN);
+            const safeHeaderId = this.HeaderDataTable[n].replace(/\s/g, '_');
+            const cv = document.getElementById(`${this.IdTable}_${safeHeaderId}_header`);
+            if (cv) {
+                cv.style.opacity = '100%';
+                cv.onclick = () => {
+                    this.sort(this.HeaderDataTable[n]);
+                    let GetElsHeaderList = document.getElementById(`${this.IdTable}_${safeHeaderId}_header`);
+                    if (GetElsHeaderList) {
+                        GetElsHeaderList.style.opacity = '100%';
+                        if (this.Assc) {
+                            GetElsHeaderList.classList.remove('tablesorter-header-asc');
+                            GetElsHeaderList.classList.add('tablesorter-header-desc');
+                        }
+                        else {
+                            GetElsHeaderList.classList.remove('tablesorter-header-desc');
+                            GetElsHeaderList.classList.add('tablesorter-header-asc');
+                        }
                     }
-                }
-            };
+                    //animate
+                    if (this.Options.sortAnimate) {
+                        const s = document.getElementsByClassName(`${this.HeaderDataTable[n]}__row`);
+                        for (let NN = 0; NN < s.length; NN++) {
+                            setTimeout(() => s[NN].classList.add('blink_me'), 21 * NN);
+                        }
+                    }
+                };
+            }
         }
         this.PaginateUpdate();
         this.DoHide();
@@ -503,12 +514,13 @@ class RdataTB {
         this.RenderToHTML();
     }
     HideCol(column) {
+        const safeHeaderId = column.replace(/\s/g, '_');
         const Classes = document.getElementsByClassName(`${column}__row`);
         for (let O = 0; O < Classes.length; O++) {
             Classes[O].style.display = "none";
         }
-        let ColmnHeader = document.getElementById(`${column}_header`);
-        let ColmnFotter = document.getElementById(`${column}_footer`);
+        let ColmnHeader = document.getElementById(`${this.IdTable}_${safeHeaderId}_header`);
+        let ColmnFotter = document.getElementById(`${this.IdTable}_${safeHeaderId}_footer`);
         if (ColmnHeader) {
             ColmnHeader.style.display = "none";
             if (ColmnFotter) {
@@ -517,12 +529,13 @@ class RdataTB {
         }
     }
     ShowCol(column) {
+        const safeHeaderId = column.replace(/\s/g, '_');
         const Classes = document.getElementsByClassName(`${column}__row`);
         for (let O = 0; O < Classes.length; O++) {
             Classes[O].style.display = "";
         }
-        let ColmnHeader = document.getElementById(`${column}_header`);
-        let ColmnFotter = document.getElementById(`${column}_footer`);
+        let ColmnHeader = document.getElementById(`${this.IdTable}_${safeHeaderId}_header`);
+        let ColmnFotter = document.getElementById(`${this.IdTable}_${safeHeaderId}_footer`);
         if (ColmnHeader) {
             ColmnHeader.style.display = "";
             if (ColmnFotter) {

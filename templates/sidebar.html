@@ -2,7 +2,7 @@
 <div class="sidebar-area" id="sidebar-area">
     <div class="logo position-relative d-flex align-items-center justify-content-between p-3 p-xl-4">
         <a class="d-block text-decoration-none" href="index.html">
-            <img alt="logo-icon" src="{% static 'assets/images/logo/logo.png' %}"
+            <img alt="logo-icon" src="{% static 'assets/images/logo/public.png' %}"
                 style="max-height: 80px; width: auto; object-fit: contain;" />
         </a>
         <button
@@ -76,6 +76,12 @@
                 </a>
             </li>
             <li class="menu-item">
+                <a class="menu-link" href="{% url 'admin_reports' %}">
+                    <span class="material-symbols-outlined menu-icon">assessment</span>
+                    <span class="title" data-en="System Reports" data-rw="Raporo">System Reports</span>
+                </a>
+            </li>
+            <li class="menu-item">
                 <a class="menu-link" href="{% url 'office_user_list' %}">
                     <span class="material-symbols-outlined menu-icon">manage_accounts</span>
                     <span class="title" data-en="All Users" data-rw="Abakoresha Bose">All Users</span>
@@ -84,17 +90,17 @@
             <li class="menu-item">
                 <a class="menu-link menu-toggle active" href="javascript:void(0);">
                     <span class="material-symbols-outlined menu-icon">email</span>
-                    <span class="title" data-en="Offices" data-rw="Ibiro">Offices</span>
+                    <span class="title" data-en="Officers" data-rw="Abakozi">Officers</span>
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item">
                         <a class="menu-link" href="{% url 'office_list' %}">
-                            <span data-en="View Offices" data-rw="Reba Ibiro">View Offices</span>
+                            <span data-en="View Officers" data-rw="Reba Abakozi">View Officers</span>
                         </a>
                     </li>
                     <li class="menu-item">
                         <a class="menu-link" href="{% url 'office_create' %}">
-                            <span data-en="Add Office" data-rw="Ongeraho Ibiro">Add Office</span>
+                            <span data-en="Add Officer" data-rw="Ongeraho Umukozi">Add Officer</span>
                         </a>
                     </li>
                 </ul>

@@ -1,3 +1,4 @@
+from accounts.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
 from django.contrib.auth.decorators import login_required
@@ -172,8 +173,22 @@ def office_delete(request, pk):
         return redirect('office_list')
     return render(request, 'offices/office_confirm_delete.html', {'office': office})
 
-
-# \u2500\u2500 Office User Management \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+@login_required
+@administrator_required
+def admin_user_delete(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    
+    # Safety check: Prevent deleting self
+    if user == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('admin_user_detail', pk=pk)
+        
+    if request.method == 'POST':
+        name = user.full_name or user.username
+        user.delete()
+        messages.success(request, f'User "{name}" deleted successfully.')
+        return redirect('office_user_list')
+    return render(request, 'users/office_user_confirm_delete.html', {'user': user})
 
 @login_required
 @administrator_required
@@ -260,19 +275,6 @@ def office_user_create(request):
 
     return render(request, 'users/office_user_form.html', {'offices': offices, 'action': 'Create'})
 
-
-@login_required
-@administrator_required
-def office_user_delete(request, pk):
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    user = get_object_or_404(User, pk=pk, user_type='office')
-    if request.method == 'POST':
-        name = user.full_name or user.username
-        user.delete()
-        messages.success(request, f'User "{name}" deleted.')
-        return redirect('office_user_list')
-    return render(request, 'users/office_user_confirm_delete.html', {'user': user})
 
 
 @login_required
@@ -554,4 +556,90 @@ def admin_complaint_detail(request, pk):
         'staff_users': staff_users,
         'assignments': assignments,
         'reports': reports
+    })
+
+@login_required
+@administrator_required
+def admin_reports(request):
+    from django.db.models import Count, Q
+    from django.contrib.auth import get_user_model
+    from accounts.models import Province, District
+    User = get_user_model()
+
+    # 1. Location-based reports (Residence)
+    resilience_provinces = Province.objects.annotate(
+        total_complaints=Count('complainant_residences'),
+        pending=Count('complainant_residences', filter=Q(complainant_residences__status='pending')),
+        resolved=Count('complainant_residences', filter=Q(complainant_residences__status='resolved'))
+    ).order_by('-total_complaints')
+
+    districts_qs = District.objects.select_related('province').annotate(
+        total_complaints=Count('complainant_residences'),
+        pending=Count('complainant_residences', filter=Q(complainant_residences__status='pending')),
+        resolved=Count('complainant_residences', filter=Q(complainant_residences__status='resolved'))
+    ).order_by('-total_complaints')
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(districts_qs, 10)
+    page_number = request.GET.get('page')
+    resilience_districts = paginator.get_page(page_number)
+
+    # 2. Category-based reports
+    category_stats = ComplaintCategory.objects.annotate(
+        total=Count('complaints'),
+        pending=Count('complaints', filter=Q(complaints__status='pending')),
+        resolved=Count('complaints', filter=Q(complaints__status='resolved'))
+    ).order_by('-total')
+
+    # 3. Trend Data (Last 30 days)
+    from django.utils import timezone
+    from datetime import timedelta
+    from django.db.models.functions import TruncDate
+    
+    thirty_days_ago = timezone.now().date() - timedelta(days=29)
+    daily_stats = Complaint.objects.filter(
+        created_at__date__gte=thirty_days_ago
+    ).annotate(date=TruncDate('created_at')).values('date').annotate(count=Count('id')).order_by('date')
+    
+    # Fill gaps for trend chart
+    stats_map = {s['date']: s['count'] for s in daily_stats}
+    trend_labels = []
+    trend_values = []
+    for i in range(30):
+        day = thirty_days_ago + timedelta(days=i)
+        trend_labels.append(day.strftime('%b %d'))
+        trend_values.append(stats_map.get(day, 0))
+
+    # Serialized data for JS
+    province_chart_data = [
+        {'name': p.name, 'count': p.total_complaints} for p in resilience_provinces
+    ]
+    category_chart_data = [
+        {'name': c.name, 'count': c.total} for c in category_stats
+    ]
+
+    # 4. User reports
+    user_stats = {
+        'total_users': User.objects.count(),
+        'citizens': User.objects.filter(user_type='citizen').count(),
+        'officers': User.objects.filter(user_type='office').count(),
+        'admins': User.objects.filter(user_type='administrator').count(),
+    }
+
+    # 5. System activity (Recent Reports/Assignments)
+    from citizen.models import ComplaintReport, ComplaintAssignment
+    recent_reports = ComplaintReport.objects.select_related('complaint', 'author', 'office').order_by('-created_at')[:10]
+    recent_assignments = ComplaintAssignment.objects.select_related('complaint', 'office', 'user', 'assigned_by').order_by('-assigned_at')[:10]
+
+    return render(request, 'reports/admin_reports.html', {
+        'resilience_provinces': resilience_provinces,
+        'resilience_districts': resilience_districts,
+        'category_stats': category_stats,
+        'user_stats': user_stats,
+        'recent_reports': recent_reports,
+        'recent_assignments': recent_assignments,
+        'trend_labels': trend_labels,
+        'trend_values': trend_values,
+        'province_chart_data': province_chart_data,
+        'category_chart_data': category_chart_data,
     })

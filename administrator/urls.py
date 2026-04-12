@@ -13,7 +13,7 @@ urlpatterns = [
     path('administrator/users/<int:pk>/', views.admin_user_detail, name='admin_user_detail'),
     path('administrator/users/<int:pk>/edit/', views.admin_user_update, name='admin_user_update'),
     path('administrator/users/<int:pk>/password-reset/', views.admin_user_password_reset, name='admin_user_password_reset'),
-    path('administrator/users/<int:pk>/delete/', views.office_user_delete, name='office_user_delete'),
+    path('administrator/users/<int:pk>/delete/', views.admin_user_delete, name='admin_user_delete'),
     # Complaint Category management
     path('administrator/categories/', views.category_list, name='category_list'),
     path('administrator/categories/add/', views.category_create, name='category_create'),
@@ -22,4 +22,5 @@ urlpatterns = [
     # Complaints review
     path('administrator/complaints/', views.admin_complaints_list, name='admin_complaints_list'),
     path('administrator/complaints/<int:pk>/', views.admin_complaint_detail, name='admin_complaint_detail'),
+    path('administrator/reports/', views.admin_reports, name='admin_reports'),
 ]

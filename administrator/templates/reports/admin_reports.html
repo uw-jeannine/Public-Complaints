@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}System Reports | Admin{% endblock %}
+
+{% block scripts %}
+{{ trend_labels|json_script:"trend-labels" }}
+{{ trend_values|json_script:"trend-values" }}
+{{ province_chart_data|json_script:"province-data" }}
+{{ category_chart_data|json_script:"category-data" }}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const trendLabels = JSON.parse(document.getElementById('trend-labels').textContent);
+        const trendValues = JSON.parse(document.getElementById('trend-values').textContent);
+        const provinceData = JSON.parse(document.getElementById('province-data').textContent);
+        const categoryData = JSON.parse(document.getElementById('category-data').textContent);
+
+        // 1. Complaint Trend (Line Chart)
+        var trendOptions = {
+            series: [{ name: 'Complaints', data: trendValues }],
+            chart: { height: 350, type: 'line', zoom: { enabled: false }, toolbar: { show: false } },
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 3 },
+            colors: ['#796df6'],
+            xaxis: { categories: trendLabels, labels: { rotate: -45, style: { fontSize: '10px' } } },
+            yaxis: { title: { text: 'Number of Complaints' } },
+            tooltip: { y: { formatter: function (val) { return val + " Complaints" } } }
+        };
+        new ApexCharts(document.querySelector("#complaint_trend_chart"), trendOptions).render();
+
+        // 2. Province Distribution (Bar Chart)
+        var provinceOptions = {
+            series: [{ name: 'Complaints', data: provinceData.map(i => i.count) }],
+            chart: { type: 'bar', height: 350, toolbar: { show: false } },
+            plotOptions: { bar: { borderRadius: 4, horizontal: true } },
+            dataLabels: { enabled: false },
+            colors: ['#00cae3'],
+            xaxis: { categories: provinceData.map(i => i.name) }
+        };
+        new ApexCharts(document.querySelector("#province_distribution_chart"), provinceOptions).render();
+
+        // 3. Category Distribution (Bar Chart)
+        var categoryOptions = {
+            series: [{ name: 'Complaints', data: categoryData.map(i => i.count) }],
+            chart: { type: 'bar', height: 350, toolbar: { show: false } },
+            plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } },
+            dataLabels: { enabled: false },
+            colors: ['#2ed47e'],
+            xaxis: { categories: categoryData.map(i => i.name) }
+        };
+        new ApexCharts(document.querySelector("#category_chart"), categoryOptions).render();
+
+        // 4. Initialize Table Pagination (Front-end for smaller tables)
+        new RdataTB('province_table', { ShowSearch: false, ShowSelect: false, PageSize: 5 });
+        new RdataTB('category_table', { ShowSearch: false, ShowSelect: false, PageSize: 5 });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0" data-en="System Intelligence & Reports" data-rw="Raporo za Sisitemu">System Intelligence &
+            Reports</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Reports</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Main Stats Summary -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-3">
+                            <i class="material-symbols-outlined fs-24 text-primary">group</i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="fs-20 fw-bold mb-1">{{ user_stats.total_users }}</h3>
+                        <p class="text-muted mb-0">Total Users</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-3">
+                            <i class="material-symbols-outlined fs-24 text-info">person</i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="fs-20 fw-bold mb-1">{{ user_stats.citizens }}</h3>
+                        <p class="text-muted mb-0">Citizens</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-3">
+                            <i class="material-symbols-outlined fs-24 text-success">badge</i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="fs-20 fw-bold mb-1">{{ user_stats.officers }}</h3>
+                        <p class="text-muted mb-0">Office Staff</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-3">
+                            <i class="material-symbols-outlined fs-24 text-warning">admin_panel_settings</i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="fs-20 fw-bold mb-1">{{ user_stats.admins }}</h3>
+                        <p class="text-muted mb-0">Administrators</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row: Trend and Distribution -->
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-20">
+                    <h3 class="fs-16 mb-0" data-en="Complaint Trend" data-rw="Ibicuruzwa mu minsi 30 ishize">Complaint
+                        Trend
+                    </h3>
+                </div>
+                <div id="complaint_trend_chart" style="height: 350px;"></div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+                <h3 class="fs-16 mb-20" data-en="By Province" data-rw="Intara zifite ibibazo byinshi">
+                    By Province</h3>
+                <div id="province_distribution_chart" style="height: 350px;"></div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+                <h3 class="fs-16 mb-20" data-en="By Category" data-rw="Ibyiciro by'ibibazo">By Category</h3>
+                <div id="category_chart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Row 1: Location Stats -->
+    <div class="row">
+        <div class="col-xxl-8 col-lg-8">
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-20">
+                    <h3 data-en="Complaints by Province" data-rw="Raporo y'Intara">Complaints by Province</h3>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.print()"><i
+                            class="ri-printer-line"></i> Print Reprt</button>
+                </div>
+                <div class="default-table-area">
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="province_table">
+                            <thead>
+                                <tr>
+                                    <th class="bg-transparent">Province</th>
+                                    <th class="bg-transparent text-center">Total</th>
+                                    <th class="bg-transparent text-center text-warning">Pending</th>
+                                    <th class="bg-transparent text-center text-success">Resolved</th>
+                                    <th class="bg-transparent text-center">Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in resilience_provinces %}
+                                <tr>
+                                    <td class="fw-medium">{{ item.name }}</td>
+                                    <td class="text-center">{{ item.total_complaints }}</td>
+                                    <td class="text-center">{{ item.pending }}</td>
+                                    <td class="text-center">{{ item.resolved }}</td>
+                                    <td class="text-center">
+                                        {% if item.total_complaints > 0 %}
+                                        {% widthratio item.resolved item.total_complaints 100 %}%
+                                        {% else %} 0% {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-20">
+                    <h3 data-en="Top Districts" data-rw="Uturere Tugezweho">Top Districts</h3>
+                </div>
+                <div class="default-table-area">
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="district_table">
+                            <thead>
+                                <tr>
+                                    <th class="bg-transparent">District</th>
+                                    <th class="bg-transparent">Province</th>
+                                    <th class="bg-transparent text-center">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in resilience_districts %}
+                                <tr>
+                                    <td class="fw-medium">{{ item.name }}</td>
+                                    <td>{{ item.province.name }}</td>
+                                    <td class="text-center">{{ item.total_complaints }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Server-side Pagination -->
+                    {% if resilience_districts.has_other_pages %}
+                    <div
+                        class="d-flex justify-content-center justify-content-sm-between align-items-center text-center flex-wrap gap-2 p-20">
+                        <div class="fs-14 fw-normal text-muted">
+                            Showing page {{ resilience_districts.number }} of {{ resilience_districts.paginator.num_pages }}
+                        </div>
+                        <div class="pagination overflow-hidden">
+                            <nav class="custom-pagination" aria-label="Page navigation">
+                                <ul class="pagination mb-0 justify-content-center align-items-center">
+                                    {% if resilience_districts.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link icon"
+                                            href="?page={{ resilience_districts.previous_page_number }}"
+                                            aria-label="Previous">
+                                            <i class="material-symbols-outlined">west</i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+
+                                    {% for num in resilience_districts.paginator.page_range %}
+                                    {% if resilience_districts.number == num %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num > resilience_districts.number|add:'-3' and num < resilience_districts.number|add:'3' %} <li class="page-item"><a
+                                            class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+
+                                        {% if resilience_districts.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link icon"
+                                                href="?page={{ resilience_districts.next_page_number }}"
+                                                aria-label="Next">
+                                                <i class="material-symbols-outlined">east</i>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Activity moved to bottom row -->
+        <div class="col-xxl-4 col-lg-4">
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                <h3 class="mb-20" data-en="Category Stats" data-rw="Ibyiciro">Category Stats</h3>
+                <div class="default-table-area">
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="category_table">
+                            <thead>
+                                <tr>
+                                    <th class="bg-transparent">Category</th>
+                                    <th class="bg-transparent text-center">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cat in category_stats %}
+                                <tr>
+                                    <td class="fs-14 fw-medium">{{ cat.name }}</td>
+                                    <td class="text-center"><span
+                                            class="badge bg-primary bg-opacity-10 text-primary">{{cat.total }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                <h3 class="mb-20" data-en="System Activity" data-rw="Ibikorwa">System Activity</h3>
+                <div class="activity-timeline">
+                    <ul class="list-unstyled ps-0 mb-0">
+                        {% for assign in recent_assignments %}
+                        <li class="mb-3 pb-3 border-bottom dashed">
+                            <p class="mb-0 fs-13"><b>{{ assign.assigned_by.username }}</b> assigned <b>{{ assign.complaint.tracking_number }}</b></p>
+                            <span class="fs-11 text-muted">{{ assign.assigned_at|timesince }} ago</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashed {
+        border-style: dashed !important;
+    }
+
+    @media print {
+
+        .sidebar-area,
+        .header-area,
+        .breadcrumb,
+        .btn {
+            display: none !important;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
+{% endblock %}

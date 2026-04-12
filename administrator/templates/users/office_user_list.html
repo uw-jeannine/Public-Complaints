@@ -191,12 +191,12 @@
                                         class="bg-transparent p-0 border-0 text-secondary" title="Reset Password">
                                         <i class="material-symbols-outlined fs-18">lock_reset</i>
                                     </a>
-                                    {% if user.user_type == 'office' %}
-                                    <a href="{% url 'office_user_delete' user.pk %}"
+                                   
+                                    <a href="{% url 'admin_user_delete' user.pk %}"
                                         class="bg-transparent p-0 border-0 text-danger" title="Delete">
                                         <i class="material-symbols-outlined fs-18">delete</i>
                                     </a>
-                                    {% endif %}
+                                    
                                 </div>
                             </td>
                         </tr>
