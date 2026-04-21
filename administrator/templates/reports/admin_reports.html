@@ -7,6 +7,8 @@
 {{ trend_values|json_script:"trend-values" }}
 {{ province_chart_data|json_script:"province-data" }}
 {{ category_chart_data|json_script:"category-data" }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -54,7 +56,39 @@
         new RdataTB('province_table', { ShowSearch: false, ShowSelect: false, PageSize: 5 });
         new RdataTB('category_table', { ShowSearch: false, ShowSelect: false, PageSize: 5 });
     });
+
+    function downloadPDF(selector = ".main-content-container", fileName = 'System_Reports') {
+        const element = document.querySelector(selector);
+        const isMain = selector === ".main-content-container";
+
+        const opt = {
+            margin: 0.5,
+            filename: `${fileName}_{{ now|date:"Y-m-d" }}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: true },
+            jsPDF: {
+                unit: 'in',
+                format: 'a4',
+                orientation: isMain ? 'landscape' : 'portrait'
+            }
+        };
+
+        // Hide buttons and controls during export
+        const buttons = document.querySelectorAll('.btn-export-hide, .btn-individual-export');
+        const pagination = document.querySelectorAll('.pagination');
+
+        buttons.forEach(btn => btn.style.visibility = 'hidden');
+        pagination.forEach(p => p.style.visibility = 'hidden');
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Restore visibility
+            buttons.forEach(btn => btn.style.visibility = 'visible');
+            pagination.forEach(p => p.style.visibility = 'visible');
+        });
+    }
 </script>
+
+
 {% endblock %}
 
 {% block content %}
@@ -137,39 +171,67 @@
     <!-- Charts Row: Trend and Distribution -->
     <div class="row mb-4">
         <div class="col-lg-4">
-            <div class="card bg-white p-20 rounded-10 border border-white h-100">
+            <div class="card bg-white p-20 rounded-10 border border-white h-100" id="card-trend">
+
                 <div class="d-flex justify-content-between align-items-center mb-20">
                     <h3 class="fs-16 mb-0" data-en="Complaint Trend" data-rw="Ibicuruzwa mu minsi 30 ishize">Complaint
-                        Trend
-                    </h3>
+                        Trend</h3>
+                    <button class="btn btn-link btn-individual-export p-0 text-muted"
+                        onclick="downloadPDF('#card-trend', 'Complaint_Trend')" title="Download as PDF">
+                        <i class="ri-download-2-line fs-18"></i>
+                    </button>
                 </div>
                 <div id="complaint_trend_chart" style="height: 350px;"></div>
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card bg-white p-20 rounded-10 border border-white h-100">
-                <h3 class="fs-16 mb-20" data-en="By Province" data-rw="Intara zifite ibibazo byinshi">
-                    By Province</h3>
+            <div class="card bg-white p-20 rounded-10 border border-white h-100" id="card-province-chart">
+                <div class="d-flex justify-content-between align-items-center mb-20">
+                    <h3 class="fs-16 mb-0" data-en="By Province" data-rw="Intara zifite ibibazo byinshi">By Province
+                    </h3>
+                    <button class="btn btn-link btn-individual-export p-0 text-muted"
+                        onclick="downloadPDF('#card-province-chart', 'Complaints_By_Province_Chart')"
+                        title="Download as PDF">
+                        <i class="ri-download-2-line fs-18"></i>
+                    </button>
+                </div>
                 <div id="province_distribution_chart" style="height: 350px;"></div>
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card bg-white p-20 rounded-10 border border-white h-100">
-                <h3 class="fs-16 mb-20" data-en="By Category" data-rw="Ibyiciro by'ibibazo">By Category</h3>
+            <div class="card bg-white p-20 rounded-10 border border-white h-100" id="card-category-chart">
+                <div class="d-flex justify-content-between align-items-center mb-20">
+                    <h3 class="fs-16 mb-0" data-en="By Category" data-rw="Ibyiciro by'ibibazo">By Category</h3>
+                    <button class="btn btn-link btn-individual-export p-0 text-muted"
+                        onclick="downloadPDF('#card-category-chart', 'Complaints_By_Category_Chart')"
+                        title="Download as PDF">
+                        <i class="ri-download-2-line fs-18"></i>
+                    </button>
+                </div>
                 <div id="category_chart" style="height: 350px;"></div>
             </div>
+
         </div>
     </div>
 
     <!-- Tables Row 1: Location Stats -->
     <div class="row">
         <div class="col-xxl-8 col-lg-8">
-            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4" id="card-province-table">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-20">
-                    <h3 data-en="Complaints by Province" data-rw="Raporo y'Intara">Complaints by Province</h3>
-                    <button class="btn btn-outline-primary btn-sm" onclick="window.print()"><i
-                            class="ri-printer-line"></i> Print Reprt</button>
+                    <h3 data-en="Complaints by Province" data-rw="Raporo y'Intara" class="mb-0">Complaints by Province
+                    </h3>
+                    <div class="d-flex gap-2 btn-export-hide">
+                        <button class="btn btn-outline-primary btn-sm"
+                            onclick="downloadPDF('#card-province-table', 'Province_Complaints_Report')">
+                            <i class="ri-file-pdf-line"></i> Export to PDF
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                            <i class="ri-printer-line"></i> Print Reprt
+                        </button>
+                    </div>
                 </div>
+
                 <div class="default-table-area">
                     <div class="table-responsive">
                         <table class="table align-middle" id="province_table">
@@ -202,10 +264,16 @@
                 </div>
             </div>
 
-            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4" id="card-district-table">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-20">
-                    <h3 data-en="Top Districts" data-rw="Uturere Tugezweho">Top Districts</h3>
+                    <h3 data-en="Top Districts" data-rw="Uturere Tugezweho" class="mb-0">Top Districts</h3>
+                    <button class="btn btn-link btn-individual-export p-0 text-muted"
+                        onclick="downloadPDF('#card-district-table', 'District_Complaints_Report')"
+                        title="Download as PDF">
+                        <i class="ri-download-2-line fs-18"></i>
+                    </button>
                 </div>
+
                 <div class="default-table-area">
                     <div class="table-responsive">
                         <table class="table align-middle" id="district_table">
@@ -274,10 +342,66 @@
             </div>
         </div>
 
-        <!-- Sidebar Activity moved to bottom row -->
+        <!-- Sidebar Activity and Top Complainants -->
         <div class="col-xxl-4 col-lg-4">
-            <div class="card bg-white p-20 rounded-10 border border-white mb-4">
-                <h3 class="mb-20" data-en="Category Stats" data-rw="Ibyiciro">Category Stats</h3>
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4" id="card-citizens-table">
+                <div class="d-flex justify-content-between align-items-center mb-20">
+                    <h3 class="mb-0" data-en="Top Complainants" data-rw="Abashyira Ibibazo Cyane">Top Complainants</h3>
+                    <button class="btn btn-link btn-individual-export p-0 text-muted"
+                        onclick="downloadPDF('#card-citizens-table', 'Top_Complainants_Report')"
+                        title="Download as PDF">
+                        <i class="ri-download-2-line fs-18"></i>
+                    </button>
+                </div>
+
+                <div class="default-table-area">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="bg-transparent">Citizen</th>
+                                    <th class="bg-transparent text-center">Complaints</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in top_citizens %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <i class="material-symbols-outlined fs-20 text-muted">account_circle</i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-2">
+                                                <h6 class="fs-13 mb-0">{{ item.full_name|default:item.username }}</h6>
+                                                <span class="fs-11 text-muted">{{ item.phone_number }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info bg-opacity-10 text-info">{{ item.complaint_count }}</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">No data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-white p-20 rounded-10 border border-white mb-4" id="card-category-stats">
+                <div class="d-flex justify-content-between align-items-center mb-20">
+                    <h3 class="mb-0" data-en="Category Stats" data-rw="Ibyiciro">Category Stats</h3>
+                    <button class="btn btn-link btn-individual-export p-0 text-muted"
+                        onclick="downloadPDF('#card-category-stats', 'Category_Stats_Report')" title="Download as PDF">
+                        <i class="ri-download-2-line fs-18"></i>
+                    </button>
+                </div>
+
+
                 <div class="default-table-area">
                     <div class="table-responsive">
                         <table class="table align-middle" id="category_table">
@@ -308,7 +432,7 @@
                     <ul class="list-unstyled ps-0 mb-0">
                         {% for assign in recent_assignments %}
                         <li class="mb-3 pb-3 border-bottom dashed">
-                            <p class="mb-0 fs-13"><b>{{ assign.assigned_by.username }}</b> assigned <b>{{ assign.complaint.tracking_number }}</b></p>
+                            <p class="mb-0 fs-13"><b>{{ assign.assigned_by.username }}</b> assigned <b>{{   assign.complaint.tracking_number }}</b></p>
                             <span class="fs-11 text-muted">{{ assign.assigned_at|timesince }} ago</span>
                         </li>
                         {% endfor %}

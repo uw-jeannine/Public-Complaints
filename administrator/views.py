@@ -618,7 +618,13 @@ def admin_reports(request):
         {'name': c.name, 'count': c.total} for c in category_stats
     ]
 
-    # 4. User reports
+    # 4. Top Complainants (Citizens)
+    top_citizens = User.objects.filter(user_type='citizen').annotate(
+        complaint_count=Count('my_complaints')
+    ).order_by('-complaint_count')[:10]
+
+    # 5. User reports
+
     user_stats = {
         'total_users': User.objects.count(),
         'citizens': User.objects.filter(user_type='citizen').count(),
@@ -636,6 +642,7 @@ def admin_reports(request):
         'resilience_districts': resilience_districts,
         'category_stats': category_stats,
         'user_stats': user_stats,
+        'top_citizens': top_citizens,
         'recent_reports': recent_reports,
         'recent_assignments': recent_assignments,
         'trend_labels': trend_labels,
