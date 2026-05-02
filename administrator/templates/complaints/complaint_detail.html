@@ -343,52 +343,82 @@
 
                     <hr class="my-4">
 
-                    <!-- Assign Office Form -->
-                    <form method="POST" class="mb-4">
+                    <!-- Unified Assignment Form -->
+                    <form method="POST" id="assignmentForm">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="assign_office">
+                        <input type="hidden" name="action" value="unified_assign">
+                        
                         <div class="mb-3">
-                            <label class="form-label fw-bold" data-en="Assign to Office"
-                                data-rw="Ohereza mu Biro">Assign to Office</label>
-                            <select name="office_id" class="form-select border-primary-subtle">
-                                <option value="">-- Select Office --</option>
+                            <label class="form-label fw-bold" data-en="Assign to Office" data-rw="Ohereza mu Biro">Assign to Office</label>
+                            <select name="office_id" id="officeSelect" class="form-select border-primary-subtle">
+                                <option value="">-- Select Office (Optional) --</option>
                                 {% for off in offices %}
                                 <option value="{{ off.pk }}" {% if complaint.assigned_office_id == off.pk %}selected{% endif %}>{{ off.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold" data-en="Assignment Notes" data-rw="Ibisobanuro">Notes
-                                (Optional)</label>
-                            <textarea name="notes" class="form-control border-primary-subtle" rows="2"></textarea>
-                        </div>
-                        <button type="submit"
-                            class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
-                            data-en="Assign Office" data-rw="Ohereza">
-                            <i class="ri-building-line me-2"></i> Assign Office
-                        </button>
-                    </form>
 
-                    <!-- Assign Staff Form -->
-                    <form method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="assign_user">
                         <div class="mb-3">
-                            <label class="form-label fw-bold" data-en="Assign to Staff"
-                                data-rw="Ohereza ku Mukozi">Assign to Staff</label>
-                            <select name="user_id" class="form-select border-primary-subtle">
-                                <option value="">-- Select Staff --</option>
+                            <label class="form-label fw-bold" data-en="Assign to Staff" data-rw="Ohereza ku Mukozi">Assign to Staff</label>
+                            <select name="user_id" id="staffSelect" class="form-select border-primary-subtle">
+                                <option value="" data-office="">-- Select Staff --</option>
                                 {% for u in staff_users %}
-                                <option value="{{ u.pk }}" {% if complaint.assigned_to_id == u.pk %}selected{% endif %}>{{ u.full_name }} ({{ u.get_user_type_display }})</option>
+                                <option value="{{ u.pk }}" 
+                                        data-office="{{ u.office_id|default:'' }}"
+                                        {% if complaint.assigned_to_id == u.pk %}selected{% endif %}
+                                        style="{% if complaint.assigned_office_id and u.office_id != complaint.assigned_office_id %}display:none;{% endif %}">
+                                    {{ u.full_name|default:u.username }} 
+                                    {% if u.user_type == 'administrator' %}(Admin){% elif not u.office %}(General){% endif %}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <button type="submit"
-                            class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
-                            data-en="Assign Staff" data-rw="Ohereza">
-                            <i class="ri-user-received-line me-2"></i> Assign Staff
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" data-en="Assignment Notes" data-rw="Ibisobanuro">Notes (Optional)</label>
+                            <textarea name="notes" class="form-control border-primary-subtle" rows="2" placeholder="Explain why this assignment was made..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-primary w-100 py-2 d-flex align-items-center justify-content-center">
+                            <i class="ri-user-received-line me-2"></i> 
+                            <span data-en="Assign Office & Staff" data-rw="Ohereza">Assign Office & Staff</span>
                         </button>
                     </form>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const officeSelect = document.getElementById('officeSelect');
+                            const staffSelect = document.getElementById('staffSelect');
+                            const allStaffOptions = Array.from(staffSelect.options);
+
+                            function filterStaff() {
+                                const selectedOfficeId = officeSelect.value;
+                                
+                                // Clear current options
+                                staffSelect.innerHTML = '';
+                                
+                                // Filter and add matching options
+                                allStaffOptions.forEach(option => {
+                                    const officeId = option.getAttribute('data-office');
+                                    
+                                    // Show option if:
+                                    // 1. No office selected (show all staff?) OR
+                                    // 2. Staff office matches selected office OR
+                                    // 3. Option is the default placeholder
+                                    if (!selectedOfficeId || officeId === selectedOfficeId || !option.value) {
+                                        staffSelect.appendChild(option);
+                                    }
+                                });
+                                
+                                // If the current selection is no longer visible, reset to default
+                                if (staffSelect.selectedIndex === -1) {
+                                    staffSelect.selectedIndex = 0;
+                                }
+                            }
+
+                            officeSelect.addEventListener('change', filterStaff);
+                        });
+                    </script>
 
                     <hr class="my-4">
 
