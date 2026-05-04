@@ -8,6 +8,7 @@ from accounts.decorators import administrator_required
 from .models import Office, ComplaintCategory
 from citizen.models import Complaint
 from .utils import send_intouch_sms
+from utils.send_email import send_welcome_email, send_assignment_email, send_complainant_assignment_notification, send_status_update_email, send_password_reset_email
 
 @login_required
 @administrator_required
@@ -90,6 +91,7 @@ def office_list(request):
 def office_create(request):
     from django.contrib.auth import get_user_model
     User = get_user_model()
+    available_users = User.objects.filter(user_type='office', office__isnull=True)
 
     if request.method == 'POST':
         # Office fields
@@ -99,53 +101,43 @@ def office_create(request):
         email       = request.POST.get('email', '').strip()
         phone       = request.POST.get('phone', '').strip()
         is_active   = request.POST.get('is_active') == 'on'
-        # User credential fields
-        username    = request.POST.get('username', '').strip()
-        full_name   = request.POST.get('full_name', '').strip()
-        user_phone  = request.POST.get('user_phone', '').strip()
-        password    = request.POST.get('password', '')
-        password2   = request.POST.get('password2', '')
+        
+        # Staff assignment fields
+        existing_user_id = request.POST.get('existing_user_id')
 
-        errors = []
-        if not name:      errors.append('Office name is required.')
-        if not username:  errors.append('Login username is required.')
-        if not user_phone: errors.append('Staff phone number is required.')
-        if not password:  errors.append('Password is required.')
-        if password != password2: errors.append('Passwords do not match.')
-        if len(password) < 8: errors.append('Password must be at least 8 characters.')
-        if User.objects.filter(username=username).exists():
-            errors.append(f'Username "{username}" is already taken.')
-        if User.objects.filter(phone_number=user_phone).exists():
-            errors.append(f'Phone number "{user_phone}" is already in use.')
-
-        if errors:
-            for e in errors:
-                messages.error(request, e)
+        if not name:
+            messages.error(request, 'Office name is required.')
         else:
             office = Office.objects.create(
                 name=name, description=description, location=location,
                 email=email, phone=phone, is_active=is_active
             )
-            User.objects.create_user(
-                username=username,
-                password=password,
-                full_name=full_name or name,
-                email=email,
-                phone_number=user_phone,
-                user_type='office',
-                office=office,
-            )
-            messages.success(request, f'Office "{name}" and its user account created successfully.')
+            
+            if existing_user_id:
+                existing_user = get_object_or_404(User, pk=existing_user_id)
+                existing_user.office = office
+                existing_user.save()
+                messages.success(request, f'Office "{name}" created and user "{existing_user.username}" assigned.')
+            else:
+                messages.success(request, f'Office "{name}" created successfully. You can assign staff later.')
+            
             return redirect('office_list')
 
-    return render(request, 'offices/office_form.html', {'action': 'Add'})
+    return render(request, 'offices/office_form.html', {
+        'action': 'Add',
+        'available_users': available_users
+    })
 
 
 @login_required
 @administrator_required
 def office_update(request, pk):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
     office = get_object_or_404(Office, pk=pk)
+    
     if request.method == 'POST':
+        # Office fields
         office.name = request.POST.get('name', '').strip()
         office.description = request.POST.get('description', '').strip()
         office.location = request.POST.get('location', '').strip()
@@ -157,9 +149,28 @@ def office_update(request, pk):
             messages.error(request, 'Office name is required.')
         else:
             office.save()
+            
+            # Handle existing staff assignment
+            existing_user_id = request.POST.get('existing_user_id')
+            if existing_user_id and request.POST.get('assign_existing'):
+                existing_user = get_object_or_404(User, pk=existing_user_id, user_type='office')
+                existing_user.office = office
+                existing_user.save()
+                messages.success(request, f'User "{existing_user.full_name or existing_user.username}" assigned to "{office.name}".')
+
             messages.success(request, f'Office "{office.name}" updated successfully.')
             return redirect('office_list')
-    return render(request, 'offices/office_form.html', {'office': office, 'action': 'Update'})
+
+    staff_users = office.staff_users.all()
+    # Users who could be assigned (office type but no office assigned)
+    available_users = User.objects.filter(user_type='office', office__isnull=True)
+    
+    return render(request, 'offices/office_form.html', {
+        'office': office, 
+        'action': 'Update',
+        'staff_users': staff_users,
+        'available_users': available_users
+    })
 
 
 @login_required
@@ -198,10 +209,13 @@ def office_user_list(request):
     User = get_user_model()
     q         = request.GET.get('q', '').strip()
     user_type = request.GET.get('type', '')   # '' = all, 'citizen', 'office'
+    office_id = request.GET.get('office_id')
 
     users_qs = User.objects.select_related('office').order_by('-date_joined')
     if user_type in ('citizen', 'office', 'administrator'):
         users_qs = users_qs.filter(user_type=user_type)
+    if office_id:
+        users_qs = users_qs.filter(office_id=office_id)
     if q:
         users_qs = (users_qs.filter(username__icontains=q)
                     | users_qs.filter(full_name__icontains=q)
@@ -269,6 +283,9 @@ def office_user_create(request):
             # Send SMS with credentials
             sms_msg = f"Hello {full_name}, your account on Jeanine System is created. Username: {username}, Password: {password}"
             send_intouch_sms(phone, sms_msg)
+            
+            # Send Email with credentials
+            send_welcome_email(user, password)
             
             messages.success(request, f'User account for "{full_name}" created successfully.')
             return redirect('office_user_list')
@@ -352,6 +369,9 @@ def admin_user_password_reset(request, pk):
             sms_msg = f"Hello {target_user.full_name or target_user.username}, your password has been reset. Your new password is: {password}"
             if target_user.phone_number:
                 send_intouch_sms(target_user.phone_number, sms_msg)
+            
+            # Send Email with new password
+            send_password_reset_email(target_user, password)
                 
             messages.success(request, f"Password for {target_user.username} has been reset successfully.")
             return redirect('admin_user_detail', pk=pk)
@@ -499,49 +519,60 @@ def admin_complaint_detail(request, pk):
             if new_status in dict(Complaint.STATUS_CHOICES):
                 complaint.status = new_status
                 complaint.save()
+                
+                # Send Email to complainant if email exists
+                if complaint.email:
+                    send_status_update_email(complaint)
+                    
                 messages.success(request, f"Status for tracking number {complaint.tracking_number} updated to {complaint.get_status_display()}.")
 
-        elif action == 'assign_office':
+        elif action == 'unified_assign':
             office_id = request.POST.get('office_id')
+            user_id = request.POST.get('user_id')
+            notes = request.POST.get('notes', '')
+            
+            # Handle Office Assignment
             if office_id:
                 office = get_object_or_404(Office, pk=office_id)
-                complaint.assigned_office = office
-                complaint.save()
-                
-                # Log assignment
-                ComplaintAssignment.objects.create(
-                    complaint=complaint,
-                    office=office,
-                    assigned_by=request.user,
-                    notes=request.POST.get('notes', '')
-                )
-                messages.success(request, f"Complaint assigned to {office.name}.")
+                if complaint.assigned_office != office:
+                    complaint.assigned_office = office
+                    ComplaintAssignment.objects.create(
+                        complaint=complaint,
+                        office=office,
+                        assigned_by=request.user,
+                        notes=notes
+                    )
             else:
                 complaint.assigned_office = None
-                complaint.save()
-                messages.info(request, "Office assignment cleared.")
-
-        elif action == 'assign_user':
-            user_id = request.POST.get('user_id')
+            
+            # Handle Staff Assignment
             if user_id:
-                user = get_user_model().objects.get(pk=user_id)
-                complaint.assigned_to = user
-                complaint.assigned_at = timezone.now()
-                complaint.save()
-                
-                # Log assignment
-                ComplaintAssignment.objects.create(
-                    complaint=complaint,
-                    user=user,
-                    assigned_by=request.user,
-                    notes=request.POST.get('notes', '')
-                )
-                messages.success(request, f"Complaint assigned to {user.full_name}.")
+                user = get_object_or_404(get_user_model(), pk=user_id)
+                if complaint.assigned_to != user:
+                    complaint.assigned_to = user
+                    complaint.assigned_at = timezone.now()
+                    ComplaintAssignment.objects.create(
+                        complaint=complaint,
+                        user=user,
+                        assigned_by=request.user,
+                        notes=notes
+                    )
             else:
                 complaint.assigned_to = None
                 complaint.assigned_at = None
-                complaint.save()
-                messages.info(request, "User assignment cleared.")
+            
+            complaint.save()
+            
+            # Send Email to staff if assigned to a user
+            if user_id:
+                assigned_user = get_object_or_404(get_user_model(), pk=user_id)
+                send_assignment_email(complaint, assigned_user)
+            
+            # Send Email to complainant if email exists
+            if complaint.email:
+                send_complainant_assignment_notification(complaint)
+                
+            messages.success(request, "Assignment updated successfully.")
 
         return redirect('admin_complaint_detail', pk=pk)
     

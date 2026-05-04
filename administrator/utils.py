@@ -44,9 +44,12 @@ def send_intouch_sms(recipients, message):
     
     full_url = f"{url}?{urllib.parse.urlencode(params)}"
     
+    import ssl
+    context = ssl._create_unverified_context()
+    
     try:
         req = urllib.request.Request(full_url, method="GET")
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, context=context) as response:
             res_data = response.read().decode('utf-8')
             return json.loads(res_data)
     except Exception as e:

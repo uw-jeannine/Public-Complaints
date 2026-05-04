@@ -135,3 +135,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+# Email Settings (Zoho SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.zoho.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = 'Ombudsman.digital@zohomail.com'
+EMAIL_HOST_PASSWORD = 'Qvai2qhv4dt0'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

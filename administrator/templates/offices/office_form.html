@@ -137,94 +137,85 @@
                 </div>
             </div>
 
-            {% if action == 'Add' %}
-            <!-- ── SECTION 2: Login Credentials (only on create) ──────── -->
-            <div class="col-12 mb-3 mt-2">
+            {% if action == 'Update' %}
+            <!-- ── SECTION: Current Staff ────────────────────────── -->
+            <div class="col-12 mb-3 mt-4">
                 <h5 class="fw-semibold text-secondary d-flex align-items-center gap-2">
-                    <i class="ri-lock-line text-primary"></i>
-                    <span data-en="Login Credentials for this Office" data-rw="Ibanga ryo Kwinjira kuri ibi Biro">
-                        Login Credentials for this Office
-                    </span>
+                    <i class="ri-team-line text-primary"></i>
+                    <span data-en="Current Office Staff" data-rw="Abakozi b'Ibiro Basanzwe">Current Office Staff</span>
                 </h5>
-                <p class="text-body fs-14"
-                    data-en="The office staff will use these credentials to sign in to the system."
-                    data-rw="Abakozi b'ibiro bazakoresha ibanga ryo kwinjira muri sisitemu.">
-                    The office staff will use these credentials to sign in to the system.
-                </p>
             </div>
-
-            <div class="col-lg-12">
+            <div class="col-12">
                 <div class="card bg-white p-20 rounded-10 border border-white mb-4">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="mb-20">
-                                <label class="label fs-16 mb-2" data-en="Staff Full Name"
-                                    data-rw="Amazina y'Umukozi">Staff Full Name</label>
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="fullName" name="full_name"
-                                        placeholder="Enter full name">
-                                    <label for="fullName">Enter full name</label>
-                                </div>
-                                <small class="text-muted fs-13" data-en="Defaults to office name if left blank."
-                                    data-rw="Bizakoreshwa izina ry'ibiro niba bisize ubusa.">
-                                    Defaults to office name if left blank.
-                                </small>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mb-20">
-                                <label class="label fs-16 mb-2" data-en="Username *"
-                                    data-rw="Izina ryo Kwinjira *">Username *</label>
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="username" name="username"
-                                        placeholder="Enter username" autocomplete="off" required>
-                                    <label for="username">Enter username (login ID)</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mb-20">
-                                <label class="label fs-16 mb-2" data-en="Staff Phone *"
-                                    data-rw="Telefoni y'Umukozi *">Staff Phone *</label>
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" id="userPhone" name="user_phone"
-                                        placeholder="+250 7XX XXX XXX" required>
-                                    <label for="userPhone">+250 7XX XXX XXX</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <!-- spacer -->
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mb-20">
-                                <label class="label fs-16 mb-2" data-en="Password *" data-rw="Ijambo banga *">Password
-                                    *</label>
-                                <div class="form-floating">
-                                    <input type="password" class="form-control" id="password" name="password"
-                                        placeholder="Enter password" autocomplete="new-password" required>
-                                    <label for="password">Enter password</label>
-                                </div>
-                                <small class="text-muted fs-13" data-en="Minimum 8 characters."
-                                    data-rw="Nterure 8 inyuguti.">Minimum 8 characters.</small>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mb-20">
-                                <label class="label fs-16 mb-2" data-en="Confirm Password *"
-                                    data-rw="Emeza Ijambo banga *">Confirm Password *</label>
-                                <div class="form-floating">
-                                    <input type="password" class="form-control" id="password2" name="password2"
-                                        placeholder="Confirm password" required>
-                                    <label for="password2">Confirm password</label>
-                                </div>
-                                <small id="pw-match" class="fs-13 mt-1 d-block"></small>
-                            </div>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="fs-14 fw-medium">Staff Name</th>
+                                    <th class="fs-14 fw-medium">Username</th>
+                                    <th class="fs-14 fw-medium">Phone</th>
+                                    <th class="fs-14 fw-medium">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for staff in staff_users %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;">
+                                                <i class="ri-user-line text-primary fs-14"></i>
+                                            </div>
+                                            <span class="ms-2 fw-medium">{{ staff.full_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td><code>{{ staff.username }}</code></td>
+                                    <td>{{ staff.phone_number }}</td>
+                                    <td>
+                                        <a href="{% url 'admin_user_update' staff.pk %}" class="text-warning me-2" title="Edit Staff">
+                                            <i class="ri-edit-line"></i>
+                                        </a>
+                                        <a href="{% url 'admin_user_detail' staff.pk %}" class="text-primary" title="View Details">
+                                            <i class="ri-eye-line"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">No staff members assigned yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
             {% endif %}
+
+            <div class="col-lg-12">
+                <div class="card bg-white p-20 rounded-10 border border-white mb-4">
+                    {% if available_users %}
+                    <div class="row mb-0 pb-0">
+                        <div class="col-12">
+                            <label class="label fs-16 mb-2" data-en="Assign Existing Staff" data-rw="Ongeraho Umukozi Usanzwe">Assign Existing Staff</label>
+                            <div class="d-flex gap-2">
+                                <select name="existing_user_id" class="form-select">
+                                    <option value="">-- Select an existing user --</option>
+                                    {% for user in available_users %}
+                                    <option value="{{ user.id }}">{{ user.full_name }} ({{ user.username }})</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" name="assign_existing" value="1" class="btn btn-secondary text-white">Assign</button>
+                            </div>
+                            <small class="text-muted fs-13">Only users of type 'Office' without an assigned office are shown here.</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted mb-0">No unassigned staff available. You can add staff from the <b>Office Staff</b> menu.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
 
             <!-- ── Buttons ──────────────────────────────────────────────── -->
             <div class="col-12">
@@ -242,20 +233,4 @@
         </div>
     </form>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    $(function () {
-        $('#password, #password2').on('input', function () {
-            var p = $('#password').val(), p2 = $('#password2').val(), msg = $('#pw-match');
-            if (!p2.length) { msg.text(''); return; }
-            if (p === p2) {
-                msg.html('<span class="text-success">✓ Passwords match</span>');
-            } else {
-                msg.html('<span class="text-danger">✗ Passwords do not match</span>');
-            }
-        });
-    });
-</script>
 {% endblock %}
