@@ -84,6 +84,15 @@
                             <p class="fs-16 mb-0 text-primary fw-semibold">{{ complaint.upi }}</p>
                         </div>
                         <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold" data-en="Current Level / Referral"
+                                data-rw="Icyiciro Kirimo">Current Level / Referral</label>
+                            <p class="fs-16 mb-0">
+                                <span class="badge bg-info-subtle text-info px-3">
+                                    {{ complaint.get_referral_level_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
                             <label class="text-muted small text-uppercase fw-bold" data-en="Land Location"
                                 data-rw="Aho Ubutaka Buherereye">Land Location</label>
                             <p class="fs-16 mb-0">{{ complaint.land_province.name }}, {{ complaint.land_district.name }}, {{ complaint.land_sector }}, {{ complaint.land_cell }}</p>
@@ -332,6 +341,15 @@
                                     Resolved</option>
                                 <option value="rejected" {% if complaint.status == 'rejected' %}selected{% endif %}>
                                     Rejected</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" data-en="Refer/Escalate Level" data-rw="Kohereza Icyiciro">Refer/Escalate Level</label>
+                            <select name="referral_level" class="form-select border-primary-subtle">
+                                <option value="none" {% if complaint.referral_level == 'none' %}selected{% endif %}>Local Level (Sector)</option>
+                                <option value="district" {% if complaint.referral_level == 'district' %}selected{% endif %}>District Level</option>
+                                <option value="ombudsman" {% if complaint.referral_level == 'ombudsman' %}selected{% endif %}>Ombudsman</option>
+                                <option value="court" {% if complaint.referral_level == 'court' %}selected{% endif %}>Court / Judicial</option>
                             </select>
                         </div>
                         <button type="submit"

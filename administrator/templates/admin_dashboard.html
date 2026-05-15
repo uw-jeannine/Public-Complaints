@@ -246,6 +246,8 @@
                                         Category</th>
                                     <th class="bg-transparent py-0" scope="col" data-en="Status" data-rw="Aho bigeze">
                                         Status</th>
+                                    <th class="bg-transparent py-0" scope="col" data-en="Deadline" data-rw="Igihe ntarengwa">
+                                        Deadline</th>
                                     <th class="bg-transparent py-0 pe-0" scope="col" data-en="Date Submitted"
                                         data-rw="Italiki Byatangiwe">Date Submitted</th>
                                 </tr>
@@ -280,11 +282,31 @@
                                             class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">Rejected</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-body fw-normal pe-0 border-0">{{ complaint.created_at|date:"M d, Y"}}</td>
+                                    <td class="border-0">
+                                        <div class="d-flex flex-column">
+                                            <span class="{% if complaint.is_overdue %}text-danger fw-bold{% else %}text-muted{% endif %}" style="font-size: 13px;">
+                                                {{ complaint.deadline|date:"M d, Y" }}
+                                            </span>
+                                            {% if complaint.is_overdue %}
+                                                <span class="badge bg-danger-subtle text-danger p-1" style="font-size: 10px; width: fit-content;">OVERDUE</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="text-body fw-normal pe-0 border-0">
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-medium">
+                                                {% if complaint.is_new %}
+                                                <span class="badge bg-danger blink-animation py-1 px-2 me-1" style="font-size: 9px;">NEW</span>
+                                                {% endif %}
+                                                {{ complaint.created_at|date:"M d, Y" }}
+                                            </span>
+                                            <small class="text-muted" style="font-size: 11px;">{{ complaint.created_at|date:"H:i" }}</small>
+                                        </div>
+                                    </td>
                                 </tr>
                                 {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-4">No recent complaints found.</td>
+                                <tr class="border-0">
+                                    <td colspan="6" class="text-center py-4 border-0">No recent complaints found.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

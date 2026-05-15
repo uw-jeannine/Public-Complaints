@@ -2,6 +2,13 @@ from django.db import models
 from django.conf import settings
 import uuid
 
+REFERRAL_LEVEL_CHOICES = (
+    ('none', 'None (Local Level)'),
+    ('district', 'District Level'),
+    ('ombudsman', 'Ombudsman'),
+    ('court', 'Court / Judicial'),
+)
+
 class Complaint(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -69,6 +76,9 @@ class Complaint(models.Model):
 
     # Office assignment
     assigned_office = models.ForeignKey('administrator.Office', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_complaints_dept', help_text="The department/office handling this case.")
+
+    # Referral/Escalation
+    referral_level = models.CharField(max_length=20, choices=REFERRAL_LEVEL_CHOICES, default='none')
 
     def save(self, *args, **kwargs):
         if not self.tracking_number:

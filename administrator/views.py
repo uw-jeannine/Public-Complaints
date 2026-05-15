@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from datetime import timedelta
 from django.contrib import messages
 from accounts.decorators import administrator_required
 from .models import Office, ComplaintCategory
@@ -34,6 +35,12 @@ def admin_dashboard(request):
     # Recent complaints for the table
     recent_complaints = Complaint.objects.select_related('category', 'citizen').order_by('-created_at')[:10]
     
+    three_days_ago = timezone.now() - timedelta(days=3)
+    for c in recent_complaints:
+        c.is_new = c.created_at >= three_days_ago
+        c.deadline = c.created_at + timedelta(days=3)
+        c.is_overdue = timezone.now() > c.deadline and c.status not in ['resolved', 'rejected']
+    
     # Data for charts    # Complaints by Category (Donut Chart)
     categories = ComplaintCategory.objects.annotate(complaint_count=models.Count('complaints'))
     category_data = [
@@ -43,7 +50,6 @@ def admin_dashboard(request):
 
     # Trends for the last 7 days (Small sparkline charts)
     from django.db.models.functions import TruncDate
-    from datetime import timedelta
     seven_days_ago = timezone.now().date() - timedelta(days=6)
     daily_stats = Complaint.objects.filter(
         created_at__date__gte=seven_days_ago
@@ -453,12 +459,15 @@ def category_delete(request, pk):
 def admin_complaints_list(request):
     from django.core.paginator import Paginator
     q = request.GET.get('q', '').strip()
-    status_filter = request.GET.get('status', '')
+    status_filter = request.GET.get('status', 'pending')
 
     complaints_qs = Complaint.objects.select_related('category', 'citizen').order_by('-created_at')
 
     if status_filter:
-        complaints_qs = complaints_qs.filter(status=status_filter)
+        if status_filter == 'closed':
+            complaints_qs = complaints_qs.filter(status__in=['resolved', 'rejected'])
+        else:
+            complaints_qs = complaints_qs.filter(status=status_filter)
 
     if q:
         complaints_qs = complaints_qs.filter(
@@ -480,6 +489,12 @@ def admin_complaints_list(request):
         except:
             c.risk_score = 0.0
             c.risk_percentage = 0
+
+    three_days_ago = timezone.now() - timedelta(days=3)
+    for c in complaints:
+        c.is_new = c.created_at >= three_days_ago
+        c.deadline = c.created_at + timedelta(days=3)
+        c.is_overdue = timezone.now() > c.deadline and c.status not in ['resolved', 'rejected']
 
     stats = {
         'total': Complaint.objects.count(),
@@ -516,15 +531,23 @@ def admin_complaint_detail(request, pk):
         
         if action == 'update_status':
             new_status = request.POST.get('status')
+            referral_level = request.POST.get('referral_level')
+            
             if new_status in dict(Complaint.STATUS_CHOICES):
                 complaint.status = new_status
-                complaint.save()
+            
+            if referral_level:
+                from citizen.models import REFERRAL_LEVEL_CHOICES
+                if referral_level in dict(REFERRAL_LEVEL_CHOICES):
+                    complaint.referral_level = referral_level
+            
+            complaint.save()
+            
+            # Send Email to complainant if email exists
+            if complaint.email:
+                send_status_update_email(complaint)
                 
-                # Send Email to complainant if email exists
-                if complaint.email:
-                    send_status_update_email(complaint)
-                    
-                messages.success(request, f"Status for tracking number {complaint.tracking_number} updated to {complaint.get_status_display()}.")
+            messages.success(request, f"Status for tracking number {complaint.tracking_number} updated to {complaint.get_status_display()}.")
 
         elif action == 'unified_assign':
             office_id = request.POST.get('office_id')
@@ -623,8 +646,6 @@ def admin_reports(request):
     ).order_by('-total')
 
     # 3. Trend Data (Last 30 days)
-    from django.utils import timezone
-    from datetime import timedelta
     from django.db.models.functions import TruncDate
     
     thirty_days_ago = timezone.now().date() - timedelta(days=29)

@@ -209,6 +209,21 @@
                                 </div>
 
                                 <div class="col-md-6 mb-4">
+                                    <label class="form-label" data-en="Gender" data-rw="Igitsina">Gender</label>
+                                    <select class="form-select {% if form.gender.errors %}is-invalid{% endif %}" name="gender" required>
+                                        <option value="" data-en="Select Gender" data-rw="Hitamo Igitsina">Select Gender</option>
+                                        <option value="male" {% if request.POST.gender == 'male' %}selected{% endif %} data-en="Male" data-rw="Gabo">Male</option>
+                                        <option value="female" {% if request.POST.gender == 'female' %}selected{% endif %} data-en="Female" data-rw="Gore">Female</option>
+                                        <option value="other" {% if request.POST.gender == 'other' %}selected{% endif %} data-en="Other" data-rw="Ikindi">Other</option>
+                                    </select>
+                                    {% if form.gender.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.gender.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-4">
                                     <label class="form-label" data-en="Phone Number" data-rw="Nimero ya terefone">Phone
                                         Number</label>
                                     <input type="text"
@@ -226,13 +241,16 @@
 
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" data-en="National ID" data-rw="Indangamuntu">National ID
-                                        <span class="text-muted fw-normal" data-en="(Optional)"
-                                            data-rw="(Ntabwo ari itegeko)">(Optional)</span></label>
+                                        <span class="text-muted fw-normal" data-en="(16 digits required)"
+                                            data-rw="(Imibare 16 igomba)">(16 digits required)</span></label>
                                     <input type="text"
                                         class="form-control {% if form.national_id.errors %}is-invalid{% endif %}"
-                                        name="national_id" value="{{ request.POST.national_id }}"
-                                        placeholder="Enter national ID" data-en-placeholder="Enter national ID"
-                                        data-rw-placeholder="Injira nimero y'indangamuntu">
+                                        name="national_id" id="id_national_id" value="{{ request.POST.national_id }}" maxlength="16"
+                                        placeholder="Enter 16-digit national ID" data-en-placeholder="Enter 16-digit national ID"
+                                        data-rw-placeholder="Injira nimero y'indangamuntu y'imibare 16" required>
+                                    <div id="national_id_js_error" class="text-danger small mt-1" style="display: none;">
+                                        National ID must be exactly 16 digits.
+                                    </div>
                                     {% if form.national_id.errors %}
                                     <div class="text-danger small mt-1">
                                         {% for error in form.national_id.errors %}{{ error }}{% endfor %}
@@ -458,6 +476,27 @@
             $("#id_sector").change(function () {
                 const sectorId = $(this).val();
                 if (sectorId) loadOptions('sector', sectorId, 'id_village', null);
+            });
+
+            // National ID Real-time Validation
+            $('#id_national_id').on('input', function() {
+                const val = $(this).val();
+                const errorDiv = $('#national_id_js_error');
+                
+                // Allow only numbers
+                $(this).val(val.replace(/[^0-9]/g, ''));
+                
+                const currentVal = $(this).val();
+                if (currentVal.length > 0 && currentVal.length < 16) {
+                    $(this).addClass('is-invalid');
+                    errorDiv.text('National ID must be exactly 16 digits (currently ' + currentVal.length + ')').show();
+                } else if (currentVal.length === 16) {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                    errorDiv.hide();
+                } else {
+                    $(this).removeClass('is-invalid is-valid');
+                    errorDiv.hide();
+                }
             });
         });
 

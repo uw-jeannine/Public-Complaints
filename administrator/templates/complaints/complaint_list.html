@@ -83,6 +83,7 @@
                     </option>
                     <option value="resolved" {% if current_status == 'resolved' %}selected{% endif %}>Resolved</option>
                     <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    <option value="closed" {% if current_status == 'closed' %}selected{% endif %}>Closed</option>
                 </select>
                 <button type="submit" class="btn btn-sm btn-primary px-3" data-en="Filter"
                     data-rw="Shungura">Filter</button>
@@ -98,6 +99,7 @@
                             <th scope="col" data-en="Complainant" data-rw="Uwatunze ikibazo">Complainant</th>
                             <th scope="col" data-en="Category" data-rw="Icyiciro">Category</th>
                             <th scope="col" data-en="Date" data-rw="Itariki">Date</th>
+                            <th scope="col" data-en="Deadline" data-rw="Igihe ntarengwa">Deadline</th>
                             <th scope="col" data-en="Status" data-rw="Imiterere">Status</th>
                             <th scope="col" data-en="Priority" data-rw="Icyihutirwa">Priority</th>
                             <th scope="col" class="text-end" data-en="Actions" data-rw="Ibikorwa">Actions</th>
@@ -114,7 +116,27 @@
                                 </div>
                             </td>
                             <td>{{ c.category.name }}</td>
-                            <td>{{ c.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-medium">
+                                        {% if c.is_new %}
+                                        <span class="badge bg-danger blink-animation py-1 px-2 me-1" style="font-size: 9px;">NEW</span>
+                                        {% endif %}
+                                        {{ c.created_at|date:"M d, Y" }}
+                                    </span>
+                                    <small class="text-muted" style="font-size: 11px;">{{ c.created_at|date:"H:i" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="{% if c.is_overdue %}text-danger fw-bold{% else %}text-muted{% endif %}" style="font-size: 13px;">
+                                        {{ c.deadline|date:"M d, Y" }}
+                                    </span>
+                                    {% if c.is_overdue %}
+                                        <span class="badge bg-danger-subtle text-danger p-1 mt-1" style="font-size: 10px; width: fit-content;">OVERDUE</span>
+                                    {% endif %}
+                                </div>
+                            </td>
                             <td>
                                 {% if c.status == 'pending' %}
                                 <span class="badge bg-warning-subtle text-warning px-3 py-2">Pending</span>
@@ -123,8 +145,17 @@
                                 {% elif c.status == 'resolved' %}
                                 <span class="badge bg-success-subtle text-success px-3 py-2">Resolved</span>
                                 {% else %}
-                                <span class="badge bg-danger-subtle text-danger px-3 py-2">Rejected</span>
+                                <span class="badge bg-danger-subtle text-danger" data-en="Rejected" data-rw="Zanzwe">Rejected</span>
                                 {% endif %}
+                                
+                                {% if c.referral_level != 'none' %}
+                                <div class="mt-1">
+                                    <span class="badge bg-info-subtle text-info small" style="font-size: 10px;">
+                                        <i class="ri-arrow-right-up-line"></i> {{ c.get_referral_level_display }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if c.risk_score > 0.7 %}
                                 <span class="text-danger fw-bold"><i class="ri-fire-fill"></i> High ({{c.risk_percentage }}%)</span>
@@ -144,7 +175,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <p class="text-muted mb-0" data-en="No complaints found matching your criteria."
                                     data-rw="Nta bibazo byabonetse bihwanye n'ibyo washatse.">No complaints found
                                     matching your criteria.</p>
