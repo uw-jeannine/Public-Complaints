@@ -76,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <div class="mb-20">
                         <label class="label fs-16 mb-2" data-en="Phone Number" data-rw="Telefoni">Phone Number</label>
                         <div class="form-floating">
@@ -85,7 +85,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-4">
+                    <div class="mb-20">
+                        <label class="label fs-16 mb-2" data-en="National ID" data-rw="Indangamuntu">National ID</label>
+                        <div class="form-floating">
+                            {{ form.national_id }}
+                            <label for="floatingInputID" data-en="National ID (16 digits)" data-rw="Indangamuntu (imibare 16)">National ID (16 digits)</label>
+                        </div>
+                        <div id="national_id_js_error" class="text-danger small mt-1" style="display: none;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
                     <div class="mb-20">
                         <label class="label fs-16 mb-2" data-en="Gender" data-rw="Igitsina">Gender</label>
                         <div class="form-floating">
@@ -331,6 +341,27 @@
                 loadOptions('sector', id, 'village', 'Select Village', null, null);
             } else {
                 disableSelect('village', 'Select Village');
+            }
+        });
+
+        // National ID Real-time Validation
+        $('#floatingInputID').on('input', function() {
+            const val = $(this).val();
+            const errorDiv = $('#national_id_js_error');
+            
+            // Allow only numbers
+            $(this).val(val.replace(/[^0-9]/g, ''));
+            
+            const currentVal = $(this).val();
+            if (currentVal.length > 0 && currentVal.length < 16) {
+                $(this).addClass('is-invalid');
+                errorDiv.text('National ID must be exactly 16 digits (currently ' + currentVal.length + ')').show();
+            } else if (currentVal.length === 16) {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+                errorDiv.hide();
+            } else {
+                $(this).removeClass('is-invalid is-valid');
+                errorDiv.hide();
             }
         });
 

@@ -65,7 +65,14 @@
             <li class="menu-item">
                 <a class="menu-link" href="{% url 'admin_complaints_list' %}">
                     <span class="material-symbols-outlined menu-icon">ballot</span>
-                    <span class="title" data-en="Complaints" data-rw="Ibibazo">Complaints</span>
+                    <span class="title" data-en="Complaints" data-rw="Ibibazo">
+                        Complaints
+                        {% if new_complaints_count > 0 %}
+                            <span class="badge bg-danger blink-animation rounded-pill ms-auto px-1" style="font-size: 10px;">NEW</span>
+                        {% elif pending_complaints_count > 0 %}
+                            <span class="badge bg-primary rounded-pill ms-auto px-2" style="font-size: 10px;">{{ pending_complaints_count }}</span>
+                        {% endif %}
+                    </span>
                 </a>
             </li>
             <li class="menu-item">
@@ -109,7 +116,12 @@
             <li class="menu-item">
                 <a class="menu-link" href="{% url 'office_dashboard' %}">
                     <span class="material-symbols-outlined menu-icon">assignment</span>
-                    <span class="title" data-en="Assigned Cases" data-rw="Ibibazo Byanjye">Assigned Cases</span>
+                    <span class="title" data-en="Assigned Cases" data-rw="Ibibazo Byanjye">
+                        Assigned Cases
+                        {% if my_pending_cases_count > 0 %}
+                            <span class="badge bg-warning rounded-pill ms-auto px-2" style="font-size: 10px; color: #000;">{{ my_pending_cases_count }}</span>
+                        {% endif %}
+                    </span>
                 </a>
             </li>
             {% elif user.is_citizen %}
