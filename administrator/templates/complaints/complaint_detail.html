@@ -44,6 +44,53 @@
     </div>
     {% endif %}
 
+    {% if pending_transfer %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-warning bg-warning bg-opacity-10 rounded-10 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="ri-git-pull-request-line fs-24 text-warning me-2"></i>
+                        <h5 class="mb-0 fw-bold text-dark">Pending Transfer / Referral Approval Request</h5>
+                    </div>
+                    <p class="mb-3 text-dark">
+                        <strong>Requested by:</strong> {{ pending_transfer.requested_by.full_name|default:pending_transfer.requested_by.username }} 
+                        | <strong>Target Level:</strong> {{ pending_transfer.get_target_referral_level_display }} 
+                        {% if pending_transfer.target_office %}
+                        | <strong>Target Office:</strong> {{ pending_transfer.target_office.name }}
+                        {% endif %}
+                        {% if pending_transfer.notes %}
+                        <br><strong>Transfer Notes:</strong> <em>"{{ pending_transfer.notes }}"</em>
+                        {% endif %}
+                    </p>
+                    <div class="d-flex align-items-end gap-3 flex-wrap">
+                        <form method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve_transfer">
+                            <input type="hidden" name="transfer_id" value="{{ pending_transfer.pk }}">
+                            <button type="submit" class="btn btn-success px-4" onclick="return confirm('Are you sure you want to approve this transfer?')">
+                                <i class="ri-check-line me-1"></i> Approve Request
+                            </button>
+                        </form>
+                        
+                        <form method="POST" class="d-inline flex-grow-1" style="max-width: 450px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject_transfer">
+                            <input type="hidden" name="transfer_id" value="{{ pending_transfer.pk }}">
+                            <div class="input-group">
+                                <input type="text" name="rejection_reason" class="form-control" placeholder="Optional reason for rejection..." aria-label="Rejection reason">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this transfer?')">
+                                    <i class="ri-close-line me-1"></i> Reject
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <!-- Details Column -->
         <div class="col-lg-8">
