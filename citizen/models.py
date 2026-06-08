@@ -2,6 +2,13 @@ from django.db import models
 from django.conf import settings
 import uuid
 
+REFERRAL_LEVEL_CHOICES = (
+    ('none', 'None (Local Level)'),
+    ('district', 'District Level'),
+    ('ombudsman', 'Ombudsman'),
+    ('court', 'Court / Judicial'),
+)
+
 class Complaint(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -70,6 +77,9 @@ class Complaint(models.Model):
     # Office assignment
     assigned_office = models.ForeignKey('administrator.Office', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_complaints_dept', help_text="The department/office handling this case.")
 
+    # Referral/Escalation
+    referral_level = models.CharField(max_length=20, choices=REFERRAL_LEVEL_CHOICES, default='none')
+
     def save(self, *args, **kwargs):
         if not self.tracking_number:
             # Generate a unique tracking number: LC-YYYY-Random
@@ -118,6 +128,33 @@ class ComplaintAssignment(models.Model):
 
     class Meta:
         ordering = ['-assigned_at']
+
+
+class ComplaintTransferRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='transfer_requests')
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='requested_transfers')
+    
+    target_office = models.ForeignKey('administrator.Office', on_delete=models.SET_NULL, null=True, blank=True)
+    target_referral_level = models.CharField(max_length=20, choices=REFERRAL_LEVEL_CHOICES, default='none')
+    
+    notes = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    actioned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='actioned_transfers')
+    actioned_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Transfer request for {self.complaint.tracking_number} to {self.target_office.name if self.target_office else self.target_referral_level}"
+
+    class Meta:
+        ordering = ['-created_at']
 
 
 class Notification(models.Model):
