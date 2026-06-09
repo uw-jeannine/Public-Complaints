@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from citizen.models import Complaint, ComplaintReport, ComplaintAssignment
+from citizen.models import Complaint, ComplaintReport, ComplaintAssignment, REFERRAL_LEVEL_CHOICES, ComplaintTransferRequest
+from administrator.models import Office
 from django.utils import timezone
 
 def office_required(view_func):
@@ -86,8 +87,39 @@ def office_complaint_detail(request, pk):
             else:
                 messages.error(request, "Please provide both status and resolution details.")
                 
+        elif action == 'transfer_case':
+            if complaint.transfer_requests.filter(status='pending').exists():
+                messages.error(request, "A transfer request is already pending approval.")
+                return redirect('office_complaint_detail', pk=pk)
+
+            referral_level = request.POST.get('referral_level')
+            target_office_id = request.POST.get('office_id')
+            notes = request.POST.get('notes', '')
+            
+            target_office = None
+            if target_office_id:
+                target_office = get_object_or_404(Office, pk=target_office_id)
+                
+            ComplaintTransferRequest.objects.create(
+                complaint=complaint,
+                requested_by=request.user,
+                target_office=target_office,
+                target_referral_level=referral_level or 'none',
+                notes=notes,
+                status='pending'
+            )
+            
+            messages.success(request, "Transfer request submitted successfully. Awaiting administrator approval.")
+            return redirect('office_complaint_detail', pk=pk)
+                
     reports = complaint.reports.filter(office=office)
+    offices = Office.objects.filter(is_active=True).exclude(pk=office.pk)
+    pending_transfer = complaint.transfer_requests.filter(status='pending').first()
+    
     return render(request, 'offices/complaint_detail.html', {
         'complaint': complaint,
-        'reports': reports
+        'reports': reports,
+        'offices': offices,
+        'referral_levels': REFERRAL_LEVEL_CHOICES,
+        'pending_transfer': pending_transfer,
     })

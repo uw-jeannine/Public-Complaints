@@ -3,10 +3,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from datetime import timedelta
 from django.contrib import messages
 from accounts.decorators import administrator_required
 from .models import Office, ComplaintCategory
-from citizen.models import Complaint
+from citizen.models import Complaint, ComplaintTransferRequest
 from .utils import send_intouch_sms
 from utils.send_email import send_welcome_email, send_assignment_email, send_complainant_assignment_notification, send_status_update_email, send_password_reset_email
 
@@ -34,6 +35,15 @@ def admin_dashboard(request):
     # Recent complaints for the table
     recent_complaints = Complaint.objects.select_related('category', 'citizen').order_by('-created_at')[:10]
     
+    three_days_ago = timezone.now() - timedelta(days=3)
+    for c in recent_complaints:
+        c.is_new = c.created_at >= three_days_ago
+        c.deadline = c.created_at + timedelta(days=3)
+        c.is_overdue = timezone.now() > c.deadline and c.status not in ['resolved', 'rejected']
+        
+    # Pending transfer requests
+    pending_transfers = ComplaintTransferRequest.objects.filter(status='pending').select_related('complaint', 'requested_by', 'target_office')
+    
     # Data for charts    # Complaints by Category (Donut Chart)
     categories = ComplaintCategory.objects.annotate(complaint_count=models.Count('complaints'))
     category_data = [
@@ -43,7 +53,6 @@ def admin_dashboard(request):
 
     # Trends for the last 7 days (Small sparkline charts)
     from django.db.models.functions import TruncDate
-    from datetime import timedelta
     seven_days_ago = timezone.now().date() - timedelta(days=6)
     daily_stats = Complaint.objects.filter(
         created_at__date__gte=seven_days_ago
@@ -69,6 +78,7 @@ def admin_dashboard(request):
         'recent_complaints': recent_complaints,
         'category_data': category_data,
         'complaint_trend': complaint_trend,
+        'pending_transfers': pending_transfers,
     })
 
 
@@ -453,12 +463,15 @@ def category_delete(request, pk):
 def admin_complaints_list(request):
     from django.core.paginator import Paginator
     q = request.GET.get('q', '').strip()
-    status_filter = request.GET.get('status', '')
+    status_filter = request.GET.get('status', 'pending')
 
     complaints_qs = Complaint.objects.select_related('category', 'citizen').order_by('-created_at')
 
     if status_filter:
-        complaints_qs = complaints_qs.filter(status=status_filter)
+        if status_filter == 'closed':
+            complaints_qs = complaints_qs.filter(status__in=['resolved', 'rejected'])
+        else:
+            complaints_qs = complaints_qs.filter(status=status_filter)
 
     if q:
         complaints_qs = complaints_qs.filter(
@@ -480,6 +493,12 @@ def admin_complaints_list(request):
         except:
             c.risk_score = 0.0
             c.risk_percentage = 0
+
+    three_days_ago = timezone.now() - timedelta(days=3)
+    for c in complaints:
+        c.is_new = c.created_at >= three_days_ago
+        c.deadline = c.created_at + timedelta(days=3)
+        c.is_overdue = timezone.now() > c.deadline and c.status not in ['resolved', 'rejected']
 
     stats = {
         'total': Complaint.objects.count(),
@@ -516,15 +535,23 @@ def admin_complaint_detail(request, pk):
         
         if action == 'update_status':
             new_status = request.POST.get('status')
+            referral_level = request.POST.get('referral_level')
+            
             if new_status in dict(Complaint.STATUS_CHOICES):
                 complaint.status = new_status
-                complaint.save()
+            
+            if referral_level:
+                from citizen.models import REFERRAL_LEVEL_CHOICES
+                if referral_level in dict(REFERRAL_LEVEL_CHOICES):
+                    complaint.referral_level = referral_level
+            
+            complaint.save()
+            
+            # Send Email to complainant if email exists
+            if complaint.email:
+                send_status_update_email(complaint)
                 
-                # Send Email to complainant if email exists
-                if complaint.email:
-                    send_status_update_email(complaint)
-                    
-                messages.success(request, f"Status for tracking number {complaint.tracking_number} updated to {complaint.get_status_display()}.")
+            messages.success(request, f"Status for tracking number {complaint.tracking_number} updated to {complaint.get_status_display()}.")
 
         elif action == 'unified_assign':
             office_id = request.POST.get('office_id')
@@ -574,19 +601,74 @@ def admin_complaint_detail(request, pk):
                 
             messages.success(request, "Assignment updated successfully.")
 
+        elif action == 'approve_transfer':
+            transfer_id = request.POST.get('transfer_id')
+            transfer_req = get_object_or_404(ComplaintTransferRequest, pk=transfer_id, complaint=complaint, status='pending')
+            
+            # Apply changes to complaint
+            if transfer_req.target_referral_level:
+                complaint.referral_level = transfer_req.target_referral_level
+                
+            if transfer_req.target_office:
+                old_office_name = complaint.assigned_office.name if complaint.assigned_office else "None"
+                complaint.assigned_office = transfer_req.target_office
+                complaint.assigned_to = None
+                complaint.assigned_at = None
+                
+                # Log assignment history
+                ComplaintAssignment.objects.create(
+                    complaint=complaint,
+                    office=transfer_req.target_office,
+                    assigned_by=request.user,
+                    notes=f"Approved transfer from {old_office_name} office. Notes: {transfer_req.notes}"
+                )
+            else:
+                # If only referral level changed
+                ComplaintAssignment.objects.create(
+                    complaint=complaint,
+                    office=complaint.assigned_office,
+                    assigned_by=request.user,
+                    notes=f"Approved referral level to {transfer_req.get_target_referral_level_display()}. Notes: {transfer_req.notes}"
+                )
+            
+            complaint.save()
+            
+            # Mark transfer request as approved
+            transfer_req.status = 'approved'
+            transfer_req.actioned_by = request.user
+            transfer_req.actioned_at = timezone.now()
+            transfer_req.save()
+            
+            messages.success(request, "Transfer request approved successfully.")
+            
+        elif action == 'reject_transfer':
+            transfer_id = request.POST.get('transfer_id')
+            rejection_reason = request.POST.get('rejection_reason', '')
+            transfer_req = get_object_or_404(ComplaintTransferRequest, pk=transfer_id, complaint=complaint, status='pending')
+            
+            transfer_req.status = 'rejected'
+            transfer_req.actioned_by = request.user
+            transfer_req.actioned_at = timezone.now()
+            transfer_req.rejection_reason = rejection_reason
+            transfer_req.save()
+            
+            messages.success(request, "Transfer request rejected.")
+
         return redirect('admin_complaint_detail', pk=pk)
     
     offices = Office.objects.filter(is_active=True)
     staff_users = User.objects.filter(user_type__in=['administrator', 'office'], is_active=True)
     assignments = complaint.assignment_history.all()
     reports = complaint.reports.all()
+    pending_transfer = complaint.transfer_requests.filter(status='pending').first()
     
     return render(request, 'complaints/complaint_detail.html', {
         'complaint': complaint,
         'offices': offices,
         'staff_users': staff_users,
         'assignments': assignments,
-        'reports': reports
+        'reports': reports,
+        'pending_transfer': pending_transfer,
     })
 
 @login_required
@@ -623,8 +705,6 @@ def admin_reports(request):
     ).order_by('-total')
 
     # 3. Trend Data (Last 30 days)
-    from django.utils import timezone
-    from datetime import timedelta
     from django.db.models.functions import TruncDate
     
     thirty_days_ago = timezone.now().date() - timedelta(days=29)

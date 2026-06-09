@@ -5,7 +5,8 @@ from .models import User, Province, District, Sector, Village
 class UserSignUpForm(UserCreationForm):
     full_name = forms.CharField(max_length=255, required=True)
     phone_number = forms.CharField(max_length=15, required=True)
-    national_id = forms.CharField(max_length=20, required=False)
+    national_id = forms.CharField(max_length=16, required=True)
+    gender = forms.ChoiceField(choices=User.GENDER_CHOICES, required=True)
     email = forms.EmailField(required=False)
     
     # We'll use simple CharFields or ModelChoiceFields for location depending on how we handle JS
@@ -17,11 +18,19 @@ class UserSignUpForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('full_name', 'phone_number', 'national_id', 'email', 'province', 'district', 'sector', 'village')
+        fields = UserCreationForm.Meta.fields + ('full_name', 'gender', 'phone_number', 'national_id', 'email', 'province', 'district', 'sector', 'village')
+
+    def clean_national_id(self):
+        national_id = self.cleaned_data.get('national_id')
+        if national_id:
+            if not national_id.isdigit() or len(national_id) != 16:
+                raise forms.ValidationError("National ID must be exactly 16 digits.")
+        return national_id
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.full_name = self.cleaned_data['full_name']
+        user.gender = self.cleaned_data['gender']
         user.phone_number = self.cleaned_data['phone_number']
         user.national_id = self.cleaned_data['national_id']
         user.email = self.cleaned_data['email']
@@ -81,14 +90,22 @@ class UserProfileUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['full_name', 'phone_number', 'email', 'gender', 'profile_picture', 'province', 'district', 'sector', 'village']
+        fields = ['full_name', 'gender', 'phone_number', 'national_id', 'email', 'profile_picture', 'province', 'district', 'sector', 'village']
         widgets = {
             'full_name': forms.TextInput(attrs={'class': 'form-control', 'id': 'floatingInput1'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'id': 'floatingInput4'}),
+            'national_id': forms.TextInput(attrs={'class': 'form-control', 'id': 'floatingInputID', 'maxlength': '16'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'id': 'floatingInput3'}),
             'gender': forms.Select(attrs={'class': 'form-select form-control', 'id': 'floatingSelect8', 'aria-label': 'Select Gender'}),
             'profile_picture': forms.FileInput(attrs={'class': 'form__file bottom-0', 'id': 'upload-files'}),
         }
+
+    def clean_national_id(self):
+        national_id = self.cleaned_data.get('national_id')
+        if national_id:
+            if not national_id.isdigit() or len(national_id) != 16:
+                raise forms.ValidationError("National ID must be exactly 16 digits.")
+        return national_id
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
