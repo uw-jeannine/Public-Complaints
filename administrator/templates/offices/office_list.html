@@ -139,7 +139,7 @@
                     <ul class="pagination mb-0 justify-content-center">
                         <li class="page-item {% if not offices.has_previous %}disabled{% endif %}">
                             <a class="page-link icon"
-                                href="?page={{ offices.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                href="?page={% if offices.has_previous %}{{ offices.previous_page_number }}{% else %}1{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
                                 <i class="material-symbols-outlined">west</i>
                             </a>
                         </li>
@@ -153,7 +153,7 @@
                         {% endfor %}
                         <li class="page-item {% if not offices.has_next %}disabled{% endif %}">
                             <a class="page-link icon"
-                                href="?page={{ offices.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                href="?page={% if offices.has_next %}{{ offices.next_page_number }}{% else %}{{ offices.paginator.num_pages }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
                                 <i class="material-symbols-outlined">east</i>
                             </a>
                         </li>

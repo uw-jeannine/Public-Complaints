@@ -43,7 +43,7 @@
             </form>
             <a href="{% url 'category_create' %}" class="text-decoration-none fs-16 text-primary fw-medium">
                 <i class="ri-add-line"></i>
-                <span data-en="+ Add New Category" data-rw="+ Ongeraho Icyiciro">+ Add New Category</span>
+                <span data-en="+ Add New Category" data-rw="+ Ongeraho Icyiciro"> Add New Category</span>
             </a>
         </div>
 
@@ -127,7 +127,7 @@
                     <ul class="pagination mb-0 justify-content-center">
                         <li class="page-item {% if not categories.has_previous %}disabled{% endif %}">
                             <a class="page-link icon"
-                                href="?page={{ categories.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                href="?page={% if categories.has_previous %}{{ categories.previous_page_number }}{% else %}1{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
                                 <i class="material-symbols-outlined">west</i>
                             </a>
                         </li>
@@ -141,7 +141,7 @@
                         {% endfor %}
                         <li class="page-item {% if not categories.has_next %}disabled{% endif %}">
                             <a class="page-link icon"
-                                href="?page={{ categories.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                                href="?page={% if categories.has_next %}{{ categories.next_page_number }}{% else %}{{ categories.paginator.num_pages }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
                                 <i class="material-symbols-outlined">east</i>
                             </a>
                         </li>
