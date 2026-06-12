@@ -112,7 +112,7 @@ def office_complaint_detail(request, pk):
             messages.success(request, "Transfer request submitted successfully. Awaiting administrator approval.")
             return redirect('office_complaint_detail', pk=pk)
                 
-    reports = complaint.reports.filter(office=office)
+    reports = complaint.reports.all().order_by('-created_at')
     offices = Office.objects.filter(is_active=True).exclude(pk=office.pk)
     pending_transfer = complaint.transfer_requests.filter(status='pending').first()
     
