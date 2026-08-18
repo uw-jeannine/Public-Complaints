@@ -201,8 +201,8 @@
             <!-- Existing Reports -->
             <div class="card bg-white border-0 shadow-sm rounded-10">
                 <div class="card-header bg-transparent border-bottom p-3">
-                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Your Office Activity"
-                        data-rw="Ibikorwa by'Ibiro">Your Office Activity</h4>
+                    <h4 class="mb-0 fs-18 fw-bold text-primary" data-en="Case History & Reports"
+                        data-rw="Amateka y'Ikibazo & Raporo">Case History & Reports</h4>
                 </div>
                 <div class="card-body p-3">
                     {% if reports %}
@@ -210,7 +210,7 @@
                         {% for report in reports %}
                         <div class="list-group-item px-0 py-3">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="mb-0 fw-bold">Reported by {{ report.author.full_name }}</h6>
+                                <h6 class="mb-0 fw-bold">Reported by {{ report.author.full_name }} {% if report.office %}({{ report.office.name }}){% endif %}</h6>
                                 <small class="text-muted">{{ report.created_at|date:"M d, Y H:i" }}</small>
                             </div>
                             <p class="mb-2 text-dark">{{ report.action_taken }}</p>
@@ -224,7 +224,7 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <p class="text-center text-muted py-4 mb-0">No reports submitted by your office yet.</p>
+                    <p class="text-center text-muted py-4 mb-0">No reports or activity recorded for this case yet.</p>
                     {% endif %}
                 </div>
             </div>

@@ -234,8 +234,9 @@
                             <label class="form-label" data-en="Gender *" data-rw="Igitsina *">Gender *</label>
                             <select name="gender" class="form-select" required>
                                 <option value="" disabled selected>Select Gender</option>
-                                    <option value="male" {% if user.gede == 'male' %}selected{% endif %}>Male</option>
-                                    <option value="female" {% if user.gede == 'female' %}selected{% endif %}>Female
+                                    <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Female
+                                    <option value="female" {% if user.gender == 'other' %}selected{% endif %}>Other
                                 </option>
                             </select>
                         </div>
