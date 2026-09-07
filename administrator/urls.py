@@ -23,4 +23,5 @@ urlpatterns = [
     path('administrator/complaints/', views.admin_complaints_list, name='admin_complaints_list'),
     path('administrator/complaints/<int:pk>/', views.admin_complaint_detail, name='admin_complaint_detail'),
     path('administrator/reports/', views.admin_reports, name='admin_reports'),
+    path('administrator/reports/pdf/', views.export_reports_pdf, name='export_reports_pdf'),
 ]

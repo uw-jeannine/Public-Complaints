@@ -57,51 +57,88 @@
         new RdataTB('category_table', { ShowSearch: false, ShowSelect: false, PageSize: 5 });
     });
 
-    function downloadPDF(selector = ".main-content-container", fileName = 'System_Reports') {
+    function downloadPDF(selector = ".main-content-container", fileName = 'System_Reports', orientation = 'landscape') {
         const element = document.querySelector(selector);
-        const isMain = selector === ".main-content-container";
+        if (!element) return;
+
+        // Show feedback spinner if Swal is available
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Preparing landscape report layout...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+        }
+
+        // Toggle CSS class on body during capture to hide interactive buttons & show PDF banner
+        document.body.classList.add('is-exporting-pdf');
 
         const opt = {
-            margin: 0.5,
-            filename: `${fileName}_{{ now|date:"Y-m-d" }}.pdf`,
+            margin: [0.3, 0.4, 0.4, 0.4],
+            filename: `${fileName}_${new Date().toISOString().slice(0, 10)}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: true },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            },
             jsPDF: {
                 unit: 'in',
                 format: 'a4',
-                orientation: isMain ? 'landscape' : 'portrait'
-            }
+                orientation: orientation,
+                compress: true
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
-        // Hide buttons and controls during export
-        const buttons = document.querySelectorAll('.btn-export-hide, .btn-individual-export');
-        const pagination = document.querySelectorAll('.pagination');
-
-        buttons.forEach(btn => btn.style.visibility = 'hidden');
-        pagination.forEach(p => p.style.visibility = 'hidden');
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            // Restore visibility
-            buttons.forEach(btn => btn.style.visibility = 'visible');
-            pagination.forEach(p => p.style.visibility = 'visible');
-        });
+        // Delay 200ms to ensure DOM styles apply cleanly before canvas capture
+        setTimeout(() => {
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.body.classList.remove('is-exporting-pdf');
+                if (typeof Swal !== 'undefined') Swal.close();
+            }).catch(err => {
+                console.error('PDF export failed:', err);
+                document.body.classList.remove('is-exporting-pdf');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Export Failed', 'Could not generate PDF. Please try again.', 'error');
+                }
+            });
+        }, 200);
     }
 </script>
-
-
 {% endblock %}
 
 {% block content %}
 <div class="main-content-container overflow-hidden">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-        <h3 class="mb-0" data-en="System Intelligence & Reports" data-rw="Raporo za Sisitemu">System Intelligence &
-            Reports</h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Reports</li>
-            </ol>
-        </nav>
+    <!-- Printable / PDF Export Executive Header Banner -->
+    <div class="pdf-only-header d-none mb-4 pb-3 border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fs-20 fw-bold text-dark mb-1 text-uppercase">Public Complaint System</h2>
+                <p class="fs-13 text-muted mb-0 fw-semibold">Official System Intelligence & Analytics Report</p>
+            </div>
+            <div class="text-end fs-11 text-muted">
+                <div><strong>Date Generated:</strong> {% now "M d, Y H:i" %}</div>
+                <div><strong>Report Ref:</strong> REP-{% now "Ymd" %}</div>
+                <span class="badge bg-primary bg-opacity-10 text-primary mt-1">CONFIDENTIAL</span>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h3 class="mb-1 fw-bold" data-en="System Intelligence & Reports" data-rw="Raporo za Sisitemu">System Intelligence & Reports</h3>
+            <p class="text-muted mb-0 fs-13" data-en="Export and view system-wide analytics, complaints data and performance metrics" data-rw="Gukura no kureba ibipimo n'raporo byose bya sisitemu">Export and view system-wide analytics, complaints data and performance metrics</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 btn-export-hide">
+            <a href="{% url 'export_reports_pdf' %}" target="_blank" class="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm px-3 py-2">
+                <i class="ri-file-pdf-2-line fs-18"></i> <span class="fw-semibold" data-en="Export Official PDF (Landscape)" data-rw="Gukura Raporo (PDF Landscape)">Export Official PDF (Landscape)</span>
+            </a>
+            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 shadow-sm px-3 py-2" onclick="window.print()">
+                <i class="ri-printer-line fs-18"></i> <span class="fw-semibold" data-en="Print Full Report" data-rw="Gucapa Raporo Yose">Print Full Report</span>
+            </button>
+        </div>
     </div>
 
     <div class="row mb-4">
@@ -177,7 +214,7 @@
                     <h3 class="fs-16 mb-0" data-en="Complaint Trend" data-rw="Ibicuruzwa mu minsi 30 ishize">Complaint
                         Trend</h3>
                     <button class="btn btn-link btn-individual-export p-0 text-muted"
-                        onclick="downloadPDF('#card-trend', 'Complaint_Trend')" title="Download as PDF">
+                        onclick="downloadPDF('#card-trend', 'Complaint_Trend', 'landscape')" title="Download as PDF">
                         <i class="ri-download-2-line fs-18"></i>
                     </button>
                 </div>
@@ -190,7 +227,7 @@
                     <h3 class="fs-16 mb-0" data-en="By Province" data-rw="Intara zifite ibibazo byinshi">By Province
                     </h3>
                     <button class="btn btn-link btn-individual-export p-0 text-muted"
-                        onclick="downloadPDF('#card-province-chart', 'Complaints_By_Province_Chart')"
+                        onclick="downloadPDF('#card-province-chart', 'Complaints_By_Province_Chart', 'landscape')"
                         title="Download as PDF">
                         <i class="ri-download-2-line fs-18"></i>
                     </button>
@@ -203,7 +240,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-20">
                     <h3 class="fs-16 mb-0" data-en="By Category" data-rw="Ibyiciro by'ibibazo">By Category</h3>
                     <button class="btn btn-link btn-individual-export p-0 text-muted"
-                        onclick="downloadPDF('#card-category-chart', 'Complaints_By_Category_Chart')"
+                        onclick="downloadPDF('#card-category-chart', 'Complaints_By_Category_Chart', 'landscape')"
                         title="Download as PDF">
                         <i class="ri-download-2-line fs-18"></i>
                     </button>
@@ -222,12 +259,11 @@
                     <h3 data-en="Complaints by Province" data-rw="Raporo y'Intara" class="mb-0">Complaints by Province
                     </h3>
                     <div class="d-flex gap-2 btn-export-hide">
-                        <button class="btn btn-outline-primary btn-sm"
-                            onclick="downloadPDF('#card-province-table', 'Province_Complaints_Report')">
+                        <a href="{% url 'export_reports_pdf' %}" target="_blank" class="btn btn-outline-primary btn-sm">
                             <i class="ri-file-pdf-line"></i> Export to PDF
-                        </button>
+                        </a>
                         <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
-                            <i class="ri-printer-line"></i> Print Reprt
+                            <i class="ri-printer-line"></i> Print Report
                         </button>
                     </div>
                 </div>
@@ -268,7 +304,7 @@
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-20">
                     <h3 data-en="Top Districts" data-rw="Uturere Tugezweho" class="mb-0">Top Districts</h3>
                     <button class="btn btn-link btn-individual-export p-0 text-muted"
-                        onclick="downloadPDF('#card-district-table', 'District_Complaints_Report')"
+                        onclick="downloadPDF('#card-district-table', 'District_Complaints_Report', 'landscape')"
                         title="Download as PDF">
                         <i class="ri-download-2-line fs-18"></i>
                     </button>
@@ -348,7 +384,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-20">
                     <h3 class="mb-0" data-en="Top Complainants" data-rw="Abashyira Ibibazo Cyane">Top Complainants</h3>
                     <button class="btn btn-link btn-individual-export p-0 text-muted"
-                        onclick="downloadPDF('#card-citizens-table', 'Top_Complainants_Report')"
+                        onclick="downloadPDF('#card-citizens-table', 'Top_Complainants_Report', 'landscape')"
                         title="Download as PDF">
                         <i class="ri-download-2-line fs-18"></i>
                     </button>
@@ -396,7 +432,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-20">
                     <h3 class="mb-0" data-en="Category Stats" data-rw="Ibyiciro">Category Stats</h3>
                     <button class="btn btn-link btn-individual-export p-0 text-muted"
-                        onclick="downloadPDF('#card-category-stats', 'Category_Stats_Report')" title="Download as PDF">
+                        onclick="downloadPDF('#card-category-stats', 'Category_Stats_Report', 'landscape')" title="Download as PDF">
                         <i class="ri-download-2-line fs-18"></i>
                     </button>
                 </div>
@@ -448,23 +484,66 @@
         border-style: dashed !important;
     }
 
+    /* PDF Export Active Mode */
+    .is-exporting-pdf .btn-export-hide,
+    .is-exporting-pdf .btn-individual-export,
+    .is-exporting-pdf .pagination,
+    .is-exporting-pdf .breadcrumb {
+        display: none !important;
+    }
+
+    .is-exporting-pdf .pdf-only-header {
+        display: block !important;
+    }
+
     @media print {
+        @page {
+            size: landscape;
+            margin: 10mm;
+        }
+
+        body {
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
 
         .sidebar-area,
         .header-area,
         .breadcrumb,
-        .btn {
+        .btn,
+        .btn-export-hide,
+        .btn-individual-export,
+        .preloader {
             display: none !important;
+        }
+
+        .pdf-only-header {
+            display: block !important;
         }
 
         .main-content {
             margin-left: 0 !important;
             padding: 0 !important;
+            width: 100% !important;
+        }
+
+        .main-content-container {
+            padding: 0 !important;
+            overflow: visible !important;
         }
 
         .card {
-            border: none !important;
+            border: 1px solid #e2e8f0 !important;
             box-shadow: none !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            margin-bottom: 20px !important;
+        }
+
+        .table {
+            width: 100% !important;
         }
     }
 </style>

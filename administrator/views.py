@@ -761,3 +761,243 @@ def admin_reports(request):
         'province_chart_data': province_chart_data,
         'category_chart_data': category_chart_data,
     })
+
+
+@administrator_required
+def export_reports_pdf(request):
+    import io
+    from django.http import HttpResponse
+    from django.utils import timezone
+    from django.db.models import Count, Q
+    from django.contrib.auth import get_user_model
+    from accounts.models import Province, District
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import landscape, A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+
+    User = get_user_model()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        'DocTitle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=18,
+        leading=22,
+        textColor=colors.HexColor('#1e293b')
+    )
+    subtitle_style = ParagraphStyle(
+        'DocSubTitle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        leading=14,
+        textColor=colors.HexColor('#64748b')
+    )
+    section_heading = ParagraphStyle(
+        'SectionHeading',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=13,
+        leading=17,
+        textColor=colors.HexColor('#0f172a'),
+        spaceBefore=10,
+        spaceAfter=6
+    )
+    table_header = ParagraphStyle(
+        'TableHeader',
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        leading=11,
+        textColor=colors.HexColor('#ffffff'),
+        alignment=1
+    )
+    table_cell = ParagraphStyle(
+        'TableCell',
+        fontName='Helvetica',
+        fontSize=8.5,
+        leading=11,
+        textColor=colors.HexColor('#334155')
+    )
+    table_cell_center = ParagraphStyle(
+        'TableCellCenter',
+        parent=table_cell,
+        alignment=1
+    )
+
+    elements = []
+
+    # 1. Header Banner
+    now_str = timezone.now().strftime('%b %d, %Y %H:%M')
+    header_data = [
+        [
+            Paragraph("<b>PUBLIC COMPLAINT SYSTEM</b><br/><font size=9 color='#64748b'>Official System Intelligence & Analytics Executive Report</font>", title_style),
+            Paragraph(f"<b>Date:</b> {now_str}<br/><b>Ref:</b> REP-{timezone.now().strftime('%Y%m%d')}<br/><font color='#2563eb'><b>CONFIDENTIAL REPORT</b></font>", subtitle_style)
+        ]
+    ]
+    header_table = Table(header_data, colWidths=[7.0*inch, 3.5*inch])
+    header_table.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (1,0), (1,0), 'RIGHT'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+    ]))
+    elements.append(header_table)
+    elements.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#cbd5e1'), spaceAfter=15, spaceBefore=5))
+
+    # 2. Key Metrics Summary Cards
+    user_stats = {
+        'total_users': User.objects.count(),
+        'citizens': User.objects.filter(user_type='citizen').count(),
+        'officers': User.objects.filter(user_type='office').count(),
+        'admins': User.objects.filter(user_type='administrator').count(),
+    }
+
+    metrics_data = [
+        [
+            Paragraph("<b>Total System Users</b>", table_header),
+            Paragraph("<b>Citizens Registered</b>", table_header),
+            Paragraph("<b>Office Staff</b>", table_header),
+            Paragraph("<b>Administrators</b>", table_header),
+        ],
+        [
+            Paragraph(f"<font size=14><b>{user_stats['total_users']}</b></font>", table_cell_center),
+            Paragraph(f"<font size=14><b>{user_stats['citizens']}</b></font>", table_cell_center),
+            Paragraph(f"<font size=14><b>{user_stats['officers']}</b></font>", table_cell_center),
+            Paragraph(f"<font size=14><b>{user_stats['admins']}</b></font>", table_cell_center),
+        ]
+    ]
+    metrics_table = Table(metrics_data, colWidths=[2.6*inch, 2.6*inch, 2.6*inch, 2.6*inch])
+    metrics_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#2563eb')),
+        ('BACKGROUND', (0,1), (-1,1), colors.HexColor('#f8fafc')),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
+        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+    ]))
+    elements.append(metrics_table)
+    elements.append(Spacer(1, 15))
+
+    # 3. Complaints by Province Table
+    elements.append(Paragraph("Complaints Breakdown by Province", section_heading))
+    resilience_provinces = Province.objects.annotate(
+        total_complaints=Count('complainant_residences'),
+        pending=Count('complainant_residences', filter=Q(complainant_residences__status='pending')),
+        resolved=Count('complainant_residences', filter=Q(complainant_residences__status='resolved'))
+    ).order_by('-total_complaints')
+
+    prov_rows = [
+        [
+            Paragraph("<b>Province Name</b>", table_header),
+            Paragraph("<b>Total Complaints</b>", table_header),
+            Paragraph("<b>Pending Cases</b>", table_header),
+            Paragraph("<b>Resolved Cases</b>", table_header),
+            Paragraph("<b>Resolution Rate</b>", table_header),
+        ]
+    ]
+    for p in resilience_provinces:
+        rate = f"{round((p.resolved / p.total_complaints) * 100)}%" if p.total_complaints > 0 else "0%"
+        prov_rows.append([
+            Paragraph(p.name, table_cell),
+            Paragraph(str(p.total_complaints), table_cell_center),
+            Paragraph(f"<font color='#d97706'>{p.pending}</font>", table_cell_center),
+            Paragraph(f"<font color='#16a34a'>{p.resolved}</font>", table_cell_center),
+            Paragraph(f"<b>{rate}</b>", table_cell_center),
+        ])
+
+    prov_table = Table(prov_rows, colWidths=[3.2*inch, 1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch])
+    prov_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1e293b')),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor('#ffffff'), colors.HexColor('#f8fafc')]),
+    ]))
+    elements.append(prov_table)
+    elements.append(Spacer(1, 15))
+
+    # 4. Category Stats & Top Complainants Side-by-Side
+    elements.append(Paragraph("Complaint Categories & Top Complainants", section_heading))
+    category_stats = ComplaintCategory.objects.annotate(
+        total=Count('complaints'),
+        pending=Count('complaints', filter=Q(complaints__status='pending')),
+        resolved=Count('complaints', filter=Q(complaints__status='resolved'))
+    ).order_by('-total')[:10]
+
+    cat_rows = [
+        [Paragraph("<b>Category Name</b>", table_header), Paragraph("<b>Total</b>", table_header), Paragraph("<b>Resolved</b>", table_header)]
+    ]
+    for c in category_stats:
+        cat_rows.append([
+            Paragraph(c.name, table_cell),
+            Paragraph(str(c.total), table_cell_center),
+            Paragraph(str(c.resolved), table_cell_center),
+        ])
+    cat_table = Table(cat_rows, colWidths=[3.0*inch, 1.0*inch, 1.0*inch])
+    cat_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0f766e')),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor('#ffffff'), colors.HexColor('#f8fafc')]),
+    ]))
+
+    top_citizens = User.objects.filter(user_type='citizen').annotate(
+        complaint_count=Count('my_complaints')
+    ).order_by('-complaint_count')[:10]
+
+    cit_rows = [
+        [Paragraph("<b>Citizen Name / Contact</b>", table_header), Paragraph("<b>Complaints Submitted</b>", table_header)]
+    ]
+    for cit in top_citizens:
+        name = cit.full_name or cit.username
+        contact = f" ({cit.phone_number})" if cit.phone_number else ""
+        cit_rows.append([
+            Paragraph(f"{name}{contact}", table_cell),
+            Paragraph(str(cit.complaint_count), table_cell_center),
+        ])
+    cit_table = Table(cit_rows, colWidths=[3.5*inch, 1.5*inch])
+    cit_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#4338ca')),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor('#ffffff'), colors.HexColor('#f8fafc')]),
+    ]))
+
+    side_table = Table([[cat_table, Paragraph("", table_cell), cit_table]], colWidths=[5.0*inch, 0.4*inch, 5.0*inch])
+    side_table.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('LEFTPADDING', (0,0), (-1,-1), 0),
+        ('RIGHTPADDING', (0,0), (-1,-1), 0),
+    ]))
+    elements.append(side_table)
+
+    def add_footer(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.HexColor('#94a3b8'))
+        canvas.drawString(36, 20, "Republic of Rwanda • Public Complaints System • Official Executive Report")
+        canvas.drawRightString(A4[1] - 36, 20, f"Page {doc.page}")
+        canvas.restoreState()
+
+    doc.build(elements, onFirstPage=add_footer, onLaterPages=add_footer)
+
+    buffer.seek(0)
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="System_Reports_{timezone.now().strftime("%Y-%m-%d")}.pdf"'
+    return response
